@@ -216,15 +216,61 @@
 
             <!-- B. HALAMAN PENGIRIMAN (MITRA) -->
             <section id="page-pengiriman" class="page-section hidden-section">
-                <div class="max-w-xl mx-auto">
-                    <header class="mb-8 text-center">
-                        <h2 class="text-2xl font-bold text-slate-800">Input Handover</h2>
-                        <p class="text-slate-500 text-sm">Mitra Pengusaha menyerahkan paket ke Vendor.</p>
+                <div class="max-w-6xl mx-auto">
+                    <header class="mb-8 flex justify-between items-center">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800">Riwayat Handover</h2>
+                            <p class="text-slate-500 text-sm">Daftar paket yang Anda serahkan ke Vendor.</p>
+                        </div>
+                        <button onclick="openInputForm()" class="bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                            <i data-lucide="plus" class="w-5 h-5"></i> Input Baru
+                        </button>
                     </header>
 
-                    <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-lg border border-slate-100 space-y-6 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                    <!-- Table Mitra History -->
+                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                                    <tr>
+                                        <th class="p-5">Waktu Input</th>
+                                        <th class="p-5">No. Resi</th>
+                                        <th class="p-5">Tujuan (Kota)</th>
+                                        <th class="p-5">Kondisi</th>
+                                        <th class="p-5">Status Terkini</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-mitra-history" class="text-sm font-medium text-slate-600 divide-y divide-slate-50">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="empty-mitra" class="hidden-section p-12 text-center text-slate-400">
+                            <i data-lucide="clipboard-list" class="w-16 h-16 mx-auto mb-4 opacity-50 bg-slate-50 p-4 rounded-full"></i>
+                            <p class="text-sm font-medium">Belum ada riwayat pengiriman.</p>
+                            <p class="text-xs mt-1">Tekan tombol "Input Baru" untuk memulai.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
+            <!-- B.1 FORM INPUT POP-UP (MODAL) -->
+            <div id="input-form-modal" class="fixed inset-0 z-[100] hidden-section flex items-center justify-center p-4">
+                <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeInputForm()"></div>
+                
+                <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate-[scaleIn_0.3s_ease-out]">
+                    <!-- Header -->
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Input Handover</h3>
+                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Formulir Pengiriman</p>
+                        </div>
+                        <button onclick="closeInputForm()" class="p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <div class="p-6 md:p-8 space-y-6 max-h-[80vh] overflow-y-auto">
                         <!-- Scanner Box -->
                         <div class="space-y-3">
                             <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">1. Scan Barcode</label>
@@ -251,12 +297,12 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <button onclick="submitPackage()" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold text-lg shadow-xl hover:bg-slate-900 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4">
+                        <button onclick="submitPackage()" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold text-lg shadow-xl hover:bg-slate-900 active:scale-95 transition-all flex items-center justify-center gap-2">
                             <i data-lucide="send" class="w-5 h-5"></i> Submit Handover
                         </button>
                     </div>
                 </div>
-            </section>
+            </div>
 
             <!-- C. HALAMAN SERAH TERIMA (HUB) -->
             <section id="page-hub" class="page-section hidden-section">
@@ -553,6 +599,21 @@
 
         // --- 5. FEATURE: MITRA (INPUT) ---
 
+        // Toggle Modal Input
+        window.openInputForm = () => {
+            document.getElementById('input-form-modal').classList.remove('hidden-section');
+        };
+
+        window.closeInputForm = () => {
+            document.getElementById('input-form-modal').classList.add('hidden-section');
+            // Turn off scanner if active
+            if(activeScanner) {
+                activeScanner.stop().catch(e=>console.log(e));
+                activeScanner = null;
+                document.getElementById('scanner-mitra').classList.add('hidden-section');
+            }
+        };
+
         window.selectStatus = (btn, status) => {
             document.querySelectorAll('.status-btn').forEach(b => {
                 b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
@@ -603,6 +664,8 @@
                 });
                 notify("Paket Berhasil Disimpan", "success");
                 document.getElementById('input-resi').value = "";
+                // Close modal after success
+                closeInputForm();
             } catch (e) { notify("Gagal Menyimpan Data", "error"); }
         };
 
@@ -614,7 +677,10 @@
         };
 
         async function addHubQueue(resi) {
-            if(hubQueue.find(q => q.resi === resi)) return notify("Resi sudah di antrean", "error");
+            // 1. CEK DUPLIKAT DI ANTREAN (Requirement: Notifikasi Error AWB Duplicate)
+            if(hubQueue.find(q => q.resi === resi)) {
+                return notify("AWB Duplicate! Resi sudah ada di antrean.", "error");
+            }
             
             // Cek data di DB
             const snap = await getDoc(doc(db, "packages", resi));
@@ -628,7 +694,18 @@
                     notify(`Resi ${resi} masuk antrean`, "success");
                 }
             } else {
-                notify("Resi tidak terdaftar di sistem!", "error");
+                // 2. RESI TIDAK TERDAFTAR (Requirement: Tetap input tapi status asal unknown)
+                // Kita buat objek dummy untuk ditampilkan di tabel sementara
+                const unknownPackage = {
+                    resi: resi,
+                    city: "Asal Tidak Terdeteksi",
+                    sender_name: "Unknown",
+                    status: "Unregistered",
+                    posisi: "Unknown"
+                };
+                hubQueue.push(unknownPackage);
+                renderHubQueue();
+                notify(`Resi Asing ${resi} ditambahkan`, "default");
             }
         }
 
@@ -643,7 +720,8 @@
             list.innerHTML = hubQueue.map((item, i) => `
                 <tr class="group hover:bg-slate-50">
                     <td class="py-3 px-2 font-mono font-bold text-slate-700">${item.resi}</td>
-                    <td class="py-3 px-2 text-slate-500 text-xs">${item.city}</td>
+                    <!-- Menampilkan info asal kota, atau fallback jika tidak ada -->
+                    <td class="py-3 px-2 text-slate-500 text-xs italic">${item.city || 'Asal Tidak Terdeteksi'}</td>
                     <td class="py-3 px-2 text-right">
                         <button onclick="removeFromQueue(${i})" class="text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </td>
@@ -657,15 +735,27 @@
         window.processQueue = async () => {
             if(hubQueue.length === 0) return;
             try {
+                // Menggunakan setDoc dengan merge: true 
+                // Agar paket yang "Tidak Terdaftar" (dokumennya belum ada) otomatis dibuatkan baru
                 const promises = hubQueue.map(item => 
-                    updateDoc(doc(db, "packages", item.resi), {
-                        posisi: 'HUB', hub_receiver: currentUser.name, hub_date: serverTimestamp()
-                    })
+                    setDoc(doc(db, "packages", item.resi), {
+                        resi: item.resi, // Pastikan resi tersimpan untuk paket baru
+                        posisi: 'HUB', 
+                        hub_receiver: currentUser.name, 
+                        hub_date: serverTimestamp(),
+                        // Default value jika paket unregistered
+                        city: item.city || "Asal Tidak Terdeteksi",
+                        sender_name: item.sender_name || "Tanpa Data Mitra",
+                        status: item.status || "Ditemukan di HUB"
+                    }, { merge: true })
                 );
                 await Promise.all(promises);
                 hubQueue = []; renderHubQueue();
-                notify("Semua Paket Divalidasi!", "success");
-            } catch (e) { notify("Gagal Validasi", "error"); }
+                notify("Semua Paket Divalidasi & Disimpan!", "success");
+            } catch (e) { 
+                console.error(e);
+                notify("Gagal Validasi", "error"); 
+            }
         };
 
         // --- 7. FEATURE: DASHBOARD & ADMIN ---
@@ -674,12 +764,15 @@
             const q = query(collection(db, "packages"), orderBy("createdAt", "desc"));
             onSnapshot(q, (snap) => {
                 let html = "";
+                let mitraHtml = "";
                 let v = 0, h = 0;
+                let mitraCount = 0;
                 
                 snap.forEach(docSnap => {
                     const d = docSnap.data();
                     if(d.posisi === 'Vendor') v++; else h++;
                     
+                    // Main Dashboard Row
                     html += `
                         <tr class="hover:bg-slate-50 transition border-b border-slate-50 group">
                             <td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td>
@@ -694,15 +787,42 @@
                             </td>
                         </tr>
                     `;
+
+                    // Mitra History Row (Filter by Current User ID)
+                    if(currentUser && d.sender_id === currentUser.id) {
+                        mitraCount++;
+                        mitraHtml += `
+                             <tr class="hover:bg-slate-50 transition border-b border-slate-50">
+                                <td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td>
+                                <td class="p-5 font-bold font-mono text-indigo-600">${d.resi}</td>
+                                <td class="p-5 text-slate-600">${d.city}</td>
+                                <td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td>
+                                <td class="p-5">
+                                    <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide ${d.posisi === 'HUB' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}">
+                                        ${d.posisi}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    }
                 });
                 
+                // Update Dashboard
                 document.getElementById('table-packages').innerHTML = html;
                 document.getElementById('stat-vendor').innerText = v;
                 document.getElementById('stat-hub').innerText = h;
                 document.getElementById('stat-total').innerText = snap.size;
-                
                 if(snap.size === 0) document.getElementById('empty-state').classList.remove('hidden-section');
                 else document.getElementById('empty-state').classList.add('hidden-section');
+
+                // Update Mitra Table
+                const mitraTable = document.getElementById('table-mitra-history');
+                const emptyMitra = document.getElementById('empty-mitra');
+                if(mitraTable) {
+                    mitraTable.innerHTML = mitraHtml;
+                    if(mitraCount === 0) emptyMitra.classList.remove('hidden-section');
+                    else emptyMitra.classList.add('hidden-section');
+                }
             });
         }
 
