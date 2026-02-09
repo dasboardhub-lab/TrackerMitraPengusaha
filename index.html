@@ -12,381 +12,486 @@
     
     <!-- CUSTOM STYLES -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+        }
+
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f8fafc; 
-            color: #1e293b;
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e0e7ff 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            color: #334155;
         }
         
-        /* Dynamic Island Notification */
-        #dynamic-island {
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            width: 0; height: 40px; top: 20px;
-            background: #0f172a; color: white;
-            opacity: 0; transform: translateX(-50%);
-            border-radius: 30px;
-        }
-        #dynamic-island.active {
-            width: auto; min-width: 280px; height: auto; 
-            padding: 12px 24px; opacity: 1; 
-        }
-
-        .hidden-section { display: none !important; }
-        
-        /* Scanner & Modal */
-        #scanner-box video { border-radius: 1rem; object-fit: cover; }
-        #modal-overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); transition: opacity 0.3s; }
-        #modal-box { transform: scale(0.95); transition: transform 0.3s; }
-        #modal-overlay.open { opacity: 1; pointer-events: auto; }
-        #modal-overlay.open #modal-box { transform: scale(1); }
-
-        /* Custom Scrollbar */
+        /* Modern Scrollbar */
         ::-webkit-scrollbar { height: 6px; width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* UPDATED: Navigation Active State Styles (High Contrast) */
+        /* UPDATED: Dynamic Island Notification (Premium UI) */
+        #dynamic-island {
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy effect */
+            width: 120px; /* Start small */
+            height: 36px; 
+            top: 40px; /* SEBELUMNYA 16px, DIGANTI JADI 40px AGAR LEBIH KE BAWAH */
+            background: #000000;
+            color: white;
+            opacity: 0; 
+            transform: translateX(-50%) scale(0.9);
+            border-radius: 100px;
+            box-shadow: 0 8px 25px -5px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.15); /* Depth + Border */
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        #dynamic-island.active {
+            width: auto; 
+            min-width: 260px; 
+            height: 60px; /* Expanded height */
+            padding: 0 10px; 
+            opacity: 1; 
+            transform: translateX(-50%) scale(1);
+        }
+
+        /* Inner Content Animation */
+        #island-content-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 12px;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.2s ease-out 0.2s; /* Delay content appearance until expanded */
+            width: 100%;
+        }
+
+        #dynamic-island.active #island-content-wrapper {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Icon Styling */
+        .island-icon-box {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .island-icon-box.success { background: rgba(34, 197, 94, 0.2); color: #4ade80; } /* Green glow */
+        .island-icon-box.error { background: rgba(239, 68, 68, 0.2); color: #f87171; } /* Red glow */
+        .island-icon-box.default { background: rgba(148, 163, 184, 0.2); color: #94a3b8; } /* Gray glow */
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+        }
+
+        /* Nav Item Styles */
         .nav-item {
-            transition: all 0.2s ease-in-out;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Desktop: Solid Blue Button for Active State */
-        .nav-item.active { 
-            background-color: #4f46e5 !important; /* Indigo-600 */
-            color: white !important;
-            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
-            transform: translateY(-1px);
-        } 
-        
-        .nav-item.active i { 
-            color: white !important; 
-            stroke-width: 3px; 
-        }
-        
-        .nav-item.active span { 
-            color: white !important; 
-            font-weight: 800; 
-        }
-        
-        .nav-item:hover:not(.active) { 
-            background-color: #e0e7ff; /* Light Indigo Hover */
-            color: #4338ca;
-        }
-        
-        /* Mobile Nav Specifics */
-        @media (max-width: 768px) {
+        /* Desktop Nav */
+        @media (min-width: 768px) {
             .nav-item.active { 
-                background-color: #eef2ff !important; /* Indigo-50 Light Background */
+                background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+                color: white !important;
+                box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);
+                transform: translateY(-2px);
+            }
+            .nav-item.active i { color: white !important; }
+            .nav-item.active span { color: white !important; font-weight: 700; }
+            .nav-item:hover:not(.active) { background-color: #f1f5f9; transform: translateY(-1px); }
+        }
+        
+        /* Mobile Nav */
+        @media (max-width: 768px) {
+            .nav-item { border-radius: 12px; }
+            .nav-item.active { 
+                background-color: #eef2ff !important; 
                 color: #4f46e5 !important;
-                box-shadow: none;
-                transform: none;
             }
-            
-            .nav-item.active i { 
-                color: #4f46e5 !important; 
-                stroke-width: 3px;
-            }
-            
-            .nav-item.active span { 
-                color: #4f46e5 !important; 
-            }
-
-            /* Top Indicator Bar for Mobile */
+            .nav-item.active i { color: #4f46e5 !important; stroke-width: 2.5px; transform: scale(1.1); transition: transform 0.2s; }
+            .nav-item.active span { color: #4f46e5 !important; font-weight: 700; }
+            /* Indicator dot instead of bar */
             .nav-item.active::after {
-                content: '';
-                position: absolute;
-                top: 0; 
-                width: 60%;
-                height: 4px;
-                background-color: #4f46e5;
-                border-radius: 0 0 4px 4px;
+                content: ''; position: absolute; top: 6px; 
+                width: 4px; height: 4px; background-color: #4f46e5; border-radius: 50%;
             }
+        }
+
+        /* Utilities */
+        .hidden-section { display: none !important; }
+        #scanner-box video { border-radius: 1.5rem; object-fit: cover; }
+        
+        /* Modal Transition */
+        #modal-overlay { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); transition: opacity 0.3s ease; }
+        #modal-box { transform: scale(0.9); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0; }
+        #modal-overlay.open { opacity: 1; pointer-events: auto; }
+        #modal-overlay.open #modal-box { transform: scale(1); opacity: 1; }
+
+        /* Card Hover Lift */
+        .hover-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .hover-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01); }
+
+        /* --- MOBILE SCANNER OPTIMIZATIONS --- */
+        
+        .scanner-fullscreen {
+            position: fixed !important;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 99999;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .scanner-fullscreen video {
+            width: 100% !important; height: 100% !important; object-fit: cover !important;
+        }
+
+        #scanner-stop-btn {
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+            z-index: 100000;
+            background: rgba(239, 68, 68, 0.9); color: white;
+            padding: 16px 32px; border-radius: 50px; font-weight: bold;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: none; backdrop-filter: blur(4px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        #scanner-overlay-guide {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 280px; height: 280px;
+            border: 2px solid rgba(255, 255, 255, 0.6); border-radius: 24px;
+            z-index: 100000;
+            box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.5);
+            display: none; pointer-events: none;
+        }
+        #scanner-overlay-guide::after {
+            content: 'Arahkan Barcode ke Sini';
+            position: absolute; bottom: -40px; left: 0; right: 0;
+            text-align: center; color: white; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-700">
 
-    <!-- 1. NOTIFICATION SYSTEM -->
-    <div class="fixed left-1/2 z-[9999]">
-        <div id="dynamic-island" class="flex items-center gap-3 shadow-2xl pointer-events-none overflow-hidden">
-            <div id="island-icon" class="flex-shrink-0"></div>
-            <div id="island-msg" class="text-sm font-semibold whitespace-nowrap"></div>
+    <!-- 1. NOTIFICATION SYSTEM (UPDATED STRUCTURE) -->
+    <div class="fixed left-1/2 z-[10000]">
+        <div id="dynamic-island">
+            <div id="island-content-wrapper">
+                <!-- Icon Box -->
+                <div id="island-icon" class="island-icon-box"></div>
+                
+                <!-- Text Content -->
+                <div class="flex flex-col justify-center">
+                    <span id="island-title" class="text-[10px] font-bold uppercase tracking-widest text-gray-400 leading-tight">Notifikasi</span>
+                    <span id="island-msg" class="text-sm font-bold text-white whitespace-nowrap leading-tight">Pesan di sini</span>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- 2. LOGIN SCREEN -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-100 relative">
-        <div class="absolute inset-0 z-0 opacity-10" style="background-image: radial-gradient(#6366f1 1px, transparent 1px); background-size: 24px 24px;"></div>
-        <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-sm border border-white z-10 relative">
-            <div class="text-center mb-8">
-                <div class="bg-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
-                    <i data-lucide="box" class="text-white w-8 h-8"></i>
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-slate-50 z-0"></div>
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-indigo-200 rounded-full blur-[100px] opacity-30"></div>
+        <div class="absolute top-40 -left-20 w-72 h-72 bg-purple-200 rounded-full blur-[80px] opacity-30"></div>
+
+        <div class="bg-white/80 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] w-full max-w-sm border border-white z-10 relative">
+            <div class="text-center mb-10">
+                <div class="bg-gradient-to-tr from-indigo-600 to-violet-600 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-200 transform rotate-3">
+                    <i data-lucide="box" class="text-white w-10 h-10"></i>
                 </div>
-                <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">HUB Tracker</h1>
-                <p class="text-slate-500 text-sm mt-1 font-medium">Sistem Monitoring Logistik</p>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">HUB Tracker</h1>
+                <p class="text-slate-500 font-medium mt-2">Logistik & Distribusi</p>
             </div>
-            <div class="space-y-4">
-                <div class="relative">
-                    <i data-lucide="user" class="absolute left-4 top-4 text-slate-400 w-5 h-5"></i>
-                    <input type="text" id="login-id" placeholder="ID Anggota" class="w-full pl-12 pr-4 py-4 bg-slate-50 rounded-2xl font-bold text-slate-700 outline-none focus:ring-2 ring-indigo-500 border border-slate-200 transition-all placeholder:font-normal">
+            <div class="space-y-5">
+                <div class="group">
+                    <div class="relative transition-all duration-300 focus-within:scale-[1.02]">
+                        <i data-lucide="user" class="absolute left-5 top-4 text-slate-400 w-5 h-5 group-focus-within:text-indigo-500 transition-colors"></i>
+                        <input type="text" id="login-id" placeholder="ID Anggota" class="w-full pl-14 pr-5 py-4 bg-slate-50 rounded-2xl font-semibold text-slate-700 outline-none border border-transparent focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50 transition-all placeholder:font-normal placeholder:text-slate-400">
+                    </div>
                 </div>
-                <div class="relative">
-                    <i data-lucide="lock" class="absolute left-4 top-4 text-slate-400 w-5 h-5"></i>
-                    <input type="password" id="login-pass" placeholder="Password" class="w-full pl-12 pr-4 py-4 bg-slate-50 rounded-2xl font-bold text-slate-700 outline-none focus:ring-2 ring-indigo-500 border border-slate-200 transition-all placeholder:font-normal">
+                <div class="group">
+                    <div class="relative transition-all duration-300 focus-within:scale-[1.02]">
+                        <i data-lucide="lock" class="absolute left-5 top-4 text-slate-400 w-5 h-5 group-focus-within:text-indigo-500 transition-colors"></i>
+                        <input type="password" id="login-pass" placeholder="Password" class="w-full pl-14 pr-5 py-4 bg-slate-50 rounded-2xl font-semibold text-slate-700 outline-none border border-transparent focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50 transition-all placeholder:font-normal placeholder:text-slate-400">
+                    </div>
                 </div>
-                <button onclick="authLogin()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-xl shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all mt-2">
-                    MASUK SISTEM
+                <button onclick="authLogin()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-slate-200 hover:bg-indigo-600 hover:shadow-indigo-200 active:scale-95 transition-all duration-300 mt-4">
+                    Masuk Sistem
                 </button>
-            </div>
-            <div class="mt-8 text-center border-t pt-6 border-slate-100">
-                <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Default Admin Login</p>
-                <p class="text-xs text-slate-600 mt-1">ID: <span class="font-mono font-bold bg-slate-100 px-1 rounded">admin</span> &nbsp;|&nbsp; Pass: <span class="font-mono font-bold bg-slate-100 px-1 rounded">123</span></p>
             </div>
         </div>
     </div>
 
     <!-- 3. MAIN APPLICATION CONTAINER -->
-    <div id="app-container" class="hidden-section min-h-screen flex flex-col bg-slate-50">
+    <div id="app-container" class="hidden-section min-h-screen flex flex-col transition-opacity duration-500">
         
-        <!-- A. TOP BAR (DESKTOP & TABLET ONLY) -->
-        <header class="hidden md:flex bg-white border-b border-slate-200 px-8 py-3 items-center justify-between sticky top-0 z-50 shadow-sm">
-            <!-- Logo -->
-            <div class="flex items-center gap-3">
-                 <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md">
-                    <i data-lucide="layout-grid" class="w-6 h-6"></i>
+        <!-- A. TOP BAR (DESKTOP) - Navigasi Menu hanya di sini untuk Desktop -->
+        <header class="hidden md:flex glass-strong px-8 py-4 items-center justify-between sticky top-0 z-50">
+            <div class="flex items-center gap-4">
+                 <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h2 class="font-bold text-lg leading-none text-slate-800">Logistik Pro</h2>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Dashboard</p>
+                    <h2 class="font-bold text-xl leading-none text-slate-800 tracking-tight">Logistik Pro</h2>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">Dashboard v2.0</p>
                 </div>
             </div>
-    
-            <!-- Desktop Menu (Center) -->
-            <nav id="desktop-menu" class="flex items-center gap-2">
-                <!-- Items injected here via JS -->
-            </nav>
-    
-            <!-- User Profile (Right) -->
-            <div class="flex items-center gap-4">
+            
+            <!-- Desktop Navigation Menu -->
+            <nav id="desktop-menu" class="flex items-center gap-3 p-1.5 bg-slate-100/50 rounded-2xl border border-slate-200/50 backdrop-blur-sm"></nav>
+            
+            <div class="flex items-center gap-5">
                  <div class="flex items-center gap-3 text-right">
                     <div>
                         <p id="profile-name-d" class="font-bold text-sm text-slate-800">User</p>
-                        <p id="profile-role-d" class="text-[10px] uppercase font-bold text-indigo-500 bg-indigo-50 px-2 rounded-full inline-block">Role</p>
+                        <p id="profile-role-d" class="text-[10px] uppercase font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full inline-block tracking-wider">Role</p>
                     </div>
-                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-lg" id="avatar-initial-d">U</div>
+                    <div class="w-11 h-11 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center text-slate-600 font-bold text-lg shadow-sm" id="avatar-initial-d">U</div>
                 </div>
-                <button onclick="confirmLogout()" class="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Keluar">
+                <div class="h-8 w-px bg-slate-200"></div>
+                <button onclick="confirmLogout()" class="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300" title="Keluar">
                     <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
             </div>
         </header>
 
-        <!-- B. MOBILE TOP HEADER (Visible only on Mobile) -->
-        <div class="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+        <!-- B. MOBILE HEADER - Hanya Logo & Logout, Menu pindah ke Bawah -->
+        <div class="md:hidden glass-strong p-4 flex items-center justify-between sticky top-0 z-40">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white shadow-md">
+                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
                 </div>
-                <span class="font-bold text-slate-800">Logistik Pro</span>
+                <span class="font-bold text-lg text-slate-800">Logistik Pro</span>
             </div>
             <div class="flex items-center gap-3">
-                 <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm" id="avatar-initial-m">U</div>
-                 <button onclick="confirmLogout()" class="text-red-500"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                 <div class="w-9 h-9 bg-slate-100 border border-slate-200 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm" id="avatar-initial-m">U</div>
+                 <button onclick="confirmLogout()" class="p-2 text-slate-400 hover:text-red-500"><i data-lucide="log-out" class="w-5 h-5"></i></button>
             </div>
         </div>
 
-        <!-- C. MAIN CONTENT AREA -->
-        <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 w-full max-w-7xl mx-auto">
+        <!-- C. MAIN CONTENT -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-28 md:pb-12 w-full max-w-[1400px] mx-auto">
             
             <!-- Dashboard Page -->
-            <section id="page-dashboard" class="page-section">
-                <!-- Content same as previous, just wrapper changed -->
-                <header class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <section id="page-dashboard" class="page-section animate-[fadeIn_0.4s_ease-out]">
+                <header class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
-                        <h2 class="text-2xl font-bold text-slate-800">Monitoring Paket</h2>
-                        <p class="text-slate-500 text-sm">Real-time update dari Vendor ke HUB.</p>
+                        <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Monitoring Paket</h2>
+                        <p class="text-slate-500 text-sm mt-1 font-medium">Real-time update dari Vendor ke HUB.</p>
                     </div>
                 </header>
 
-                <!-- NEW: DASHBOARD FILTER BAR -->
-                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-8">
-                    <div class="flex flex-col md:flex-row gap-4 items-end">
-                        <div class="w-full md:w-auto flex-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Dari Tanggal</label>
-                            <input type="date" id="filter-start" onchange="renderDashboardData()" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 outline-none focus:ring-2 ring-indigo-500 transition-all">
+                <!-- Filters -->
+                <div class="bg-white p-6 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)] border border-slate-100 mb-8">
+                    <!-- UPDATED: Using Grid 2 Columns for Mobile, Flex for Desktop -->
+                    <div class="grid grid-cols-2 md:flex md:flex-row gap-4 items-end">
+                        <div class="w-full md:w-auto flex-1 group">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-1 group-focus-within:text-indigo-500">Dari Tanggal</label>
+                            <input type="date" id="filter-start" onchange="renderDashboardData()" class="w-full p-3 bg-slate-50 rounded-2xl border border-transparent text-sm font-bold text-slate-600 outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 transition-all">
                         </div>
-                        <div class="w-full md:w-auto flex-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Sampai Tanggal</label>
-                            <input type="date" id="filter-end" onchange="renderDashboardData()" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 outline-none focus:ring-2 ring-indigo-500 transition-all">
+                        <div class="w-full md:w-auto flex-1 group">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-1 group-focus-within:text-indigo-500">Sampai Tanggal</label>
+                            <input type="date" id="filter-end" onchange="renderDashboardData()" class="w-full p-3 bg-slate-50 rounded-2xl border border-transparent text-sm font-bold text-slate-600 outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 transition-all">
                         </div>
-                        <div class="w-full md:w-auto flex-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Kota Asal</label>
-                            <select id="filter-city" onchange="renderDashboardData()" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 outline-none focus:ring-2 ring-indigo-500 transition-all cursor-pointer">
-                                <option value="">Semua Kota</option>
-                                <!-- Dynamic Options -->
-                            </select>
+                        <div class="w-full md:w-auto flex-1 group">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-1 group-focus-within:text-indigo-500">Kota Asal</label>
+                            <div class="relative">
+                                <select id="filter-city" onchange="renderDashboardData()" class="w-full p-3 bg-slate-50 rounded-2xl border border-transparent text-sm font-bold text-slate-600 outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer appearance-none">
+                                    <option value="">Semua Kota</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-4 top-3.5 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                            </div>
                         </div>
-                        <div class="w-full md:w-auto flex-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Posisi Paket</label>
-                            <select id="filter-posisi" onchange="renderDashboardData()" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 outline-none focus:ring-2 ring-indigo-500 transition-all cursor-pointer">
-                                <option value="">Semua Posisi</option>
-                                <option value="Vendor">Masih di Vendor</option>
-                                <option value="HUB">Sudah di HUB</option>
-                            </select>
+                        <div class="w-full md:w-auto flex-1 group">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-1 group-focus-within:text-indigo-500">Posisi Paket</label>
+                            <div class="relative">
+                                <select id="filter-posisi" onchange="renderDashboardData()" class="w-full p-3 bg-slate-50 rounded-2xl border border-transparent text-sm font-bold text-slate-600 outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 transition-all cursor-pointer appearance-none">
+                                    <option value="">Semua Posisi</option>
+                                    <option value="Vendor">Masih di Vendor</option>
+                                    <option value="HUB">Sudah di HUB</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-4 top-3.5 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                            </div>
                         </div>
-                        <button onclick="resetFilters()" class="w-full md:w-auto p-2.5 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center" title="Reset Filter">
+                        <!-- Button spans 2 columns on mobile for better touch target -->
+                        <button onclick="resetFilters()" class="col-span-2 md:col-span-auto w-full md:w-auto p-3 bg-slate-100 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-md active:scale-95" title="Reset Filter">
                             <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- KPI CARDS (RESTORED) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <!-- KPI CARDS with Background Icons -->
+                <!-- UPDATED: Grid layout to 2 columns on mobile (grid-cols-2) and 4 on desktop (lg:grid-cols-4) -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 mb-8">
                     <!-- Vendor Card -->
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:border-orange-200 transition-colors">
-                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-orange-500"><i data-lucide="truck" class="w-24 h-24"></i></div>
-                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Paket di Vendor</p>
-                        <h3 id="stat-vendor" class="text-4xl font-black text-slate-800">0</h3>
-                        <div class="mt-4 flex items-center gap-2 text-xs font-bold text-orange-500 bg-orange-50 w-fit px-2 py-1 rounded-lg">
-                            <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span> Dalam Perjalanan
+                    <div class="bg-white p-4 md:p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden group hover:border-orange-200 transition-all duration-300 hover-card">
+                        <!-- Background Icon -->
+                        <div class="absolute -right-4 -bottom-4 opacity-5 transform translate-x-2 translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                            <i data-lucide="truck" class="w-32 h-32 text-slate-800"></i>
                         </div>
+                        <div class="flex justify-between items-start mb-4 relative z-10">
+                            <div class="p-3 bg-orange-50 rounded-2xl text-orange-500 group-hover:scale-110 transition-transform"><i data-lucide="truck" class="w-6 h-6"></i></div>
+                            <span class="bg-slate-50 text-slate-400 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">Transit</span>
+                        </div>
+                        <h3 id="stat-vendor" class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight relative z-10">0</h3>
+                        <p class="text-slate-500 text-xs font-semibold mt-1 relative z-10">Paket di Vendor</p>
                     </div>
                     
-                    <!-- NEW CARD: >2 Hari -->
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:border-red-200 transition-colors">
-                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-red-500"><i data-lucide="alert-triangle" class="w-24 h-24"></i></div>
-                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 text-red-500">> 2 Hari (Vendor)</p>
-                        <h3 id="stat-stuck" class="text-4xl font-black text-red-600">0</h3>
-                        <div class="mt-4 flex items-center gap-2 text-xs font-bold text-red-500 bg-red-50 w-fit px-2 py-1 rounded-lg">
-                            <i data-lucide="alert-circle" class="w-3 h-3"></i> Perlu Follow Up
+                    <!-- Alert Card (Warning Background) -->
+                    <div class="bg-red-50 p-4 md:p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(239,68,68,0.1)] border border-red-100 relative overflow-hidden group hover:border-red-200 transition-all duration-300 hover-card">
+                        <!-- Background Icon -->
+                        <div class="absolute -right-4 -bottom-4 opacity-10 transform translate-x-2 translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                            <i data-lucide="alert-triangle" class="w-32 h-32 text-red-600"></i>
                         </div>
+                        <div class="flex justify-between items-start mb-4 relative z-10">
+                            <div class="p-3 bg-white/80 rounded-2xl text-red-500 group-hover:scale-110 transition-transform shadow-sm"><i data-lucide="alert-triangle" class="w-6 h-6"></i></div>
+                            <span class="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide animate-pulse">Warning</span>
+                        </div>
+                        <h3 id="stat-stuck" class="text-3xl md:text-4xl font-black text-red-700 tracking-tight relative z-10">0</h3>
+                        <p class="text-red-600/70 text-xs font-semibold mt-1 relative z-10">> 2 Hari (Vendor)</p>
                     </div>
 
                     <!-- HUB Card -->
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:border-emerald-200 transition-colors">
-                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-emerald-500"><i data-lucide="check-circle" class="w-24 h-24"></i></div>
-                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Diterima HUB</p>
-                        <h3 id="stat-hub" class="text-4xl font-black text-slate-800">0</h3>
-                        <div class="mt-4 flex items-center gap-2 text-xs font-bold text-emerald-500 bg-emerald-50 w-fit px-2 py-1 rounded-lg">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Aman di Gudang
+                    <div class="bg-white p-4 md:p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden group hover:border-emerald-200 transition-all duration-300 hover-card">
+                        <!-- Background Icon -->
+                        <div class="absolute -right-4 -bottom-4 opacity-5 transform translate-x-2 translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                            <i data-lucide="check-circle" class="w-32 h-32 text-slate-800"></i>
                         </div>
+                        <div class="flex justify-between items-start mb-4 relative z-10">
+                            <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-500 group-hover:scale-110 transition-transform"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
+                            <span class="bg-emerald-50 text-emerald-600 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">Selesai</span>
+                        </div>
+                        <h3 id="stat-hub" class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight relative z-10">0</h3>
+                        <p class="text-slate-500 text-xs font-semibold mt-1 relative z-10">Diterima HUB</p>
                     </div>
 
                     <!-- Total Card -->
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:border-indigo-200 transition-colors">
-                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-indigo-500"><i data-lucide="package-search" class="w-24 h-24"></i></div>
-                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Transaksi</p>
-                        <h3 id="stat-total" class="text-4xl font-black text-slate-800">0</h3>
-                        <div class="mt-4 text-xs font-bold text-indigo-500 bg-indigo-50 w-fit px-2 py-1 rounded-lg">All Time</div>
+                    <div class="bg-white p-4 md:p-6 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 relative overflow-hidden group hover:border-indigo-200 transition-all duration-300 hover-card">
+                        <!-- Background Icon -->
+                        <div class="absolute -right-4 -bottom-4 opacity-5 transform translate-x-2 translate-y-2 group-hover:scale-110 transition-transform duration-500">
+                            <i data-lucide="package-search" class="w-32 h-32 text-slate-800"></i>
+                        </div>
+                        <div class="flex justify-between items-start mb-4 relative z-10">
+                            <div class="p-3 bg-indigo-50 rounded-2xl text-indigo-500 group-hover:scale-110 transition-transform"><i data-lucide="package-search" class="w-6 h-6"></i></div>
+                            <span class="bg-indigo-50 text-indigo-600 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">All Time</span>
+                        </div>
+                        <h3 id="stat-total" class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight relative z-10">0</h3>
+                        <p class="text-slate-500 text-xs font-semibold mt-1 relative z-10">Total Transaksi</p>
                     </div>
                 </div>
 
-                <!-- UPDATED: Grid Layout to lg:grid-cols-2 for standard laptops -->
+                <!-- ANALYTICS GRID -->
                 <div class="grid lg:grid-cols-2 gap-6 mb-8">
-                    <!-- Monitoring Paket Vendor -->
-                    <div class="bg-orange-50 rounded-[2rem] p-6 border border-orange-100 shadow-sm relative overflow-hidden flex flex-col h-full">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-orange-200 rounded-full blur-3xl opacity-20 -mr-10 -mt-10"></div>
-                        <div class="flex justify-between items-center mb-4 relative z-10">
-                            <div>
+                    <!-- Monitoring Vendor (Bold Background) -->
+                    <div class="bg-orange-50 rounded-[2.5rem] p-1 border border-orange-200 shadow-lg shadow-orange-100 flex flex-col h-full hover:shadow-xl transition-shadow duration-300">
+                        <div class="bg-orange-100/50 rounded-t-[2.5rem] p-6 pb-4 border-b border-orange-200">
+                            <div class="flex justify-between items-center mb-2">
                                 <h3 class="font-bold text-orange-900 text-lg flex items-center gap-2">
-                                    <i data-lucide="clock" class="w-5 h-5 text-orange-600"></i> Monitoring (Masih di Vendor)
+                                    <div class="p-2 bg-white rounded-xl text-orange-600 shadow-sm"><i data-lucide="clock" class="w-5 h-5"></i></div>
+                                    Monitoring Vendor
                                 </h3>
-                                <p class="text-xs text-orange-700/70 mt-1">Paket belum sampai HUB.</p>
+                                <span id="pending-badge-count" class="bg-orange-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg shadow-orange-200">0 Paket</span>
                             </div>
-                            <span id="pending-badge-count" class="bg-orange-500 text-white px-3 py-1 rounded-lg text-xs font-bold shadow-lg shadow-orange-200">0 Paket</span>
+                            <p class="text-xs text-orange-800/70 ml-12">Paket yang belum sampai di HUB.</p>
                         </div>
-                        <div class="bg-white rounded-2xl border border-orange-100 overflow-hidden shadow-sm relative z-10 flex-1">
-                            <!-- Added overflow-y-auto for vertical scroll & sticky header support -->
-                            <div class="overflow-auto h-full max-h-[350px]">
+                        <div class="p-2 flex-1">
+                            <div class="overflow-auto h-full max-h-[350px] rounded-2xl custom-scroll bg-white">
                                 <table class="w-full text-left text-sm relative">
-                                    <thead class="bg-orange-50 text-orange-600 font-bold uppercase text-[10px] sticky top-0 z-20 shadow-sm">
-                                        <tr>
-                                            <th class="p-4 bg-orange-50">Durasi</th><th class="p-4 bg-orange-50">Resi</th><th class="p-4 bg-orange-50">Kota</th><th class="p-4 bg-orange-50">Kondisi</th>
-                                        </tr>
+                                    <thead class="bg-orange-50 text-orange-700 font-bold uppercase text-[10px] sticky top-0 z-20 shadow-sm">
+                                        <tr><th class="p-4">Durasi</th><th class="p-4">Resi</th><th class="p-4">Kota</th><th class="p-4">Kondisi</th></tr>
                                     </thead>
-                                    <tbody id="table-pending-vendor" class="divide-y divide-orange-50/50 text-slate-600"></tbody>
+                                    <tbody id="table-pending-vendor" class="divide-y divide-orange-50 text-slate-600"></tbody>
                                 </table>
-                                <div id="empty-pending" class="hidden-section p-8 text-center text-slate-400">
-                                    <i data-lucide="check-circle-2" class="w-10 h-10 mx-auto mb-2 text-emerald-400 opacity-50"></i>
-                                    <p class="text-xs font-bold text-emerald-600">Semua Aman!</p>
+                                <div id="empty-pending" class="hidden-section p-10 text-center text-slate-400">
+                                    <div class="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="check-circle-2" class="w-8 h-8 text-emerald-500"></i></div>
+                                    <p class="text-sm font-bold text-slate-700">Semua Aman!</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- SLA PERFORMANCE TABLE -->
-                    <div class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex flex-col h-full">
-                        <div class="mb-4">
-                            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                                <i data-lucide="timer" class="w-5 h-5 text-indigo-600"></i> SLA Pengiriman (Per Kota)
+                    <!-- SLA TABLE -->
+                    <div class="bg-white rounded-[2.5rem] p-1 border border-slate-100 shadow-sm flex flex-col h-full hover:shadow-lg transition-shadow duration-300">
+                        <div class="bg-slate-50/50 rounded-t-[2.5rem] p-6 pb-4 border-b border-slate-100">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2 mb-1">
+                                <div class="p-2 bg-white rounded-xl text-indigo-600 shadow-sm"><i data-lucide="timer" class="w-5 h-5"></i></div>
+                                SLA Pengiriman
                             </h3>
-                            <p class="text-xs text-slate-400 mt-1">Rata-rata waktu tempuh dari Input Mitra s/d Terima HUB.</p>
+                            <p class="text-xs text-slate-500 ml-12">Rata-rata waktu tempuh per kota.</p>
                         </div>
-                        <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm flex-1">
-                            <!-- Added overflow-auto for vertical scroll & sticky header support -->
-                            <div class="overflow-auto h-full max-h-[350px]">
+                        <div class="p-2 flex-1">
+                            <div class="overflow-auto h-full max-h-[350px] rounded-2xl custom-scroll">
                                 <table class="w-full text-left text-sm relative">
-                                    <!-- Sticky Header with background color ensuring content doesn't show behind -->
-                                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] sticky top-0 z-20 shadow-sm">
-                                        <tr>
-                                            <th class="p-4 bg-slate-50">Kota</th>
-                                            <th class="p-4 text-center bg-slate-50">Total Paket</th>
-                                            <th class="p-4 text-right bg-slate-50">Rata-rata (Jam)</th>
-                                            <th class="p-4 text-center bg-slate-50">Status</th>
-                                        </tr>
+                                    <thead class="bg-white text-slate-400 font-bold uppercase text-[10px] sticky top-0 z-20 shadow-sm">
+                                        <tr><th class="p-4 bg-white">Kota</th><th class="p-4 text-center bg-white">Total</th><th class="p-4 text-right bg-white">Avg (Jam)</th><th class="p-4 text-center bg-white">Status</th></tr>
                                     </thead>
-                                    <tbody id="table-sla" class="divide-y divide-slate-100 text-slate-600">
-                                        <!-- Populated via JS -->
-                                    </tbody>
+                                    <tbody id="table-sla" class="divide-y divide-slate-50 text-slate-600"></tbody>
                                 </table>
-                                <div id="empty-sla" class="hidden-section p-8 text-center text-slate-400">
-                                    <p class="text-xs">Belum ada data SLA tersedia.</p>
-                                </div>
+                                <div id="empty-sla" class="hidden-section p-10 text-center text-slate-400"><p class="text-xs">Belum ada data SLA tersedia.</p></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Main Table (Existing) -->
-                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center gap-4">
-                        <div class="relative flex-1">
-                            <i data-lucide="search" class="absolute left-4 top-3.5 text-slate-400 w-5 h-5"></i>
-                            <input type="text" onkeyup="filterTable(this.value)" placeholder="Cari Resi, Pengirim, atau Kota..." class="w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-slate-200 outline-none focus:ring-2 ring-indigo-500 font-medium text-sm transition-all shadow-sm">
+                <!-- MAIN TABLE -->
+                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50/30 flex flex-col md:flex-row md:items-center gap-4">
+                        <div class="relative flex-1 group">
+                            <i data-lucide="search" class="absolute left-5 top-4 text-slate-400 w-5 h-5 group-focus-within:text-indigo-500 transition-colors"></i>
+                            <input type="text" onkeyup="filterTable(this.value)" placeholder="Cari Resi, Pengirim, atau Kota..." class="w-full pl-14 pr-5 py-3.5 bg-white rounded-2xl border border-slate-200 outline-none focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 font-medium text-sm transition-all shadow-sm">
                         </div>
-                        <button onclick="exportTableToExcel()" class="bg-white border border-slate-200 text-slate-600 px-4 py-3 rounded-xl text-sm font-bold hover:bg-slate-50 flex items-center gap-2 shadow-sm">
-                            <i data-lucide="download" class="w-4 h-4"></i> Export
+                        <button onclick="exportTableToExcel()" class="bg-white border border-slate-200 text-slate-600 px-6 py-3.5 rounded-2xl text-sm font-bold hover:bg-slate-50 hover:text-indigo-600 flex items-center gap-2 shadow-sm transition-all active:scale-95">
+                            <i data-lucide="download" class="w-4 h-4"></i> Export Data
                         </button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
-                            <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                                <tr>
-                                    <th class="p-5 min-w-[120px]">Waktu</th><th class="p-5 min-w-[150px]">No. Resi</th><th class="p-5 min-w-[150px]">Pengirim</th><th class="p-5 min-w-[120px]">Kota</th><th class="p-5 min-w-[120px]">Kondisi</th><th class="p-5 min-w-[120px]">Posisi</th>
-                                </tr>
+                            <thead class="bg-slate-50/80 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                                <tr><th class="p-5 min-w-[140px]">Waktu</th><th class="p-5 min-w-[160px]">No. Resi</th><th class="p-5 min-w-[160px]">Pengirim</th><th class="p-5 min-w-[120px]">Kota</th><th class="p-5 min-w-[120px]">Kondisi</th><th class="p-5 min-w-[140px]">Posisi</th></tr>
                             </thead>
                             <tbody id="table-packages" class="text-sm font-medium text-slate-600 divide-y divide-slate-50 bg-white"></tbody>
                         </table>
                     </div>
-                    <div id="empty-state" class="hidden-section p-10 text-center text-slate-400"><p class="text-sm">Belum ada data paket.</p></div>
+                    <div id="empty-state" class="hidden-section p-16 text-center text-slate-400 bg-white">
+                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-20"></i><p class="text-sm">Belum ada data paket.</p>
+                    </div>
                 </div>
             </section>
 
             <!-- Pengiriman Page -->
-            <section id="page-pengiriman" class="page-section hidden-section">
+            <section id="page-pengiriman" class="page-section hidden-section animate-[fadeIn_0.4s_ease-out]">
                 <div class="max-w-6xl mx-auto">
                     <header class="mb-8 flex justify-between items-center">
-                        <div>
-                            <h2 class="text-2xl font-bold text-slate-800">Riwayat Handover</h2>
-                            <p class="text-slate-500 text-sm">Daftar paket yang Anda serahkan ke Vendor.</p>
-                        </div>
-                        <button onclick="openInputForm()" class="bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all flex items-center gap-2">
-                            <i data-lucide="plus" class="w-5 h-5"></i> Input Baru
-                        </button>
+                        <div><h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Handover Paket</h2><p class="text-slate-500 text-sm mt-1">Kelola pengiriman ke vendor.</p></div>
+                        <button onclick="openInputForm()" class="bg-slate-900 text-white px-6 py-3.5 rounded-2xl font-bold text-sm shadow-lg shadow-slate-200 hover:bg-indigo-600 hover:shadow-indigo-200 hover:-translate-y-0.5 transition-all flex items-center gap-2"><i data-lucide="plus" class="w-5 h-5"></i> Input Baru</button>
                     </header>
-                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
+                    <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
@@ -395,151 +500,129 @@
                                 <tbody id="table-mitra-history" class="text-sm font-medium text-slate-600 divide-y divide-slate-50"></tbody>
                             </table>
                         </div>
-                        <div id="empty-mitra" class="hidden-section p-12 text-center text-slate-400"><p class="text-sm">Belum ada riwayat.</p></div>
+                        <div id="empty-mitra" class="hidden-section p-20 text-center text-slate-400"><i data-lucide="clipboard-list" class="w-16 h-16 mx-auto mb-4 opacity-20"></i><p class="text-sm font-medium">Belum ada riwayat.</p></div>
                     </div>
                 </div>
             </section>
 
             <!-- HUB Page -->
-            <section id="page-hub" class="page-section hidden-section">
-                <header class="mb-6">
-                    <h2 class="text-2xl font-bold text-slate-800">Serah Terima HUB</h2>
-                    <p class="text-slate-500 text-sm">Scan paket masuk dari Vendor untuk validasi.</p>
-                </header>
-
-                <div class="grid lg:grid-cols-12 gap-6">
-                    <div class="lg:col-span-5 space-y-4">
+            <section id="page-hub" class="page-section hidden-section animate-[fadeIn_0.4s_ease-out]">
+                <header class="mb-8"><h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Serah Terima HUB</h2><p class="text-slate-500 text-sm mt-1">Scan validasi paket masuk.</p></header>
+                <div class="grid lg:grid-cols-12 gap-6 mb-8">
+                    <div class="lg:col-span-5 space-y-5">
                         <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
                             <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2"><i data-lucide="camera" class="w-5 h-5 text-indigo-600"></i> Scanner</h3>
-                            <div id="scanner-hub" class="rounded-2xl overflow-hidden bg-slate-100 min-h-[250px] flex items-center justify-center border-2 border-dashed border-slate-300 relative">
-                                <div class="text-center p-6 text-slate-400"><i data-lucide="qr-code" class="w-12 h-12 mx-auto mb-2 opacity-50"></i><p class="text-xs font-bold uppercase">Kamera Nonaktif</p></div>
+                            <div id="scanner-hub" class="rounded-2xl overflow-hidden bg-slate-50 min-h-[280px] flex items-center justify-center border-2 border-dashed border-slate-200 relative group transition-colors hover:border-indigo-300">
+                                <div class="text-center p-6 text-slate-400 group-hover:text-indigo-400 transition-colors"><i data-lucide="qr-code" class="w-16 h-16 mx-auto mb-3 opacity-50"></i><p class="text-xs font-bold uppercase tracking-wider">Kamera Nonaktif</p></div>
                             </div>
-                            <button id="btn-toggle-hub" onclick="toggleScanner('hub')" class="w-full mt-4 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"><i data-lucide="power" class="w-4 h-4"></i> Mulai / Stop Kamera</button>
+                            <button id="btn-toggle-hub" onclick="toggleScanner('hub')" class="w-full mt-5 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 transition-all flex items-center justify-center gap-2"><i data-lucide="power" class="w-4 h-4"></i> Mulai / Stop Kamera</button>
                         </div>
-                        <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Input Manual (Jika Scan Gagal)</p>
-                            <div class="flex gap-2">
-                                <input type="text" id="manual-hub-resi" class="flex-1 p-3 bg-slate-50 rounded-xl border border-slate-200 text-sm font-mono font-bold outline-none focus:ring-2 ring-indigo-500" placeholder="Ketik Resi...">
-                                <button onclick="manualAddQueue()" class="bg-slate-800 text-white px-4 rounded-xl font-bold text-sm hover:bg-slate-900"><i data-lucide="plus" class="w-5 h-5"></i></button>
+                        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-3 tracking-wider">Input Manual</p>
+                            <div class="flex gap-3">
+                                <input type="text" id="manual-hub-resi" class="flex-1 p-4 bg-slate-50 rounded-2xl border border-transparent text-sm font-mono font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50" placeholder="Ketik No. Resi...">
+                                <button onclick="manualAddQueue()" class="bg-slate-800 text-white px-5 rounded-2xl font-bold hover:bg-slate-900 transition-colors shadow-lg"><i data-lucide="plus" class="w-6 h-6"></i></button>
                             </div>
                         </div>
                     </div>
                     <div class="lg:col-span-7">
                         <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 h-full flex flex-col min-h-[500px]">
-                            <div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-4">
-                                <div><h3 class="font-bold text-slate-700">Antrean Validasi</h3><p class="text-[10px] text-slate-400 font-bold uppercase mt-1">Paket yang siap divalidasi</p></div>
-                                <span id="queue-count" class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg shadow-indigo-200">0</span>
+                            <div class="flex justify-between items-center mb-6 border-b border-slate-50 pb-4">
+                                <div><h3 class="font-bold text-lg text-slate-800">Antrean Validasi</h3><p class="text-[11px] text-slate-400 font-bold uppercase mt-1 tracking-wider">Siap Disimpan</p></div>
+                                <span id="queue-count" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-lg font-black shadow-lg shadow-indigo-200">0</span>
                             </div>
-                            <div class="flex-1 overflow-y-auto pr-1">
+                            <div class="flex-1 overflow-y-auto pr-2 custom-scroll">
                                 <table class="w-full text-sm">
-                                    <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 sticky top-0">
-                                        <tr><th class="py-2 px-2 text-left rounded-l-lg">Resi</th><th class="py-2 px-2 text-left">Asal</th><th class="py-2 px-2 text-right rounded-r-lg">Aksi</th></tr>
+                                    <thead class="bg-slate-50/50 text-[10px] uppercase font-bold text-slate-400 sticky top-0 backdrop-blur-sm">
+                                        <tr><th class="py-3 px-2 text-left rounded-l-lg">Resi</th><th class="py-3 px-2 text-left">Asal</th><th class="py-3 px-2 text-right rounded-r-lg">Aksi</th></tr>
                                     </thead>
-                                    <tbody id="queue-table" class="divide-y divide-slate-100"></tbody>
+                                    <tbody id="queue-table" class="divide-y divide-slate-50"></tbody>
                                 </table>
-                                <div id="empty-queue" class="text-center py-10 text-slate-300"><p class="text-xs">Belum ada paket di-scan</p></div>
+                                <div id="empty-queue" class="text-center py-20 text-slate-300"><i data-lucide="layers" class="w-12 h-12 mx-auto mb-3 opacity-30"></i><p class="text-xs font-medium">Belum ada paket di-scan</p></div>
                             </div>
-                            <div class="mt-4 pt-4 border-t border-slate-100">
-                                <button onclick="processQueue()" class="w-full py-4 bg-emerald-500 text-white rounded-2xl font-bold text-lg shadow-xl shadow-emerald-100 hover:bg-emerald-600 active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="check-check" class="w-5 h-5"></i> Simpan Validasi HUB</button>
+                            <div class="mt-6 pt-6 border-t border-slate-100">
+                                <button onclick="processQueue()" class="w-full py-4 bg-emerald-500 text-white rounded-2xl font-bold text-lg shadow-xl shadow-emerald-200 hover:bg-emerald-600 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3"><i data-lucide="check-check" class="w-6 h-6"></i> Simpan Validasi HUB</button>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="mt-8 bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
                     <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5 text-indigo-600"></i> Riwayat Penerimaan (Live)</h3>
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm text-left">
-                            <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase">
-                                <tr><th class="p-3">Waktu Terima</th><th class="p-3">Resi</th><th class="p-3">Asal (Kota)</th><th class="p-3">Status Awal</th><th class="p-3">Penerima</th></tr>
+                            <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                <tr><th class="p-4">Waktu Terima</th><th class="p-4">Resi</th><th class="p-4">Asal (Kota)</th><th class="p-4">Status Awal</th><th class="p-4">Penerima</th></tr>
                             </thead>
-                            <tbody id="table-hub-history" class="divide-y divide-slate-50"></tbody>
+                            <tbody id="table-hub-history" class="divide-y divide-slate-50 text-slate-600"></tbody>
                         </table>
-                        <div id="empty-hub-history" class="text-center py-8 text-slate-400 hidden-section"><p class="text-xs">Belum ada data penerimaan.</p></div>
+                        <div id="empty-hub-history" class="text-center py-10 text-slate-400 hidden-section"><p class="text-xs">Belum ada data penerimaan.</p></div>
                     </div>
                 </div>
             </section>
 
             <!-- Settings Page -->
-            <section id="page-settings" class="page-section hidden-section">
-                <header class="mb-6"><h2 class="text-2xl font-bold text-slate-800">Pengaturan</h2></header>
+            <section id="page-settings" class="page-section hidden-section animate-[fadeIn_0.4s_ease-out]">
+                <header class="mb-8"><h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Pengaturan</h2></header>
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div class="xl:col-span-1 h-fit bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2 text-slate-700"><i data-lucide="user-cog" class="w-5 h-5 text-indigo-600"></i> Profil Saya</h3>
-                        <div class="space-y-4">
-                            <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Nama Lengkap</label><input type="text" id="my-name" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-slate-700 border border-slate-200 outline-none focus:ring-2 ring-indigo-500 mt-1"></div>
-                            <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Password Baru</label><input type="password" id="my-pass" placeholder="Biarkan kosong jika tetap" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-slate-700 border border-slate-200 outline-none focus:ring-2 ring-indigo-500 mt-1 placeholder:font-normal placeholder:text-slate-300"></div>
-                            <button onclick="updateProfile()" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-colors mt-2">Simpan Perubahan</button>
+                    <div class="xl:col-span-1 h-fit bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg mb-6 flex items-center gap-3 text-slate-800"><div class="p-2 bg-indigo-50 rounded-xl text-indigo-600"><i data-lucide="user-cog" class="w-5 h-5"></i></div> Profil Saya</h3>
+                        <div class="space-y-5">
+                            <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Nama Lengkap</label><input type="text" id="my-name" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-slate-700 border border-transparent outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 transition-all"></div>
+                            <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Password Baru</label><input type="password" id="my-pass" placeholder="Biarkan kosong jika tetap" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-slate-700 border border-transparent outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 transition-all placeholder:font-normal placeholder:text-slate-400"></div>
+                            <button onclick="updateProfile()" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-900 shadow-lg hover:shadow-xl transition-all mt-2">Simpan Perubahan</button>
                         </div>
                     </div>
-                    <div id="admin-panel" class="hidden-section xl:col-span-2 bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2 text-slate-700"><i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Manajemen User (Admin)</h3>
-                        <div class="bg-slate-50 p-5 rounded-2xl mb-6 border border-slate-200 relative">
-                            <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500 rounded-l-2xl"></div>
-                            <div class="flex justify-between items-center mb-3">
-                                <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider" id="form-title">Tambah User Baru</h4>
-                                <button onclick="resetAdminForm()" id="btn-cancel-edit" class="hidden-section text-xs font-bold text-red-500 hover:underline">Batal Edit</button>
+                    <div id="admin-panel" class="hidden-section xl:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                        <h3 class="font-bold text-lg mb-6 flex items-center gap-3 text-slate-800"><div class="p-2 bg-indigo-50 rounded-xl text-indigo-600"><i data-lucide="users" class="w-5 h-5"></i></div> Manajemen Tim</h3>
+                        <div class="bg-slate-50 p-6 rounded-3xl mb-8 border border-slate-200 relative group focus-within:border-indigo-200 focus-within:shadow-md transition-all">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4"></i> <span id="form-title">Tambah User Baru</span></h4>
+                                <button onclick="resetAdminForm()" id="btn-cancel-edit" class="hidden-section text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors">Batal Edit</button>
                             </div>
-                            <!-- UPDATED GRID: Added Password Input -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 mb-3">
-                                <input type="text" id="adm-id" placeholder="ID (cth: tim01)" class="p-3 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold">
-                                <input type="text" id="adm-name" placeholder="Nama Lengkap" class="p-3 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold">
-                                <!-- New Password Input -->
-                                <input type="text" id="adm-pass" placeholder="Password" class="p-3 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold">
-                                <input type="text" id="adm-city" placeholder="Kota" class="p-3 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold">
-                                <select id="adm-role" class="p-3 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold cursor-pointer">
-                                    <option value="visitor">Visitor</option><option value="mitra">Mitra Pengusaha</option><option value="hub">Tim HUB</option><option value="admin">Admin</option>
-                                </select>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
+                                <input type="text" id="adm-id" placeholder="ID (cth: tim01)" class="p-3.5 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm">
+                                <input type="text" id="adm-name" placeholder="Nama Lengkap" class="p-3.5 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm">
+                                <input type="text" id="adm-pass" placeholder="Password" class="p-3.5 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm">
+                                <input type="text" id="adm-city" placeholder="Kota" class="p-3.5 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm">
+                                <select id="adm-role" class="p-3.5 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold cursor-pointer shadow-sm appearance-none"><option value="visitor">Visitor</option><option value="mitra">Mitra Pengusaha</option><option value="hub">Tim HUB</option><option value="admin">Admin</option></select>
                             </div>
-                            <button onclick="saveUserByAdmin()" id="btn-save-user" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100"><i data-lucide="plus-circle" class="w-4 h-4 inline mr-1"></i> Simpan User</button>
+                            <button onclick="saveUserByAdmin()" id="btn-save-user" class="w-full py-3.5 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2">Simpan User</button>
                         </div>
-                        <div class="overflow-hidden rounded-xl border border-slate-100">
+                        <div class="overflow-hidden rounded-2xl border border-slate-100 mb-8">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-sm">
-                                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] border-b border-slate-100">
-                                        <!-- Added Password Column Header -->
-                                        <tr><th class="py-3 px-4">ID</th><th class="py-3 px-4">Nama</th><th class="py-3 px-4">Role</th><th class="py-3 px-4">Password</th><th class="py-3 px-4">Kota</th><th class="py-3 px-4 text-right">Aksi</th></tr>
-                                    </thead>
-                                    <tbody id="user-list-table" class="divide-y divide-slate-100 bg-white"></tbody>
+                                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] border-b border-slate-100 tracking-wider"><tr><th class="py-4 px-5">ID</th><th class="py-4 px-5">Nama</th><th class="py-4 px-5">Role</th><th class="py-4 px-5">Password</th><th class="py-4 px-5">Kota</th><th class="py-4 px-5 text-right">Aksi</th></tr></thead>
+                                    <tbody id="user-list-table" class="divide-y divide-slate-50 bg-white text-slate-600"></tbody>
                                 </table>
                             </div>
                         </div>
-                        
-                        <!-- NEW: DANGER ZONE (Reset Data) -->
-                        <div class="mt-8 pt-6 border-t border-slate-100">
-                            <h4 class="text-sm font-bold text-red-600 mb-2 flex items-center gap-2">
-                                <i data-lucide="alert-octagon" class="w-4 h-4"></i> Zona Bahaya
-                            </h4>
-                            <p class="text-xs text-slate-500 mb-4">Menghapus semua data paket dan user (kecuali akun Admin ini) untuk reset sistem.</p>
-                            <button onclick="confirmResetSystem()" class="w-full py-3 bg-red-50 text-red-600 border border-red-100 rounded-xl font-bold text-sm hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Semua Data (Reset Factory)
-                            </button>
+                        <div class="pt-6 border-t border-slate-100">
+                            <h4 class="text-sm font-bold text-red-600 mb-2 flex items-center gap-2"><i data-lucide="alert-octagon" class="w-4 h-4"></i> Zona Bahaya</h4>
+                            <p class="text-xs text-slate-500 mb-4">Menghapus semua data paket dan user (kecuali Admin ini). Tidak bisa dibatalkan.</p>
+                            <button onclick="confirmResetSystem()" class="w-full py-4 bg-white border border-red-100 text-red-500 rounded-2xl font-bold text-sm hover:bg-red-50 hover:border-red-200 transition-all flex items-center justify-center gap-2 shadow-sm"><i data-lucide="trash-2" class="w-4 h-4"></i> Reset Factory (Hapus Semua Data)</button>
                         </div>
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- D. MOBILE BOTTOM NAV (Visible only on Mobile) -->
-        <nav id="mobile-menu" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2 flex justify-around z-50 shadow-lg pb-safe">
-            <!-- Items injected via JS -->
-        </nav>
-
+        <!-- D. MOBILE BOTTOM NAV -->
+        <nav id="mobile-menu" class="md:hidden fixed bottom-0 left-0 right-0 glass-strong p-3 flex justify-around z-50 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] pb-safe"></nav>
     </div>
 
     <!-- MODALS -->
     <div id="input-form-modal" class="fixed inset-0 z-[100] hidden-section flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeInputForm()"></div>
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onclick="closeInputForm()"></div>
         <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate-[scaleIn_0.3s_ease-out]">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                 <div><h3 class="text-xl font-bold text-slate-800">Input Handover</h3><p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Formulir Pengiriman</p></div>
-                <button onclick="closeInputForm()" class="p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button onclick="closeInputForm()" class="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-6 md:p-8 space-y-6 max-h-[80vh] overflow-y-auto">
                 <div class="space-y-3">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">1. Scan Barcode</label>
                     <div class="relative">
-                        <input type="text" id="input-resi" class="w-full pl-4 pr-16 py-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 ring-indigo-500 font-mono font-bold text-lg text-slate-800 placeholder:text-slate-300 transition-all" placeholder="Scan / Ketik Resi">
+                        <input type="text" id="input-resi" class="w-full pl-5 pr-16 py-4 bg-slate-50 rounded-2xl border border-transparent outline-none focus:bg-white focus:border-indigo-100 focus:ring-4 focus:ring-indigo-50/50 font-mono font-bold text-lg text-slate-800 placeholder:text-slate-300 transition-all" placeholder="Scan / Ketik Resi">
                         <button onclick="toggleScanner('mitra')" class="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white w-12 rounded-xl flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-200"><i data-lucide="scan-line" class="w-6 h-6"></i></button>
                     </div>
                     <div id="scanner-mitra" class="hidden-section rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-inner mt-2"></div>
@@ -547,30 +630,37 @@
                 <div class="space-y-3">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">2. Kondisi Paket</label>
                     <div class="grid grid-cols-2 gap-3">
-                        <button onclick="selectStatus(this, 'Gagal Delivery')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">Gagal Delivery</button>
-                        <button onclick="selectStatus(this, 'COD')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">COD</button>
-                        <button onclick="selectStatus(this, 'Freeze')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">Freeze</button>
-                        <button onclick="selectStatus(this, 'XRT')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">XRT</button>
-                        <button onclick="selectStatus(this, 'Parcel Damage')" class="status-btn col-span-2 p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">Parcel Damage (Rusak)</button>
+                        <button onclick="selectStatus(this, 'Gagal Delivery')" class="status-btn p-4 rounded-2xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95">Gagal Delivery</button>
+                        <button onclick="selectStatus(this, 'COD')" class="status-btn p-4 rounded-2xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95">COD</button>
+                        <button onclick="selectStatus(this, 'Freeze')" class="status-btn p-4 rounded-2xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95">Freeze</button>
+                        <button onclick="selectStatus(this, 'XRT')" class="status-btn p-4 rounded-2xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95">XRT</button>
+                        <button onclick="selectStatus(this, 'Parcel Damage')" class="status-btn col-span-2 p-4 rounded-2xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95">Parcel Damage (Rusak)</button>
                     </div>
                 </div>
-                <button onclick="submitPackage()" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold text-lg shadow-xl hover:bg-slate-900 active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="send" class="w-5 h-5"></i> Submit Handover</button>
+                <button onclick="submitPackage()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg shadow-xl hover:bg-indigo-600 hover:shadow-indigo-200 active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="send" class="w-5 h-5"></i> Submit Handover</button>
             </div>
         </div>
     </div>
 
+    <!-- NEW: Global Mobile Scanner Overlay -->
+    <div id="scanner-overlay-guide"></div>
+    <button id="scanner-stop-btn" onclick="forceStopScanner()"><i data-lucide="x" class="w-6 h-6 inline mr-2"></i> Tutup Kamera</button>
+
+    <!-- Confirm Modal -->
     <div id="modal-overlay" class="fixed inset-0 z-[10000] hidden-section flex items-center justify-center opacity-0 pointer-events-none">
-        <div id="modal-box" class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full mx-4 text-center border border-slate-100">
-            <div id="modal-icon" class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="alert-triangle" class="w-8 h-8"></i></div>
-            <h3 id="modal-title" class="text-lg font-bold text-slate-800 mb-2">Konfirmasi?</h3>
-            <p id="modal-desc" class="text-slate-500 text-sm mb-6">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
-            <div class="flex gap-3">
-                <button onclick="closeModal()" class="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors">Batal</button>
-                <button id="modal-confirm-btn" onclick="executeAction()" class="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-colors">Ya, Lanjutkan</button>
+        <div id="modal-box" class="bg-white p-8 rounded-[2.5rem] shadow-2xl max-w-sm w-full mx-6 text-center border border-white/50 relative">
+            <div class="absolute inset-0 bg-gradient-to-b from-white to-slate-50 rounded-[2.5rem] -z-10"></div>
+            <div id="modal-icon" class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm"><i data-lucide="alert-triangle" class="w-10 h-10"></i></div>
+            <h3 id="modal-title" class="text-xl font-extrabold text-slate-800 mb-2 tracking-tight">Konfirmasi?</h3>
+            <p id="modal-desc" class="text-slate-500 text-sm mb-8 leading-relaxed">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+            <div class="flex gap-4">
+                <button onclick="closeModal()" class="flex-1 py-3.5 bg-white border border-slate-200 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-50 transition-colors">Batal</button>
+                <button id="modal-confirm-btn" onclick="executeAction()" class="flex-1 py-3.5 bg-red-500 text-white rounded-2xl font-bold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-all">Ya, Lanjutkan</button>
             </div>
         </div>
     </div>
 
+    <!-- JAVASCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, updateDoc, serverTimestamp, orderBy, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -588,24 +678,19 @@
         const db = getFirestore(app);
 
         let currentUser = JSON.parse(localStorage.getItem('hub_session')) || null;
-        let activeScanner = null;
+        let activeScanner = null, activeScannerId = null;
         let selectedPackageStatus = null;
         let hubQueue = [];
         let isEditingUser = false;
         let pendingAction = null;
-        let unsubPackages = null;
-        let unsubUsers = null;
-        
-        // NEW: Global Data Storage for Filtering
+        let unsubPackages = null, unsubUsers = null;
         let allPackagesData = []; 
 
         async function initAdmin() {
             try {
                 const ref = doc(db, "users", "admin");
                 const snap = await getDoc(ref);
-                if (!snap.exists()) {
-                    await setDoc(ref, { name: "Super Admin", password: "123", role: "admin", city: "Pusat" });
-                }
+                if (!snap.exists()) await setDoc(ref, { name: "Super Admin", password: "123", role: "admin", city: "Pusat" });
             } catch (e) { console.error(e); }
         }
         initAdmin();
@@ -623,12 +708,8 @@
                         localStorage.setItem('hub_session', JSON.stringify(currentUser));
                         initApp();
                         notify(`Selamat Datang, ${data.name}`, "success");
-                    } else {
-                        notify("Password Salah!", "error");
-                    }
-                } else {
-                    notify("ID Tidak Ditemukan", "error");
-                }
+                    } else notify("Password Salah!", "error");
+                } else notify("ID Tidak Ditemukan", "error");
             } catch (e) { notify("Koneksi Error. Cek Internet.", "error"); }
         };
 
@@ -638,11 +719,10 @@
                 currentUser = null;
                 if(unsubPackages) { unsubPackages(); unsubPackages = null; }
                 if(unsubUsers) { unsubUsers(); unsubUsers = null; }
-                if(activeScanner) { activeScanner.stop().catch(e=>{}); activeScanner = null; }
+                forceStopScanner();
                 document.getElementById('app-container').classList.add('hidden-section');
                 document.getElementById('login-screen').classList.remove('hidden-section');
-                document.getElementById('login-id').value = "";
-                document.getElementById('login-pass').value = "";
+                document.getElementById('login-id').value = ""; document.getElementById('login-pass').value = "";
                 notify("Berhasil Keluar", "success");
             }, "Keluar Sekarang");
         };
@@ -652,14 +732,12 @@
             document.getElementById('login-screen').classList.add('hidden-section');
             document.getElementById('app-container').classList.remove('hidden-section');
             
-            // Set User Info
             document.getElementById('avatar-initial-d').innerText = currentUser.name.charAt(0);
             document.getElementById('profile-name-d').innerText = currentUser.name;
             document.getElementById('profile-role-d').innerText = currentUser.role;
             document.getElementById('avatar-initial-m').innerText = currentUser.name.charAt(0);
             document.getElementById('my-name').value = currentUser.name;
 
-            // Generate Menu Items
             const menuItems = [
                 { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', allow: ['admin','visitor','mitra','hub'] },
                 { id: 'pengiriman', label: 'Pengiriman', icon: 'truck', allow: ['admin','mitra'] },
@@ -669,17 +747,15 @@
 
             const allowedItems = menuItems.filter(m => m.allow.includes(currentUser.role));
 
-            // Desktop Menu (Top)
             document.getElementById('desktop-menu').innerHTML = allowedItems.map(m => `
-                <button id="nav-d-${m.id}" onclick="navTo('${m.id}')" class="nav-item flex flex-col items-center gap-1 px-4 py-2 rounded-xl text-slate-500 transition-all">
-                    <i data-lucide="${m.icon}" class="w-5 h-5"></i>
-                    <span class="text-[10px] font-bold uppercase tracking-wider">${m.label}</span>
+                <button id="nav-d-${m.id}" onclick="navTo('${m.id}')" class="nav-item flex items-center gap-2 px-5 py-2.5 rounded-xl text-slate-500 font-medium text-sm">
+                    <i data-lucide="${m.icon}" class="w-4 h-4"></i>
+                    <span>${m.label.split(' ')[0]}</span>
                 </button>
             `).join('');
 
-            // Mobile Menu (Bottom)
             document.getElementById('mobile-menu').innerHTML = allowedItems.map(m => `
-                <button id="nav-m-${m.id}" onclick="navTo('${m.id}')" class="nav-item flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-slate-500 transition-all flex-1">
+                <button id="nav-m-${m.id}" onclick="navTo('${m.id}')" class="nav-item flex flex-col items-center justify-center gap-1 p-2 w-full text-slate-400">
                     <i data-lucide="${m.icon}" class="w-6 h-6"></i>
                     <span class="text-[9px] font-bold uppercase tracking-wide">${m.label.split(' ')[0]}</span>
                 </button>
@@ -701,7 +777,6 @@
             document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden-section'));
             document.getElementById(`page-${pageId}`).classList.remove('hidden-section');
             
-            // Update Active State for Navigation
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             const activeDesktop = document.getElementById(`nav-d-${pageId}`);
             const activeMobile = document.getElementById(`nav-m-${pageId}`);
@@ -718,53 +793,91 @@
         };
 
         window.selectStatus = (btn, status) => {
-            document.querySelectorAll('.status-btn').forEach(b => { b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600'); b.classList.add('text-slate-500', 'border-slate-200'); });
-            btn.classList.remove('text-slate-500', 'border-slate-200'); btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+            document.querySelectorAll('.status-btn').forEach(b => { b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-lg', 'shadow-indigo-200'); b.classList.add('text-slate-500', 'border-slate-200'); });
+            btn.classList.remove('text-slate-500', 'border-slate-200'); btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-lg', 'shadow-indigo-200');
             selectedPackageStatus = status;
         };
 
+        // --- SCANNER LOGIC ---
         window.toggleScanner = (type) => {
             const elId = type === 'mitra' ? 'scanner-mitra' : 'scanner-hub';
             const displayEl = document.getElementById(elId);
-            if(activeScanner) {
-                activeScanner.stop().then(() => { activeScanner = null; if(type === 'mitra') displayEl.classList.add('hidden-section'); notify("Kamera Dimatikan", "default"); });
-                return;
+            const isMobile = window.innerWidth < 768;
+
+            if(activeScanner) { forceStopScanner(); return; }
+
+            displayEl.classList.remove('hidden-section');
+            activeScannerId = elId;
+
+            if(isMobile) {
+                displayEl.classList.add('scanner-fullscreen');
+                document.getElementById('scanner-stop-btn').style.display = 'block';
+                document.getElementById('scanner-overlay-guide').style.display = 'block';
+                const mobNav = document.getElementById('mobile-menu');
+                if(mobNav) mobNav.style.display = 'none';
             }
-            if(type === 'mitra') displayEl.classList.remove('hidden-section');
+
             activeScanner = new Html5Qrcode(elId);
-            activeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
+            const config = { fps: 15, qrbox: isMobile ? 250 : 300, aspectRatio: isMobile ? 1.0 : 1.333334 };
+
+            activeScanner.start({ facingMode: "environment" }, config, (text) => {
+                if (navigator.vibrate) navigator.vibrate(200);
+                
                 if(type === 'mitra') {
                     document.getElementById('input-resi').value = text;
-                    activeScanner.stop(); activeScanner = null; displayEl.classList.add('hidden-section'); notify("Resi Terbaca!", "success");
-                } else { addHubQueue(text); }
-            }).catch(err => notify("Izin kamera ditolak / Error", "error"));
+                    notify("Resi Terbaca!", "success");
+                    forceStopScanner();
+                } else {
+                    addHubQueue(text);
+                }
+            }).catch(err => { console.error(err); notify("Gagal akses kamera.", "error"); forceStopScanner(); });
         };
+
+        window.forceStopScanner = () => {
+            if(activeScanner) {
+                activeScanner.stop().then(cleanupScannerUI).catch(cleanupScannerUI);
+            } else { cleanupScannerUI(); }
+        };
+
+        function cleanupScannerUI() {
+            activeScanner = null;
+            if(activeScannerId) {
+                const el = document.getElementById(activeScannerId);
+                el.classList.add('hidden-section');
+                el.classList.remove('scanner-fullscreen');
+                el.innerHTML = "";
+            }
+            document.getElementById('scanner-stop-btn').style.display = 'none';
+            document.getElementById('scanner-overlay-guide').style.display = 'none';
+            const mobNav = document.getElementById('mobile-menu');
+            if(mobNav) mobNav.style.display = 'flex';
+        }
 
         window.submitPackage = async () => {
             const resi = document.getElementById('input-resi').value.trim();
-            if(!resi || !selectedPackageStatus) return notify("Resi & Status Wajib Diisi", "error");
+            if(!resi || !selectedPackageStatus) return notify("Lengkapi Data!", "error");
             try {
                 await setDoc(doc(db, "packages", resi), {
                     resi, status: selectedPackageStatus, posisi: 'Vendor',
                     sender_id: currentUser.id, sender_name: currentUser.name, city: currentUser.city, createdAt: serverTimestamp()
                 });
-                notify("Paket Berhasil Disimpan", "success");
+                notify("Berhasil Disimpan", "success");
                 document.getElementById('input-resi').value = ""; closeInputForm();
-            } catch (e) { notify("Gagal Menyimpan Data", "error"); }
+            } catch (e) { notify("Gagal Simpan", "error"); }
         };
 
         window.manualAddQueue = () => { const val = document.getElementById('manual-hub-resi').value.trim(); if(val) { addHubQueue(val); document.getElementById('manual-hub-resi').value = ""; } };
 
         async function addHubQueue(resi) {
-            if(hubQueue.find(q => q.resi === resi)) return notify("AWB Duplicate! Resi sudah ada di antrean.", "error");
+            if(hubQueue.find(q => q.resi === resi)) return notify("Resi Duplikat!", "error");
             const snap = await getDoc(doc(db, "packages", resi));
             if(snap.exists()) {
                 const d = snap.data();
-                if(d.posisi === 'HUB') { notify("Paket sudah di HUB sebelumnya", "default"); } 
-                else { hubQueue.push(d); renderHubQueue(); notify(`Resi ${resi} masuk antrean`, "success"); }
+                if(d.posisi === 'HUB') notify("Sudah di HUB", "default");
+                else { hubQueue.push(d); renderHubQueue(); notify("Masuk Antrean", "success"); }
             } else {
-                const unknownPackage = { resi: resi, city: "Asal Tidak Terdeteksi", sender_name: "Unknown", status: "Unregistered", posisi: "Unknown" };
-                hubQueue.push(unknownPackage); renderHubQueue(); notify(`Resi Asing ${resi} ditambahkan`, "default");
+                hubQueue.push({ resi: resi, city: "Asal Tidak Terdeteksi", sender_name: "Unknown", status: "Unregistered", posisi: "Unknown" });
+                renderHubQueue(); notify("Resi Asing Ditambahkan", "default");
             }
         }
 
@@ -775,7 +888,7 @@
             if(hubQueue.length === 0) { list.innerHTML = ""; empty.classList.remove('hidden-section'); return; }
             empty.classList.add('hidden-section');
             list.innerHTML = hubQueue.map((item, i) => `
-                <tr class="group hover:bg-slate-50"><td class="py-3 px-2 font-mono font-bold text-slate-700">${item.resi}</td><td class="py-3 px-2 text-slate-500 text-xs italic">${item.city || 'Asal Tidak Terdeteksi'}</td><td class="py-3 px-2 text-right"><button onclick="removeFromQueue(${i})" class="text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>
+                <tr class="group hover:bg-slate-50"><td class="py-4 px-2 font-mono font-bold text-slate-700">${item.resi}</td><td class="py-4 px-2 text-slate-500 text-xs italic">${item.city || 'Asal Tidak Terdeteksi'}</td><td class="py-4 px-2 text-right"><button onclick="removeFromQueue(${i})" class="text-red-400 hover:text-red-600 bg-red-50 p-2 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>
             `).join('');
             lucide.createIcons();
         }
@@ -785,13 +898,11 @@
         window.processQueue = async () => {
             if(hubQueue.length === 0) return;
             try {
-                const promises = hubQueue.map(item => 
-                    setDoc(doc(db, "packages", item.resi), {
-                        resi: item.resi, posisi: 'HUB', hub_receiver: currentUser.name, hub_date: serverTimestamp(),
-                        createdAt: serverTimestamp(), city: item.city || "Asal Tidak Terdeteksi", sender_name: item.sender_name || "Tanpa Data Mitra", status: item.status || "Ditemukan di HUB"
-                    }, { merge: true })
-                );
-                await Promise.all(promises); hubQueue = []; renderHubQueue(); notify("Semua Paket Divalidasi & Disimpan!", "success");
+                const promises = hubQueue.map(item => setDoc(doc(db, "packages", item.resi), {
+                    resi: item.resi, posisi: 'HUB', hub_receiver: currentUser.name, hub_date: serverTimestamp(),
+                    createdAt: serverTimestamp(), city: item.city || "Asal Tidak Terdeteksi", sender_name: item.sender_name || "Tanpa Data Mitra", status: item.status || "Ditemukan di HUB"
+                }, { merge: true }));
+                await Promise.all(promises); hubQueue = []; renderHubQueue(); notify("Validasi Selesai!", "success");
             } catch (e) { notify("Gagal Validasi", "error"); }
         };
 
@@ -802,16 +913,12 @@
                 allPackagesData = [];
                 snap.forEach(doc => { allPackagesData.push(doc.data()); });
                 
-                // Populate City Filter Options (Unique Cities)
                 const citySelect = document.getElementById('filter-city');
                 const uniqueCities = [...new Set(allPackagesData.map(d => d.city).filter(Boolean))].sort();
-                
-                // Keep current selection
                 const currentVal = citySelect.value;
                 citySelect.innerHTML = `<option value="">Semua Kota</option>` + uniqueCities.map(c => `<option value="${c}">${c}</option>`).join('');
                 if(uniqueCities.includes(currentVal)) citySelect.value = currentVal;
 
-                // Render Data
                 renderDashboardData();
             });
         }
@@ -824,73 +931,55 @@
 
             let html = "", pendingHtml = "", slaHtml = "";
             let v = 0, h = 0, visibleCount = 0, stuckCount = 0;
-            let pendingData = [];
-            let slaData = {}; // { city: { count: 0, totalHours: 0 } }
+            let pendingData = [], slaData = {};
 
             const filteredData = allPackagesData.filter(d => {
                 const date = d.createdAt ? d.createdAt.toDate() : new Date();
-                
-                // 1. Mitra Restriction
                 if (currentUser && currentUser.role === 'mitra') {
                     if ((d.city || "").toLowerCase() !== (currentUser.city || "").toLowerCase()) return false;
                 }
-
-                // 2. Filters
                 if (fStart && date < new Date(fStart)) return false;
                 if (fEnd && date > new Date(fEnd + 'T23:59:59')) return false;
                 if (fCity && d.city !== fCity) return false;
                 if (fPos && d.posisi !== fPos) return false;
-
                 return true;
             });
 
-            // Process Filtered Data
             filteredData.forEach(d => {
                 visibleCount++;
                 if(d.posisi === 'Vendor') v++; else h++;
 
-                // Main Table Row
                 html += `<tr class="hover:bg-slate-50 transition border-b border-slate-50 group"><td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="p-5 font-bold font-mono text-indigo-600 group-hover:text-indigo-700">${d.resi}</td><td class="p-5 font-semibold text-slate-700">${d.sender_name}</td><td class="p-5 text-slate-600">${d.city}</td><td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td><td class="p-5"><span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center gap-1 w-fit ${d.posisi === 'HUB' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}"><span class="w-1.5 h-1.5 rounded-full ${d.posisi === 'HUB' ? 'bg-emerald-500' : 'bg-orange-500'}"></span> ${d.posisi}</span></td></tr>`;
 
-                // Calculate Diff Days
                 const sentDate = d.createdAt ? d.createdAt.toDate() : new Date();
                 const now = new Date();
                 const diffMs = Math.abs(now - sentDate);
                 const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); 
 
-                // Logic Pending Vendor (>2 Hari)
                 if(d.posisi === 'Vendor') {
                     if(diffDays > 2) stuckCount++;
                     pendingData.push({ ...d, diffDays });
                 }
 
-                // Logic SLA (Only for Completed HUB packages with valid dates)
                 if(d.posisi === 'HUB' && d.hub_date && d.createdAt) {
                     const cityKey = d.city || 'Unknown';
-                    
-                    // FILTER: Takeout "Asal Tidak Terdeteksi" from SLA Table
                     if (cityKey !== "Asal Tidak Terdeteksi") {
                         const hubDate = d.hub_date.toDate();
-                        const hours = (hubDate - sentDate) / (1000 * 60 * 60); // Hours
-                        
+                        const hours = (hubDate - sentDate) / (1000 * 60 * 60);
                         if(!slaData[cityKey]) slaData[cityKey] = { count: 0, totalHours: 0 };
-                        slaData[cityKey].count++;
-                        slaData[cityKey].totalHours += hours;
+                        slaData[cityKey].count++; slaData[cityKey].totalHours += hours;
                     }
                 }
             });
 
-            // 1. Update Main Stats
             document.getElementById('table-packages').innerHTML = html;
             document.getElementById('stat-vendor').innerText = v;
             document.getElementById('stat-hub').innerText = h;
             document.getElementById('stat-total').innerText = visibleCount;
             document.getElementById('stat-stuck').innerText = stuckCount;
-            
             document.getElementById('empty-state').classList.toggle('hidden-section', visibleCount > 0);
 
-            // 2. Render Pending Vendor Table (Sorted Oldest First)
-            pendingData.sort((a, b) => (b.diffDays - a.diffDays)); // Highest days first
+            pendingData.sort((a, b) => (b.diffDays - a.diffDays));
             pendingData.forEach(d => {
                 let badge = `<span class="px-2 py-1 rounded-lg text-[10px] font-bold bg-blue-50 text-blue-600">Baru</span>`;
                 if(d.diffDays > 0) {
@@ -904,26 +993,16 @@
             document.getElementById('pending-badge-count').innerText = pendingData.length + " Paket";
             document.getElementById('empty-pending').classList.toggle('hidden-section', pendingData.length > 0);
 
-            // 3. Render SLA Table
             const slaKeys = Object.keys(slaData).sort();
             if(slaKeys.length > 0) {
                 slaKeys.forEach(city => {
                     const data = slaData[city];
                     const avgHours = (data.totalHours / data.count).toFixed(1);
-                    
-                    // SLA Badge Logic (Misal: < 24 jam = Bagus)
                     let slaBadge = `<span class="bg-emerald-100 text-emerald-600 px-2 py-1 rounded text-[10px] font-bold">Cepat</span>`;
                     if(avgHours > 48) slaBadge = `<span class="bg-red-100 text-red-600 px-2 py-1 rounded text-[10px] font-bold">Lambat</span>`;
                     else if(avgHours > 24) slaBadge = `<span class="bg-orange-100 text-orange-600 px-2 py-1 rounded text-[10px] font-bold">Sedang</span>`;
 
-                    slaHtml += `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-50">
-                            <td class="p-4 font-bold text-slate-700">${city}</td>
-                            <td class="p-4 text-center text-slate-500 font-mono">${data.count}</td>
-                            <td class="p-4 text-right font-bold text-indigo-600">${avgHours} jam</td>
-                            <td class="p-4 text-center">${slaBadge}</td>
-                        </tr>
-                    `;
+                    slaHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-4 font-bold text-slate-700">${city}</td><td class="p-4 text-center text-slate-500 font-mono">${data.count}</td><td class="p-4 text-right font-bold text-indigo-600">${avgHours} jam</td><td class="p-4 text-center">${slaBadge}</td></tr>`;
                 });
                 document.getElementById('table-sla').innerHTML = slaHtml;
                 document.getElementById('empty-sla').classList.add('hidden-section');
@@ -931,15 +1010,12 @@
                 document.getElementById('table-sla').innerHTML = "";
                 document.getElementById('empty-sla').classList.remove('hidden-section');
             }
-
             lucide.createIcons();
         };
 
         window.resetFilters = () => {
-            document.getElementById('filter-start').value = "";
-            document.getElementById('filter-end').value = "";
-            document.getElementById('filter-city').value = "";
-            document.getElementById('filter-posisi').value = "";
+            document.getElementById('filter-start').value = ""; document.getElementById('filter-end').value = "";
+            document.getElementById('filter-city').value = ""; document.getElementById('filter-posisi').value = "";
             renderDashboardData();
         };
 
@@ -949,38 +1025,17 @@
                 let html = "";
                 snap.forEach(s => {
                     const u = s.data(); const id = s.id; const isMe = id === currentUser.id;
-                    // Pass password to editUser function
-                    html += `
-                    <tr class="hover:bg-slate-50 border-b border-slate-50">
-                        <td class="py-3 px-4 font-mono font-bold text-xs text-indigo-600">${id}</td>
-                        <td class="py-3 px-4 font-semibold text-slate-700">${u.name}</td>
-                        <td class="py-3 px-4"><span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-[10px] font-bold uppercase">${u.role}</span></td>
-                        <td class="py-3 px-4 font-mono text-xs text-slate-500 bg-slate-50 rounded select-all">${u.password || '***'}</td>
-                        <td class="py-3 px-4 text-slate-500 text-sm">${u.city}</td>
-                        <td class="py-3 px-4 text-right flex justify-end gap-2">
-                            <button onclick="editUser('${id}','${u.name}','${u.city}','${u.role}', '${u.password || ''}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><i data-lucide="pencil" class="w-3 h-3"></i></button>
-                            ${!isMe ? `<button onclick="deleteUser('${id}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"><i data-lucide="trash" class="w-3 h-3"></i></button>` : ''}
-                        </td>
-                    </tr>`;
+                    html += `<tr class="hover:bg-slate-50 border-b border-slate-50"><td class="py-4 px-5 font-mono font-bold text-xs text-indigo-600">${id}</td><td class="py-4 px-5 font-semibold text-slate-700">${u.name}</td><td class="py-4 px-5"><span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-[10px] font-bold uppercase">${u.role}</span></td><td class="py-4 px-5 font-mono text-xs text-slate-500 bg-slate-50 rounded select-all">${u.password || '***'}</td><td class="py-4 px-5 text-slate-500 text-sm">${u.city}</td><td class="py-4 px-5 text-right flex justify-end gap-2"><button onclick="editUser('${id}','${u.name}','${u.city}','${u.role}', '${u.password || ''}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><i data-lucide="pencil" class="w-3 h-3"></i></button>${!isMe ? `<button onclick="deleteUser('${id}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"><i data-lucide="trash" class="w-3 h-3"></i></button>` : ''}</td></tr>`;
                 });
                 document.getElementById('user-list-table').innerHTML = html; lucide.createIcons();
             });
         }
 
         window.saveUserByAdmin = async () => {
-            const id = document.getElementById('adm-id').value.trim(); 
-            const name = document.getElementById('adm-name').value; 
-            const city = document.getElementById('adm-city').value; 
-            const role = document.getElementById('adm-role').value;
-            const pass = document.getElementById('adm-pass').value; // Get Password
-
+            const id = document.getElementById('adm-id').value.trim(); const name = document.getElementById('adm-name').value; const city = document.getElementById('adm-city').value; const role = document.getElementById('adm-role').value; const pass = document.getElementById('adm-pass').value;
             if(!id || !name) return notify("Data Tidak Lengkap", "error");
             try {
-                const payload = { name, city, role }; 
-                // Use input password, or default to '123' if new user and empty
-                if (pass) payload.password = pass;
-                else if (!isEditingUser) payload.password = "123";
-
+                const payload = { name, city, role }; if(pass) payload.password = pass; else if(!isEditingUser) payload.password = "123";
                 await setDoc(doc(db, "users", id), payload, { merge: true });
                 notify(isEditingUser ? "User Diupdate" : "User Dibuat", "success"); resetAdminForm();
             } catch (e) { notify("Gagal Simpan User", "error"); }
@@ -989,25 +1044,17 @@
         window.editUser = (id, name, city, role, pass) => {
             isEditingUser = true;
             document.getElementById('adm-id').value = id; document.getElementById('adm-id').disabled = true;
-            document.getElementById('adm-name').value = name; 
-            document.getElementById('adm-city').value = city; 
-            document.getElementById('adm-role').value = role;
-            document.getElementById('adm-pass').value = pass; // Fill password
-            
+            document.getElementById('adm-name').value = name; document.getElementById('adm-city').value = city; document.getElementById('adm-role').value = role; document.getElementById('adm-pass').value = pass;
             document.getElementById('form-title').innerText = "EDIT USER: " + id;
-            document.getElementById('btn-save-user').innerHTML = `<i data-lucide="save" class="w-4 h-4 inline mr-1"></i> Update User`;
+            document.getElementById('btn-save-user').innerText = "Update User";
             document.getElementById('btn-cancel-edit').classList.remove('hidden-section');
             document.getElementById('form-title').scrollIntoView({ behavior: 'smooth', block: 'center' }); lucide.createIcons();
         };
 
         window.resetAdminForm = () => {
             isEditingUser = false;
-            document.getElementById('adm-id').value = ""; document.getElementById('adm-id').disabled = false; 
-            document.getElementById('adm-name').value = ""; 
-            document.getElementById('adm-city').value = "";
-            document.getElementById('adm-pass').value = ""; // Reset password field
-            
-            document.getElementById('form-title').innerText = "TAMBAH USER BARU"; document.getElementById('btn-save-user').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 inline mr-1"></i> Simpan User`;
+            document.getElementById('adm-id').value = ""; document.getElementById('adm-id').disabled = false; document.getElementById('adm-name').value = ""; document.getElementById('adm-city').value = ""; document.getElementById('adm-pass').value = "";
+            document.getElementById('form-title').innerText = "TAMBAH USER BARU"; document.getElementById('btn-save-user').innerText = "Simpan User";
             document.getElementById('btn-cancel-edit').classList.add('hidden-section'); lucide.createIcons();
         };
 
@@ -1016,7 +1063,7 @@
             pendingAction = action; const modal = document.getElementById('modal-overlay'); modal.classList.remove('hidden-section'); setTimeout(() => modal.classList.add('open'), 10);
         };
 
-        window.deleteUser = (id) => { showModal("Hapus User Ini?", "Tindakan ini tidak dapat dibatalkan. User tidak akan bisa login lagi.", async () => { try { await deleteDoc(doc(db, "users", id)); notify("User Berhasil Dihapus", "success"); } catch (e) { notify("Gagal Menghapus User", "error"); } }, "Hapus User"); };
+        window.deleteUser = (id) => { showModal("Hapus User Ini?", "Tindakan ini tidak dapat dibatalkan.", async () => { try { await deleteDoc(doc(db, "users", id)); notify("User Dihapus", "success"); } catch (e) { notify("Gagal Hapus", "error"); } }, "Hapus"); };
         window.closeModal = () => { const modal = document.getElementById('modal-overlay'); modal.classList.remove('open'); setTimeout(() => { modal.classList.add('hidden-section'); pendingAction = null; }, 300); };
         window.executeAction = async () => { if(pendingAction) await pendingAction(); closeModal(); };
 
@@ -1025,7 +1072,7 @@
             const payload = { name }; if(pass) payload.password = pass;
             await updateDoc(doc(db, "users", currentUser.id), payload);
             currentUser.name = name; localStorage.setItem('hub_session', JSON.stringify(currentUser));
-            document.getElementById('profile-name-d').innerText = name; notify("Profil Berhasil Diupdate", "success");
+            document.getElementById('profile-name-d').innerText = name; notify("Profil Diupdate", "success");
         };
 
         window.filterTable = (val) => {
@@ -1033,13 +1080,43 @@
             for (let i = 0; i < rows.length; i++) { const txt = rows[i].textContent.toLowerCase(); rows[i].style.display = txt.includes(filter) ? "" : "none"; }
         };
 
+        // UPDATED NOTIFY FUNCTION
         window.notify = (msg, type) => {
-            const island = document.getElementById('dynamic-island'); const icon = document.getElementById('island-icon'); const txt = document.getElementById('island-msg');
-            let iconHtml = "";
-            if(type === 'success') iconHtml = `<div class="bg-emerald-500 rounded-full p-1"><i data-lucide="check" class="text-white w-3 h-3"></i></div>`;
-            else if(type === 'error') iconHtml = `<div class="bg-red-500 rounded-full p-1"><i data-lucide="x" class="text-white w-3 h-3"></i></div>`;
-            else iconHtml = `<div class="bg-slate-500 rounded-full p-1"><i data-lucide="info" class="text-white w-3 h-3"></i></div>`;
-            icon.innerHTML = iconHtml; txt.innerText = msg; island.classList.add('active'); lucide.createIcons();
+            const island = document.getElementById('dynamic-island');
+            const iconBox = document.getElementById('island-icon');
+            const title = document.getElementById('island-title');
+            const txt = document.getElementById('island-msg');
+            
+            // Reset Classes
+            iconBox.className = 'island-icon-box';
+            
+            let iconHtml = '';
+            
+            if(type === 'success') {
+                iconBox.classList.add('success');
+                title.innerText = 'BERHASIL';
+                title.classList.remove('text-red-400'); title.classList.add('text-green-400');
+                iconHtml = `<i data-lucide="check" class="w-5 h-5"></i>`;
+            } else if(type === 'error') {
+                iconBox.classList.add('error');
+                title.innerText = 'GAGAL';
+                title.classList.remove('text-green-400'); title.classList.add('text-red-400');
+                iconHtml = `<i data-lucide="x" class="w-5 h-5"></i>`;
+            } else {
+                iconBox.classList.add('default');
+                title.innerText = 'INFO';
+                title.classList.remove('text-green-400', 'text-red-400'); title.classList.add('text-gray-400');
+                iconHtml = `<i data-lucide="info" class="w-5 h-5"></i>`;
+            }
+            
+            iconBox.innerHTML = iconHtml;
+            txt.innerText = msg;
+            
+            // Trigger Animation
+            island.classList.add('active');
+            lucide.createIcons();
+            
+            // Auto hide
             setTimeout(() => { island.classList.remove('active'); }, 3000);
         };
 
@@ -1049,41 +1126,16 @@
             const csvFile = new Blob([csv.join("\n")], {type: "text/csv"}); const link = document.createElement("a"); link.href = URL.createObjectURL(csvFile); link.download = "Data_Paket_HUB.csv"; link.click();
         };
 
-        // NEW: RESET SYSTEM FUNCTION
-        window.confirmResetSystem = () => {
-            showModal(
-                "Reset Total Sistem?", 
-                "PERINGATAN: Semua data paket dan akun user (selain Admin ini) akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.", 
-                executeReset, 
-                "Ya, Hapus Semuanya"
-            );
-        };
-
+        window.confirmResetSystem = () => { showModal("Reset Total Sistem?", "PERINGATAN: Semua data akan dihapus permanen.", executeReset, "Hapus Semuanya"); };
         window.executeReset = async () => {
             try {
-                notify("Memulai proses reset...", "default");
-                
-                // 1. Delete Packages
+                notify("Memulai reset...", "default");
                 const pkgSnap = await getDocs(collection(db, "packages"));
-                const pkgPromises = pkgSnap.docs.map(doc => deleteDoc(doc.ref));
-                await Promise.all(pkgPromises);
-                
-                // 2. Delete Users (Except current admin and 'admin' default)
+                await Promise.all(pkgSnap.docs.map(doc => deleteDoc(doc.ref)));
                 const userSnap = await getDocs(collection(db, "users"));
-                const userPromises = userSnap.docs.map(doc => {
-                    if (doc.id !== currentUser.id && doc.id !== 'admin') {
-                        return deleteDoc(doc.ref);
-                    }
-                });
-                await Promise.all(userPromises);
-
-                notify("Sistem Berhasil Direset!", "success");
-                setTimeout(() => location.reload(), 2000);
-                
-            } catch (e) {
-                console.error(e);
-                notify("Gagal Reset Sistem", "error");
-            }
+                await Promise.all(userSnap.docs.map(doc => { if (doc.id !== currentUser.id && doc.id !== 'admin') return deleteDoc(doc.ref); }));
+                notify("Sistem Direset!", "success"); setTimeout(() => location.reload(), 2000);
+            } catch (e) { notify("Gagal Reset", "error"); }
         };
 
         if(currentUser) initApp();
