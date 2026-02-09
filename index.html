@@ -185,11 +185,10 @@
         }
 
         /* Guide dibuat lebih tinggi z-index nya */
-        /* UPDATED: Guide lebih besar untuk resi panjang */
+        /* UPDATED: Guide Fullscreen */
         #scanner-overlay-guide {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 85%; height: 40%; /* Lebih lebar dan tinggi */
-            max-width: 500px;
+            width: 90%; height: 85%; /* Bingkai Full Screen */
             border: 2px solid rgba(255, 255, 255, 0.7); border-radius: 16px;
             z-index: 200000; /* High Z-Index */
             box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.6); /* Gelapkan area luar */
@@ -813,7 +812,7 @@
             }
 
             activeScanner = new Html5Qrcode(elId);
-            const config = { fps: 15, qrbox: isMobile ? { width: window.innerWidth * 0.8, height: window.innerHeight * 0.5 } : 300, aspectRatio: isMobile ? window.innerWidth / window.innerHeight : 1.0 };
+            const config = { fps: 15, qrbox: isMobile ? { width: window.innerWidth * 0.9, height: window.innerHeight * 0.85 } : 300, aspectRatio: isMobile ? window.innerWidth / window.innerHeight : 1.0 };
 
             activeScanner.start({ facingMode: "environment" }, config, (text) => {
                 if (navigator.vibrate) navigator.vibrate(200);
