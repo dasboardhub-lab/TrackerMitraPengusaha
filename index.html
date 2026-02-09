@@ -886,8 +886,17 @@
                         notify("Masuk Antrean", "success"); 
                     }
                 } else {
-                    hubQueue.push({ resi: resi, city: "Asal Tidak Terdeteksi", sender_name: "Unknown", status: "Unregistered", posisi: "Unknown" });
-                    renderHubQueue(); notify("Resi Asing Ditambahkan", "default");
+                    // Tandai sebagai paket baru/asing dengan properti isNew
+                    hubQueue.push({ 
+                        resi: resi, 
+                        city: "Asal Tidak Terdeteksi", 
+                        sender_name: "Unknown", 
+                        status: "Unregistered", 
+                        posisi: "Unknown",
+                        isNew: true // Flag khusus untuk paket tidak terdaftar
+                    });
+                    renderHubQueue(); 
+                    notify("Resi Asing Ditambahkan", "default");
                 }
             } finally {
                 // Release Lock
@@ -913,21 +922,49 @@
         window.processQueue = async () => {
             if(hubQueue.length === 0) return;
             try {
-                const promises = hubQueue.map(item => setDoc(doc(db, "packages", item.resi), {
-                    resi: item.resi, posisi: 'HUB', hub_receiver: currentUser.name, hub_date: serverTimestamp(),
-                    createdAt: serverTimestamp(), city: item.city || "Asal Tidak Terdeteksi", sender_name: item.sender_name || "Tanpa Data Mitra", status: item.status || "Ditemukan di HUB"
-                }, { merge: true }));
-                await Promise.all(promises); hubQueue = []; renderHubQueue(); notify("Validasi Selesai!", "success");
-            } catch (e) { notify("Gagal Validasi", "error"); }
+                const promises = hubQueue.map(item => {
+                    // Siapkan data update
+                    const updateData = {
+                        resi: item.resi, 
+                        posisi: 'HUB', 
+                        hub_receiver: currentUser.name, 
+                        hub_date: serverTimestamp(),
+                        // Data default jika paket asing
+                        city: item.city || "Asal Tidak Terdeteksi", 
+                        sender_name: item.sender_name || "Tanpa Data Mitra", 
+                        status: item.status || "Ditemukan di HUB"
+                    };
+
+                    // Hanya buat 'createdAt' baru jika ini adalah paket asing (isNew)
+                    // Agar tanggal input asli dari Mitra TIDAK TIMPA/HILANG
+                    if(item.isNew) {
+                        updateData.createdAt = serverTimestamp();
+                    }
+
+                    return setDoc(doc(db, "packages", item.resi), updateData, { merge: true });
+                });
+
+                await Promise.all(promises); 
+                hubQueue = []; 
+                renderHubQueue(); 
+                document.getElementById('scan-counter-btn').innerText = "0"; // Reset counter button
+                notify("Validasi Selesai! Data Tersimpan.", "success");
+            } catch (e) { 
+                console.error(e);
+                notify("Gagal Validasi", "error"); 
+            }
         };
 
         function listenPackages() {
             if(unsubPackages) unsubPackages();
+            // Query mengambil semua data paket, diurutkan dari yang terbaru dibuat
             const q = query(collection(db, "packages"), orderBy("createdAt", "desc"));
+            
             unsubPackages = onSnapshot(q, (snap) => {
                 allPackagesData = [];
                 snap.forEach(doc => { allPackagesData.push(doc.data()); });
                 
+                // Populate Filters
                 const citySelect = document.getElementById('filter-city');
                 const uniqueCities = [...new Set(allPackagesData.map(d => d.city).filter(Boolean))].sort();
                 const currentVal = citySelect.value;
@@ -944,15 +981,17 @@
             const fCity = document.getElementById('filter-city').value;
             const fPos = document.getElementById('filter-posisi').value;
 
-            let html = "", pendingHtml = "", slaHtml = "";
-            let v = 0, h = 0, visibleCount = 0, stuckCount = 0;
+            let html = "", pendingHtml = "", slaHtml = "", hubHistoryHtml = "";
+            let v = 0, h = 0, visibleCount = 0, stuckCount = 0, hubHistoryCount = 0;
             let pendingData = [], slaData = {};
 
             const filteredData = allPackagesData.filter(d => {
                 const date = d.createdAt ? d.createdAt.toDate() : new Date();
+                // Filter Mitra (Hanya lihat kotanya sendiri)
                 if (currentUser && currentUser.role === 'mitra') {
                     if ((d.city || "").toLowerCase() !== (currentUser.city || "").toLowerCase()) return false;
                 }
+                // Filter Dashboard
                 if (fStart && date < new Date(fStart)) return false;
                 if (fEnd && date > new Date(fEnd + 'T23:59:59')) return false;
                 if (fCity && d.city !== fCity) return false;
@@ -964,29 +1003,48 @@
                 visibleCount++;
                 if(d.posisi === 'Vendor') v++; else h++;
 
+                // 1. DATA TABEL UTAMA (DASHBOARD)
                 html += `<tr class="hover:bg-slate-50 transition border-b border-slate-50 group"><td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="p-5 font-bold font-mono text-indigo-600 group-hover:text-indigo-700">${d.resi}</td><td class="p-5 font-semibold text-slate-700">${d.sender_name}</td><td class="p-5 text-slate-600">${d.city}</td><td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td><td class="p-5"><span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center gap-1 w-fit ${d.posisi === 'HUB' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}"><span class="w-1.5 h-1.5 rounded-full ${d.posisi === 'HUB' ? 'bg-emerald-500' : 'bg-orange-500'}"></span> ${d.posisi}</span></td></tr>`;
 
+                // Hitung Durasi
                 const sentDate = d.createdAt ? d.createdAt.toDate() : new Date();
                 const now = new Date();
                 const diffMs = Math.abs(now - sentDate);
                 const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); 
 
+                // 2. DATA MONITORING VENDOR (PENDING)
                 if(d.posisi === 'Vendor') {
                     if(diffDays > 2) stuckCount++;
                     pendingData.push({ ...d, diffDays });
                 }
 
-                if(d.posisi === 'HUB' && d.hub_date && d.createdAt) {
+                // 3. DATA SLA & HUB HISTORY
+                if(d.posisi === 'HUB' && d.hub_date) {
+                    const hubDate = d.hub_date.toDate();
+                    
+                    // SLA Calculation (Hanya jika bukan paket asing)
                     const cityKey = d.city || 'Unknown';
-                    if (cityKey !== "Asal Tidak Terdeteksi") {
-                        const hubDate = d.hub_date.toDate();
+                    if (cityKey !== "Asal Tidak Terdeteksi" && d.createdAt) {
                         const hours = (hubDate - sentDate) / (1000 * 60 * 60);
                         if(!slaData[cityKey]) slaData[cityKey] = { count: 0, totalHours: 0 };
                         slaData[cityKey].count++; slaData[cityKey].totalHours += hours;
                     }
+
+                    // HUB History Row Construction
+                    hubHistoryCount++;
+                    hubHistoryHtml += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-50">
+                            <td class="p-4 text-slate-500 text-xs font-semibold">${d.hub_date.toDate().toLocaleString('id-ID')}</td>
+                            <td class="p-4 font-mono font-bold text-indigo-600">${d.resi}</td>
+                            <td class="p-4 text-slate-600 text-xs italic">${d.city}</td>
+                            <td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded text-[10px] font-bold text-slate-400 uppercase">${d.status}</span></td>
+                            <td class="p-4 text-slate-600 text-xs font-semibold">${d.hub_receiver || '-'}</td>
+                        </tr>
+                    `;
                 }
             });
 
+            // Update UI: Dashboard Main Stats & Table
             document.getElementById('table-packages').innerHTML = html;
             document.getElementById('stat-vendor').innerText = v;
             document.getElementById('stat-hub').innerText = h;
@@ -994,6 +1052,7 @@
             document.getElementById('stat-stuck').innerText = stuckCount;
             document.getElementById('empty-state').classList.toggle('hidden-section', visibleCount > 0);
 
+            // Update UI: Pending Vendor Table
             pendingData.sort((a, b) => (b.diffDays - a.diffDays));
             pendingData.forEach(d => {
                 let badge = `<span class="px-2 py-1 rounded-lg text-[10px] font-bold bg-blue-50 text-blue-600">Baru</span>`;
@@ -1008,6 +1067,7 @@
             document.getElementById('pending-badge-count').innerText = pendingData.length + " Paket";
             document.getElementById('empty-pending').classList.toggle('hidden-section', pendingData.length > 0);
 
+            // Update UI: SLA Table
             const slaKeys = Object.keys(slaData).sort();
             if(slaKeys.length > 0) {
                 slaKeys.forEach(city => {
@@ -1025,6 +1085,37 @@
                 document.getElementById('table-sla').innerHTML = "";
                 document.getElementById('empty-sla').classList.remove('hidden-section');
             }
+
+            // Update UI: HUB History Table (NEW)
+            const hubTable = document.getElementById('table-hub-history');
+            const emptyHub = document.getElementById('empty-hub-history');
+            if(hubTable) {
+                hubTable.innerHTML = hubHistoryHtml;
+                if(hubHistoryCount === 0) emptyHub.classList.remove('hidden-section');
+                else emptyHub.classList.add('hidden-section');
+            }
+
+            // Update UI: Mitra History Table (Jika elemen ada di DOM)
+            const mitraTable = document.getElementById('table-mitra-history');
+            const emptyMitra = document.getElementById('empty-mitra');
+            if(mitraTable && currentUser && currentUser.role === 'mitra') {
+                // Perlu loop ulang atau filter khusus untuk mitra jika ingin menampilkan tabel history mitra
+                // Karena logika di atas sudah mencakup semuanya, kita bisa generate ulang mitraHtml secara terpisah jika diperlukan
+                // Namun, karena `filteredData` sudah memfilter sesuai role, kita bisa gunakan itu.
+                let mitraHtml = "";
+                let mitraCount = 0;
+                filteredData.forEach(d => {
+                    // Pastikan hanya menampilkan data milik user ini (double check)
+                    if(d.sender_id === currentUser.id) {
+                        mitraCount++;
+                        mitraHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="p-5 font-bold font-mono text-indigo-600">${d.resi}</td><td class="p-5 text-slate-600">${d.city}</td><td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td><td class="p-5"><span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide ${d.posisi === 'HUB' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}">${d.posisi}</span></td></tr>`;
+                    }
+                });
+                mitraTable.innerHTML = mitraHtml;
+                if(mitraCount === 0) emptyMitra.classList.remove('hidden-section'); 
+                else emptyMitra.classList.add('hidden-section');
+            }
+
             lucide.createIcons();
         };
 
