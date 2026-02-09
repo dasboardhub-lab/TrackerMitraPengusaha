@@ -47,10 +47,63 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
-        /* Navigation Active State Styles */
-        .nav-item.active i { color: #4f46e5; stroke-width: 3px; }
-        .nav-item.active span { color: #4f46e5; font-weight: 800; }
-        .nav-item:hover { background-color: #f1f5f9; }
+        /* UPDATED: Navigation Active State Styles (High Contrast) */
+        .nav-item {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Desktop: Solid Blue Button for Active State */
+        .nav-item.active { 
+            background-color: #4f46e5 !important; /* Indigo-600 */
+            color: white !important;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
+            transform: translateY(-1px);
+        } 
+        
+        .nav-item.active i { 
+            color: white !important; 
+            stroke-width: 3px; 
+        }
+        
+        .nav-item.active span { 
+            color: white !important; 
+            font-weight: 800; 
+        }
+        
+        .nav-item:hover:not(.active) { 
+            background-color: #e0e7ff; /* Light Indigo Hover */
+            color: #4338ca;
+        }
+        
+        /* Mobile Nav Specifics */
+        @media (max-width: 768px) {
+            .nav-item.active { 
+                background-color: #eef2ff !important; /* Indigo-50 Light Background */
+                color: #4f46e5 !important;
+                box-shadow: none;
+                transform: none;
+            }
+            
+            .nav-item.active i { 
+                color: #4f46e5 !important; 
+                stroke-width: 3px;
+            }
+            
+            .nav-item.active span { 
+                color: #4f46e5 !important; 
+            }
+
+            /* Top Indicator Bar for Mobile */
+            .nav-item.active::after {
+                content: '';
+                position: absolute;
+                top: 0; 
+                width: 60%;
+                height: 4px;
+                background-color: #4f46e5;
+                border-radius: 0 0 4px 4px;
+            }
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -451,6 +504,17 @@
                                 </table>
                             </div>
                         </div>
+                        
+                        <!-- NEW: DANGER ZONE (Reset Data) -->
+                        <div class="mt-8 pt-6 border-t border-slate-100">
+                            <h4 class="text-sm font-bold text-red-600 mb-2 flex items-center gap-2">
+                                <i data-lucide="alert-octagon" class="w-4 h-4"></i> Zona Bahaya
+                            </h4>
+                            <p class="text-xs text-slate-500 mb-4">Menghapus semua data paket dan user (kecuali akun Admin ini) untuk reset sistem.</p>
+                            <button onclick="confirmResetSystem()" class="w-full py-3 bg-red-50 text-red-600 border border-red-100 rounded-xl font-bold text-sm hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus Semua Data (Reset Factory)
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -509,7 +573,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, updateDoc, serverTimestamp, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, updateDoc, serverTimestamp, orderBy, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCxYJjxiabLIXkSSEw9TjKWK1dRYUtb3YE",
@@ -983,6 +1047,43 @@
             let csv = []; const rows = document.querySelectorAll("#table-packages tr"); csv.push("Waktu,No Resi,Pengirim,Kota,Kondisi,Posisi");
             for (let i = 0; i < rows.length; i++) { const row = [], cols = rows[i].querySelectorAll("td, th"); for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText + '"'); csv.push(row.join(",")); }
             const csvFile = new Blob([csv.join("\n")], {type: "text/csv"}); const link = document.createElement("a"); link.href = URL.createObjectURL(csvFile); link.download = "Data_Paket_HUB.csv"; link.click();
+        };
+
+        // NEW: RESET SYSTEM FUNCTION
+        window.confirmResetSystem = () => {
+            showModal(
+                "Reset Total Sistem?", 
+                "PERINGATAN: Semua data paket dan akun user (selain Admin ini) akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.", 
+                executeReset, 
+                "Ya, Hapus Semuanya"
+            );
+        };
+
+        window.executeReset = async () => {
+            try {
+                notify("Memulai proses reset...", "default");
+                
+                // 1. Delete Packages
+                const pkgSnap = await getDocs(collection(db, "packages"));
+                const pkgPromises = pkgSnap.docs.map(doc => deleteDoc(doc.ref));
+                await Promise.all(pkgPromises);
+                
+                // 2. Delete Users (Except current admin and 'admin' default)
+                const userSnap = await getDocs(collection(db, "users"));
+                const userPromises = userSnap.docs.map(doc => {
+                    if (doc.id !== currentUser.id && doc.id !== 'admin') {
+                        return deleteDoc(doc.ref);
+                    }
+                });
+                await Promise.all(userPromises);
+
+                notify("Sistem Berhasil Direset!", "success");
+                setTimeout(() => location.reload(), 2000);
+                
+            } catch (e) {
+                console.error(e);
+                notify("Gagal Reset Sistem", "error");
+            }
         };
 
         if(currentUser) initApp();
