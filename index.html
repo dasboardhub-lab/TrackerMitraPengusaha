@@ -6,11 +6,8 @@
     <title>HUB Logistics Tracker</title>
     
     <!-- LIBRARIES (CDN) -->
-    <!-- Tailwind CSS untuk Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons untuk Ikon -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- HTML5-QRCode untuk Scanner Kamera -->
     <script src="https://unpkg.com/html5-qrcode"></script>
     
     <!-- CUSTOM STYLES -->
@@ -23,7 +20,7 @@
             color: #1e293b;
         }
         
-        /* Dynamic Island Notification Animation */
+        /* Dynamic Island Notification */
         #dynamic-island {
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             width: 0; height: 40px; top: 20px;
@@ -36,36 +33,29 @@
             padding: 12px 24px; opacity: 1; 
         }
 
-        /* Utilities */
         .hidden-section { display: none !important; }
-        .glass-effect { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); }
         
+        /* Scanner & Modal */
+        #scanner-box video { border-radius: 1rem; object-fit: cover; }
+        #modal-overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); transition: opacity 0.3s; }
+        #modal-box { transform: scale(0.95); transition: transform 0.3s; }
+        #modal-overlay.open { opacity: 1; pointer-events: auto; }
+        #modal-overlay.open #modal-box { transform: scale(1); }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Scanner Container */
-        #scanner-box video { border-radius: 1rem; object-fit: cover; }
-
-        /* MODAL STYLES */
-        #modal-overlay {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            transition: opacity 0.3s;
-        }
-        #modal-box {
-            transform: scale(0.95);
-            transition: transform 0.3s;
-        }
-        #modal-overlay.open { opacity: 1; pointer-events: auto; }
-        #modal-overlay.open #modal-box { transform: scale(1); }
+        /* Navigation Active State Styles */
+        .nav-item.active i { color: #4f46e5; stroke-width: 3px; }
+        .nav-item.active span { color: #4f46e5; font-weight: 800; }
+        .nav-item:hover { background-color: #f1f5f9; }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- 1. NOTIFICATION SYSTEM (DYNAMIC ISLAND) -->
+    <!-- 1. NOTIFICATION SYSTEM -->
     <div class="fixed left-1/2 z-[9999]">
         <div id="dynamic-island" class="flex items-center gap-3 shadow-2xl pointer-events-none overflow-hidden">
             <div id="island-icon" class="flex-shrink-0"></div>
@@ -75,9 +65,7 @@
 
     <!-- 2. LOGIN SCREEN -->
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-100 relative">
-        <!-- Background Pattern -->
         <div class="absolute inset-0 z-0 opacity-10" style="background-image: radial-gradient(#6366f1 1px, transparent 1px); background-size: 24px 24px;"></div>
-        
         <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-2xl w-full max-w-sm border border-white z-10 relative">
             <div class="text-center mb-8">
                 <div class="bg-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
@@ -107,43 +95,61 @@
     </div>
 
     <!-- 3. MAIN APPLICATION CONTAINER -->
-    <div id="app-container" class="hidden-section min-h-screen flex flex-col lg:flex-row">
+    <div id="app-container" class="hidden-section min-h-screen flex flex-col bg-slate-50">
         
-        <!-- SIDEBAR NAVIGATION -->
-        <aside class="w-full lg:w-72 bg-white border-r border-slate-200 flex flex-col p-6 lg:h-screen lg:sticky lg:top-0 z-40 shadow-sm lg:shadow-none">
-            <div class="flex items-center gap-3 mb-8 px-2">
-                <div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md">
-                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
+        <!-- A. TOP BAR (DESKTOP & TABLET ONLY) -->
+        <header class="hidden md:flex bg-white border-b border-slate-200 px-8 py-3 items-center justify-between sticky top-0 z-50 shadow-sm">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                 <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md">
+                    <i data-lucide="layout-grid" class="w-6 h-6"></i>
                 </div>
                 <div>
                     <h2 class="font-bold text-lg leading-none text-slate-800">Logistik Pro</h2>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Dashboard</p>
                 </div>
             </div>
-
-            <!-- Menu Generator Target -->
-            <nav class="space-y-1 flex-1" id="nav-menu"></nav>
-
-            <!-- User Info Footer -->
-            <div class="mt-8 pt-6 border-t border-slate-100">
-                <div class="bg-slate-50 p-3 rounded-xl mb-3 flex items-center gap-3 border border-slate-100">
-                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-lg flex-shrink-0" id="avatar-initial">U</div>
-                    <div class="overflow-hidden">
-                        <p id="profile-name" class="font-bold text-sm truncate text-slate-800">User</p>
-                        <p id="profile-role" class="text-[10px] uppercase font-bold text-indigo-500 tracking-wider bg-indigo-50 inline-block px-1 rounded">Role</p>
+    
+            <!-- Desktop Menu (Center) -->
+            <nav id="desktop-menu" class="flex items-center gap-2">
+                <!-- Items injected here via JS -->
+            </nav>
+    
+            <!-- User Profile (Right) -->
+            <div class="flex items-center gap-4">
+                 <div class="flex items-center gap-3 text-right">
+                    <div>
+                        <p id="profile-name-d" class="font-bold text-sm text-slate-800">User</p>
+                        <p id="profile-role-d" class="text-[10px] uppercase font-bold text-indigo-500 bg-indigo-50 px-2 rounded-full inline-block">Role</p>
                     </div>
+                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-lg" id="avatar-initial-d">U</div>
                 </div>
-                <button onclick="authLogout()" class="w-full flex items-center justify-center gap-2 text-red-500 font-bold text-sm p-3 hover:bg-red-50 rounded-xl transition-colors group">
-                    <i data-lucide="log-out" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Keluar
+                <button onclick="confirmLogout()" class="p-3 text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Keluar">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
             </div>
-        </aside>
+        </header>
 
-        <!-- CONTENT AREA -->
-        <main class="flex-1 p-4 lg:p-8 overflow-y-auto w-full max-w-[1600px] mx-auto">
+        <!-- B. MOBILE TOP HEADER (Visible only on Mobile) -->
+        <div class="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                </div>
+                <span class="font-bold text-slate-800">Logistik Pro</span>
+            </div>
+            <div class="flex items-center gap-3">
+                 <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm" id="avatar-initial-m">U</div>
+                 <button onclick="confirmLogout()" class="text-red-500"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+            </div>
+        </div>
+
+        <!-- C. MAIN CONTENT AREA -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 w-full max-w-7xl mx-auto">
             
-            <!-- A. HALAMAN DASHBOARD -->
+            <!-- Dashboard Page -->
             <section id="page-dashboard" class="page-section">
+                <!-- Content same as previous, just wrapper changed -->
                 <header class="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
                         <h2 class="text-2xl font-bold text-slate-800">Monitoring Paket</h2>
@@ -151,8 +157,41 @@
                     </div>
                 </header>
 
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <!-- NEW: DASHBOARD FILTER BAR -->
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-8">
+                    <div class="flex flex-col md:flex-row gap-4 items-end">
+                        <div class="w-full md:w-auto flex-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Dari Tanggal</label>
+                            <input type="date" id="filter-start" onchange="renderDashboardData()" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 outline-none focus:ring-2 ring-indigo-500 transition-all">
+                        </div>
+                        <div class="w-full md:w-auto flex-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Sampai Tanggal</label>
+                            <input type="date" id="filter-end" onchange="renderDashboardData()" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 outline-none focus:ring-2 ring-indigo-500 transition-all">
+                        </div>
+                        <div class="w-full md:w-auto flex-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Kota Asal</label>
+                            <select id="filter-city" onchange="renderDashboardData()" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 outline-none focus:ring-2 ring-indigo-500 transition-all cursor-pointer">
+                                <option value="">Semua Kota</option>
+                                <!-- Dynamic Options -->
+                            </select>
+                        </div>
+                        <div class="w-full md:w-auto flex-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Posisi Paket</label>
+                            <select id="filter-posisi" onchange="renderDashboardData()" class="w-full p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 outline-none focus:ring-2 ring-indigo-500 transition-all cursor-pointer">
+                                <option value="">Semua Posisi</option>
+                                <option value="Vendor">Masih di Vendor</option>
+                                <option value="HUB">Sudah di HUB</option>
+                            </select>
+                        </div>
+                        <button onclick="resetFilters()" class="w-full md:w-auto p-2.5 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center" title="Reset Filter">
+                            <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI CARDS (RESTORED) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <!-- Vendor Card -->
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:border-orange-200 transition-colors">
                         <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-orange-500"><i data-lucide="truck" class="w-24 h-24"></i></div>
                         <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Paket di Vendor</p>
@@ -161,6 +200,18 @@
                             <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span> Dalam Perjalanan
                         </div>
                     </div>
+                    
+                    <!-- NEW CARD: >2 Hari -->
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:border-red-200 transition-colors">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-red-500"><i data-lucide="alert-triangle" class="w-24 h-24"></i></div>
+                        <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1 text-red-500">> 2 Hari (Vendor)</p>
+                        <h3 id="stat-stuck" class="text-4xl font-black text-red-600">0</h3>
+                        <div class="mt-4 flex items-center gap-2 text-xs font-bold text-red-500 bg-red-50 w-fit px-2 py-1 rounded-lg">
+                            <i data-lucide="alert-circle" class="w-3 h-3"></i> Perlu Follow Up
+                        </div>
+                    </div>
+
+                    <!-- HUB Card -->
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:border-emerald-200 transition-colors">
                         <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-emerald-500"><i data-lucide="check-circle" class="w-24 h-24"></i></div>
                         <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Diterima HUB</p>
@@ -169,6 +220,8 @@
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Aman di Gudang
                         </div>
                     </div>
+
+                    <!-- Total Card -->
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group hover:border-indigo-200 transition-colors">
                         <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-indigo-500"><i data-lucide="package-search" class="w-24 h-24"></i></div>
                         <p class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Total Transaksi</p>
@@ -177,44 +230,98 @@
                     </div>
                 </div>
 
-                <!-- Live Search & Table -->
+                <!-- UPDATED: Grid Layout to lg:grid-cols-2 for standard laptops -->
+                <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Monitoring Paket Vendor -->
+                    <div class="bg-orange-50 rounded-[2rem] p-6 border border-orange-100 shadow-sm relative overflow-hidden flex flex-col h-full">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-orange-200 rounded-full blur-3xl opacity-20 -mr-10 -mt-10"></div>
+                        <div class="flex justify-between items-center mb-4 relative z-10">
+                            <div>
+                                <h3 class="font-bold text-orange-900 text-lg flex items-center gap-2">
+                                    <i data-lucide="clock" class="w-5 h-5 text-orange-600"></i> Monitoring (Masih di Vendor)
+                                </h3>
+                                <p class="text-xs text-orange-700/70 mt-1">Paket belum sampai HUB.</p>
+                            </div>
+                            <span id="pending-badge-count" class="bg-orange-500 text-white px-3 py-1 rounded-lg text-xs font-bold shadow-lg shadow-orange-200">0 Paket</span>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-orange-100 overflow-hidden shadow-sm relative z-10 flex-1">
+                            <!-- Added overflow-y-auto for vertical scroll & sticky header support -->
+                            <div class="overflow-auto h-full max-h-[350px]">
+                                <table class="w-full text-left text-sm relative">
+                                    <thead class="bg-orange-50 text-orange-600 font-bold uppercase text-[10px] sticky top-0 z-20 shadow-sm">
+                                        <tr>
+                                            <th class="p-4 bg-orange-50">Durasi</th><th class="p-4 bg-orange-50">Resi</th><th class="p-4 bg-orange-50">Kota</th><th class="p-4 bg-orange-50">Kondisi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-pending-vendor" class="divide-y divide-orange-50/50 text-slate-600"></tbody>
+                                </table>
+                                <div id="empty-pending" class="hidden-section p-8 text-center text-slate-400">
+                                    <i data-lucide="check-circle-2" class="w-10 h-10 mx-auto mb-2 text-emerald-400 opacity-50"></i>
+                                    <p class="text-xs font-bold text-emerald-600">Semua Aman!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SLA PERFORMANCE TABLE -->
+                    <div class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex flex-col h-full">
+                        <div class="mb-4">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                <i data-lucide="timer" class="w-5 h-5 text-indigo-600"></i> SLA Pengiriman (Per Kota)
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">Rata-rata waktu tempuh dari Input Mitra s/d Terima HUB.</p>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm flex-1">
+                            <!-- Added overflow-auto for vertical scroll & sticky header support -->
+                            <div class="overflow-auto h-full max-h-[350px]">
+                                <table class="w-full text-left text-sm relative">
+                                    <!-- Sticky Header with background color ensuring content doesn't show behind -->
+                                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] sticky top-0 z-20 shadow-sm">
+                                        <tr>
+                                            <th class="p-4 bg-slate-50">Kota</th>
+                                            <th class="p-4 text-center bg-slate-50">Total Paket</th>
+                                            <th class="p-4 text-right bg-slate-50">Rata-rata (Jam)</th>
+                                            <th class="p-4 text-center bg-slate-50">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-sla" class="divide-y divide-slate-100 text-slate-600">
+                                        <!-- Populated via JS -->
+                                    </tbody>
+                                </table>
+                                <div id="empty-sla" class="hidden-section p-8 text-center text-slate-400">
+                                    <p class="text-xs">Belum ada data SLA tersedia.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Table (Existing) -->
                 <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
                     <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center gap-4">
                         <div class="relative flex-1">
                             <i data-lucide="search" class="absolute left-4 top-3.5 text-slate-400 w-5 h-5"></i>
-                            <input type="text" onkeyup="filterTable(this.value)" placeholder="Cari No. Resi, Nama Pengirim, atau Kota..." class="w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-slate-200 outline-none focus:ring-2 ring-indigo-500 font-medium text-sm transition-all shadow-sm">
+                            <input type="text" onkeyup="filterTable(this.value)" placeholder="Cari Resi, Pengirim, atau Kota..." class="w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-slate-200 outline-none focus:ring-2 ring-indigo-500 font-medium text-sm transition-all shadow-sm">
                         </div>
-                        <div class="flex gap-2">
-                             <button onclick="exportTableToExcel()" class="bg-white border border-slate-200 text-slate-600 px-4 py-3 rounded-xl text-sm font-bold hover:bg-slate-50 flex items-center gap-2 shadow-sm">
-                                <i data-lucide="download" class="w-4 h-4"></i> Export Data
-                            </button>
-                        </div>
+                        <button onclick="exportTableToExcel()" class="bg-white border border-slate-200 text-slate-600 px-4 py-3 rounded-xl text-sm font-bold hover:bg-slate-50 flex items-center gap-2 shadow-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i> Export
+                        </button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                                 <tr>
-                                    <th class="p-5 min-w-[120px]">Waktu</th>
-                                    <th class="p-5 min-w-[150px]">No. Resi</th>
-                                    <th class="p-5 min-w-[150px]">Pengirim</th>
-                                    <th class="p-5 min-w-[120px]">Kota</th>
-                                    <th class="p-5 min-w-[120px]">Kondisi</th>
-                                    <th class="p-5 min-w-[120px]">Posisi</th>
+                                    <th class="p-5 min-w-[120px]">Waktu</th><th class="p-5 min-w-[150px]">No. Resi</th><th class="p-5 min-w-[150px]">Pengirim</th><th class="p-5 min-w-[120px]">Kota</th><th class="p-5 min-w-[120px]">Kondisi</th><th class="p-5 min-w-[120px]">Posisi</th>
                                 </tr>
                             </thead>
-                            <tbody id="table-packages" class="text-sm font-medium text-slate-600 divide-y divide-slate-50 bg-white">
-                                <!-- Data injected via JS -->
-                            </tbody>
+                            <tbody id="table-packages" class="text-sm font-medium text-slate-600 divide-y divide-slate-50 bg-white"></tbody>
                         </table>
                     </div>
-                    <div id="empty-state" class="hidden-section p-10 text-center text-slate-400">
-                        <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
-                        <p class="text-sm">Belum ada data paket.</p>
-                    </div>
+                    <div id="empty-state" class="hidden-section p-10 text-center text-slate-400"><p class="text-sm">Belum ada data paket.</p></div>
                 </div>
             </section>
 
-            <!-- B. HALAMAN PENGIRIMAN (MITRA) -->
+            <!-- Pengiriman Page -->
             <section id="page-pengiriman" class="page-section hidden-section">
                 <div class="max-w-6xl mx-auto">
                     <header class="mb-8 flex justify-between items-center">
@@ -226,85 +333,21 @@
                             <i data-lucide="plus" class="w-5 h-5"></i> Input Baru
                         </button>
                     </header>
-
-                    <!-- Table Mitra History -->
                     <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                                    <tr>
-                                        <th class="p-5">Waktu Input</th>
-                                        <th class="p-5">No. Resi</th>
-                                        <th class="p-5">Tujuan (Kota)</th>
-                                        <th class="p-5">Kondisi</th>
-                                        <th class="p-5">Status Terkini</th>
-                                    </tr>
+                                    <tr><th class="p-5">Waktu Input</th><th class="p-5">No. Resi</th><th class="p-5">Tujuan (Kota)</th><th class="p-5">Kondisi</th><th class="p-5">Status Terkini</th></tr>
                                 </thead>
-                                <tbody id="table-mitra-history" class="text-sm font-medium text-slate-600 divide-y divide-slate-50">
-                                    <!-- Populated by JS -->
-                                </tbody>
+                                <tbody id="table-mitra-history" class="text-sm font-medium text-slate-600 divide-y divide-slate-50"></tbody>
                             </table>
                         </div>
-                        <div id="empty-mitra" class="hidden-section p-12 text-center text-slate-400">
-                            <i data-lucide="clipboard-list" class="w-16 h-16 mx-auto mb-4 opacity-50 bg-slate-50 p-4 rounded-full"></i>
-                            <p class="text-sm font-medium">Belum ada riwayat pengiriman.</p>
-                            <p class="text-xs mt-1">Tekan tombol "Input Baru" untuk memulai.</p>
-                        </div>
+                        <div id="empty-mitra" class="hidden-section p-12 text-center text-slate-400"><p class="text-sm">Belum ada riwayat.</p></div>
                     </div>
                 </div>
             </section>
 
-            <!-- B.1 FORM INPUT POP-UP (MODAL) -->
-            <div id="input-form-modal" class="fixed inset-0 z-[100] hidden-section flex items-center justify-center p-4">
-                <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeInputForm()"></div>
-                
-                <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate-[scaleIn_0.3s_ease-out]">
-                    <!-- Header -->
-                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                        <div>
-                            <h3 class="text-xl font-bold text-slate-800">Input Handover</h3>
-                            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Formulir Pengiriman</p>
-                        </div>
-                        <button onclick="closeInputForm()" class="p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors">
-                            <i data-lucide="x" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-
-                    <div class="p-6 md:p-8 space-y-6 max-h-[80vh] overflow-y-auto">
-                        <!-- Scanner Box -->
-                        <div class="space-y-3">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">1. Scan Barcode</label>
-                            <div class="relative">
-                                <input type="text" id="input-resi" class="w-full pl-4 pr-16 py-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 ring-indigo-500 font-mono font-bold text-lg text-slate-800 placeholder:text-slate-300 transition-all" placeholder="Scan / Ketik Resi">
-                                <button onclick="toggleScanner('mitra')" class="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white w-12 rounded-xl flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-200">
-                                    <i data-lucide="scan-line" class="w-6 h-6"></i>
-                                </button>
-                            </div>
-                            <!-- Camera Viewport -->
-                            <div id="scanner-mitra" class="hidden-section rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-inner mt-2"></div>
-                        </div>
-
-                        <!-- Status Selection -->
-                        <div class="space-y-3">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">2. Kondisi Paket</label>
-                            <div class="grid grid-cols-2 gap-3">
-                                <button onclick="selectStatus(this, 'Gagal Delivery')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">Gagal Delivery</button>
-                                <button onclick="selectStatus(this, 'COD')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">COD</button>
-                                <button onclick="selectStatus(this, 'Freeze')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">Freeze</button>
-                                <button onclick="selectStatus(this, 'XRT')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">XRT</button>
-                                <button onclick="selectStatus(this, 'Parcel Damage')" class="status-btn col-span-2 p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">Parcel Damage (Rusak)</button>
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button onclick="submitPackage()" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold text-lg shadow-xl hover:bg-slate-900 active:scale-95 transition-all flex items-center justify-center gap-2">
-                            <i data-lucide="send" class="w-5 h-5"></i> Submit Handover
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- C. HALAMAN SERAH TERIMA (HUB) -->
+            <!-- HUB Page -->
             <section id="page-hub" class="page-section hidden-section">
                 <header class="mb-6">
                     <h2 class="text-2xl font-bold text-slate-800">Serah Terima HUB</h2>
@@ -312,24 +355,14 @@
                 </header>
 
                 <div class="grid lg:grid-cols-12 gap-6">
-                    <!-- Scanner Column -->
                     <div class="lg:col-span-5 space-y-4">
                         <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
-                            <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2">
-                                <i data-lucide="camera" class="w-5 h-5 text-indigo-600"></i> Scanner
-                            </h3>
+                            <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2"><i data-lucide="camera" class="w-5 h-5 text-indigo-600"></i> Scanner</h3>
                             <div id="scanner-hub" class="rounded-2xl overflow-hidden bg-slate-100 min-h-[250px] flex items-center justify-center border-2 border-dashed border-slate-300 relative">
-                                <div class="text-center p-6 text-slate-400">
-                                    <i data-lucide="qr-code" class="w-12 h-12 mx-auto mb-2 opacity-50"></i>
-                                    <p class="text-xs font-bold uppercase">Kamera Nonaktif</p>
-                                </div>
+                                <div class="text-center p-6 text-slate-400"><i data-lucide="qr-code" class="w-12 h-12 mx-auto mb-2 opacity-50"></i><p class="text-xs font-bold uppercase">Kamera Nonaktif</p></div>
                             </div>
-                            <button id="btn-toggle-hub" onclick="toggleScanner('hub')" class="w-full mt-4 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
-                                <i data-lucide="power" class="w-4 h-4"></i> Mulai / Stop Kamera
-                            </button>
+                            <button id="btn-toggle-hub" onclick="toggleScanner('hub')" class="w-full mt-4 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"><i data-lucide="power" class="w-4 h-4"></i> Mulai / Stop Kamera</button>
                         </div>
-                        
-                        <!-- Manual Input Fallback -->
                         <div class="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100">
                             <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Input Manual (Jika Scan Gagal)</p>
                             <div class="flex gap-2">
@@ -338,120 +371,83 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Queue Column -->
                     <div class="lg:col-span-7">
                         <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 h-full flex flex-col min-h-[500px]">
                             <div class="flex justify-between items-center mb-4 border-b border-slate-50 pb-4">
-                                <div>
-                                    <h3 class="font-bold text-slate-700">Antrean Validasi</h3>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">Paket yang siap divalidasi</p>
-                                </div>
+                                <div><h3 class="font-bold text-slate-700">Antrean Validasi</h3><p class="text-[10px] text-slate-400 font-bold uppercase mt-1">Paket yang siap divalidasi</p></div>
                                 <span id="queue-count" class="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold shadow-lg shadow-indigo-200">0</span>
                             </div>
-                            
                             <div class="flex-1 overflow-y-auto pr-1">
                                 <table class="w-full text-sm">
                                     <thead class="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 sticky top-0">
-                                        <tr>
-                                            <th class="py-2 px-2 text-left rounded-l-lg">Resi</th>
-                                            <th class="py-2 px-2 text-left">Asal</th>
-                                            <th class="py-2 px-2 text-right rounded-r-lg">Aksi</th>
-                                        </tr>
+                                        <tr><th class="py-2 px-2 text-left rounded-l-lg">Resi</th><th class="py-2 px-2 text-left">Asal</th><th class="py-2 px-2 text-right rounded-r-lg">Aksi</th></tr>
                                     </thead>
-                                    <tbody id="queue-table" class="divide-y divide-slate-100">
-                                        <!-- Queue items -->
-                                    </tbody>
+                                    <tbody id="queue-table" class="divide-y divide-slate-100"></tbody>
                                 </table>
-                                <div id="empty-queue" class="text-center py-10 text-slate-300">
-                                    <i data-lucide="layers" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
-                                    <p class="text-xs">Belum ada paket di-scan</p>
-                                </div>
+                                <div id="empty-queue" class="text-center py-10 text-slate-300"><p class="text-xs">Belum ada paket di-scan</p></div>
                             </div>
-                            
                             <div class="mt-4 pt-4 border-t border-slate-100">
-                                <button onclick="processQueue()" class="w-full py-4 bg-emerald-500 text-white rounded-2xl font-bold text-lg shadow-xl shadow-emerald-100 hover:bg-emerald-600 active:scale-95 transition-all flex items-center justify-center gap-2">
-                                    <i data-lucide="check-check" class="w-5 h-5"></i> Simpan Validasi HUB
-                                </button>
+                                <button onclick="processQueue()" class="w-full py-4 bg-emerald-500 text-white rounded-2xl font-bold text-lg shadow-xl shadow-emerald-100 hover:bg-emerald-600 active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="check-check" class="w-5 h-5"></i> Simpan Validasi HUB</button>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div class="mt-8 bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2"><i data-lucide="history" class="w-5 h-5 text-indigo-600"></i> Riwayat Penerimaan (Live)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase">
+                                <tr><th class="p-3">Waktu Terima</th><th class="p-3">Resi</th><th class="p-3">Asal (Kota)</th><th class="p-3">Status Awal</th><th class="p-3">Penerima</th></tr>
+                            </thead>
+                            <tbody id="table-hub-history" class="divide-y divide-slate-50"></tbody>
+                        </table>
+                        <div id="empty-hub-history" class="text-center py-8 text-slate-400 hidden-section"><p class="text-xs">Belum ada data penerimaan.</p></div>
+                    </div>
+                </div>
             </section>
 
-            <!-- D. HALAMAN PENGATURAN (ADMIN & USER) -->
+            <!-- Settings Page -->
             <section id="page-settings" class="page-section hidden-section">
-                <header class="mb-6">
-                    <h2 class="text-2xl font-bold text-slate-800">Pengaturan</h2>
-                </header>
-
+                <header class="mb-6"><h2 class="text-2xl font-bold text-slate-800">Pengaturan</h2></header>
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <!-- 1. Edit Profil Sendiri -->
                     <div class="xl:col-span-1 h-fit bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2 text-slate-700">
-                            <i data-lucide="user-cog" class="w-5 h-5 text-indigo-600"></i> Profil Saya
-                        </h3>
+                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2 text-slate-700"><i data-lucide="user-cog" class="w-5 h-5 text-indigo-600"></i> Profil Saya</h3>
                         <div class="space-y-4">
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Nama Lengkap</label>
-                                <input type="text" id="my-name" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-slate-700 border border-slate-200 outline-none focus:ring-2 ring-indigo-500 mt-1">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Password Baru</label>
-                                <input type="password" id="my-pass" placeholder="Biarkan kosong jika tetap" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-slate-700 border border-slate-200 outline-none focus:ring-2 ring-indigo-500 mt-1 placeholder:font-normal placeholder:text-slate-300">
-                            </div>
-                            <button onclick="updateProfile()" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-colors mt-2">
-                                Simpan Perubahan
-                            </button>
+                            <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Nama Lengkap</label><input type="text" id="my-name" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-slate-700 border border-slate-200 outline-none focus:ring-2 ring-indigo-500 mt-1"></div>
+                            <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Password Baru</label><input type="password" id="my-pass" placeholder="Biarkan kosong jika tetap" class="w-full p-3 bg-slate-50 rounded-xl font-bold text-slate-700 border border-slate-200 outline-none focus:ring-2 ring-indigo-500 mt-1 placeholder:font-normal placeholder:text-slate-300"></div>
+                            <button onclick="updateProfile()" class="w-full py-3 bg-slate-800 text-white rounded-xl font-bold hover:bg-slate-900 transition-colors mt-2">Simpan Perubahan</button>
                         </div>
                     </div>
-
-                    <!-- 2. Admin User Management -->
                     <div id="admin-panel" class="hidden-section xl:col-span-2 bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2 text-slate-700">
-                            <i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Manajemen User (Admin)
-                        </h3>
-
-                        <!-- Form Add/Edit -->
+                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2 text-slate-700"><i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Manajemen User (Admin)</h3>
                         <div class="bg-slate-50 p-5 rounded-2xl mb-6 border border-slate-200 relative">
                             <div class="absolute top-0 left-0 w-1 h-full bg-indigo-500 rounded-l-2xl"></div>
                             <div class="flex justify-between items-center mb-3">
                                 <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider" id="form-title">Tambah User Baru</h4>
                                 <button onclick="resetAdminForm()" id="btn-cancel-edit" class="hidden-section text-xs font-bold text-red-500 hover:underline">Batal Edit</button>
                             </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+                            <!-- UPDATED GRID: Added Password Input -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 mb-3">
                                 <input type="text" id="adm-id" placeholder="ID (cth: tim01)" class="p-3 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold">
                                 <input type="text" id="adm-name" placeholder="Nama Lengkap" class="p-3 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold">
+                                <!-- New Password Input -->
+                                <input type="text" id="adm-pass" placeholder="Password" class="p-3 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold">
                                 <input type="text" id="adm-city" placeholder="Kota" class="p-3 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold">
                                 <select id="adm-role" class="p-3 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold cursor-pointer">
-                                    <option value="visitor">Visitor</option>
-                                    <option value="mitra">Mitra Pengusaha</option>
-                                    <option value="hub">Tim HUB</option>
-                                    <option value="admin">Admin</option>
+                                    <option value="visitor">Visitor</option><option value="mitra">Mitra Pengusaha</option><option value="hub">Tim HUB</option><option value="admin">Admin</option>
                                 </select>
                             </div>
-                            <button onclick="saveUserByAdmin()" id="btn-save-user" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100">
-                                <i data-lucide="plus-circle" class="w-4 h-4 inline mr-1"></i> Simpan User
-                            </button>
+                            <button onclick="saveUserByAdmin()" id="btn-save-user" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100"><i data-lucide="plus-circle" class="w-4 h-4 inline mr-1"></i> Simpan User</button>
                         </div>
-
-                        <!-- User List Table -->
                         <div class="overflow-hidden rounded-xl border border-slate-100">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-sm">
                                     <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] border-b border-slate-100">
-                                        <tr>
-                                            <th class="py-3 px-4">ID</th>
-                                            <th class="py-3 px-4">Nama</th>
-                                            <th class="py-3 px-4">Role</th>
-                                            <th class="py-3 px-4">Kota</th>
-                                            <th class="py-3 px-4 text-right">Aksi</th>
-                                        </tr>
+                                        <!-- Added Password Column Header -->
+                                        <tr><th class="py-3 px-4">ID</th><th class="py-3 px-4">Nama</th><th class="py-3 px-4">Role</th><th class="py-3 px-4">Password</th><th class="py-3 px-4">Kota</th><th class="py-3 px-4 text-right">Aksi</th></tr>
                                     </thead>
-                                    <tbody id="user-list-table" class="divide-y divide-slate-100 bg-white">
-                                        <!-- User items -->
-                                    </tbody>
+                                    <tbody id="user-list-table" class="divide-y divide-slate-100 bg-white"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -459,29 +455,62 @@
                 </div>
             </section>
         </main>
+
+        <!-- D. MOBILE BOTTOM NAV (Visible only on Mobile) -->
+        <nav id="mobile-menu" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2 flex justify-around z-50 shadow-lg pb-safe">
+            <!-- Items injected via JS -->
+        </nav>
+
     </div>
 
-    <!-- 4. CUSTOM MODAL CONFIRMATION (Delete User) -->
-    <div id="modal-overlay" class="fixed inset-0 z-[10000] hidden-section flex items-center justify-center opacity-0 pointer-events-none">
-        <div id="modal-box" class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full mx-4 text-center border border-slate-100">
-            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+    <!-- MODALS -->
+    <div id="input-form-modal" class="fixed inset-0 z-[100] hidden-section flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeInputForm()"></div>
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate-[scaleIn_0.3s_ease-out]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div><h3 class="text-xl font-bold text-slate-800">Input Handover</h3><p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Formulir Pengiriman</p></div>
+                <button onclick="closeInputForm()" class="p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <h3 class="text-lg font-bold text-slate-800 mb-2">Hapus User Ini?</h3>
-            <p class="text-slate-500 text-sm mb-6">Tindakan ini tidak dapat dibatalkan. User tidak akan bisa login lagi.</p>
-            <div class="flex gap-3">
-                <button onclick="closeModal()" class="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors">Batal</button>
-                <button onclick="executeDelete()" class="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-colors">Ya, Hapus</button>
+            <div class="p-6 md:p-8 space-y-6 max-h-[80vh] overflow-y-auto">
+                <div class="space-y-3">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">1. Scan Barcode</label>
+                    <div class="relative">
+                        <input type="text" id="input-resi" class="w-full pl-4 pr-16 py-4 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:ring-2 ring-indigo-500 font-mono font-bold text-lg text-slate-800 placeholder:text-slate-300 transition-all" placeholder="Scan / Ketik Resi">
+                        <button onclick="toggleScanner('mitra')" class="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white w-12 rounded-xl flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-200"><i data-lucide="scan-line" class="w-6 h-6"></i></button>
+                    </div>
+                    <div id="scanner-mitra" class="hidden-section rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-inner mt-2"></div>
+                </div>
+                <div class="space-y-3">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">2. Kondisi Paket</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="selectStatus(this, 'Gagal Delivery')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">Gagal Delivery</button>
+                        <button onclick="selectStatus(this, 'COD')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">COD</button>
+                        <button onclick="selectStatus(this, 'Freeze')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">Freeze</button>
+                        <button onclick="selectStatus(this, 'XRT')" class="status-btn p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">XRT</button>
+                        <button onclick="selectStatus(this, 'Parcel Damage')" class="status-btn col-span-2 p-4 rounded-xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all active:scale-95">Parcel Damage (Rusak)</button>
+                    </div>
+                </div>
+                <button onclick="submitPackage()" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold text-lg shadow-xl hover:bg-slate-900 active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="send" class="w-5 h-5"></i> Submit Handover</button>
             </div>
         </div>
     </div>
 
-    <!-- LOGIC SCRIPT (FIREBASE + APP) -->
+    <div id="modal-overlay" class="fixed inset-0 z-[10000] hidden-section flex items-center justify-center opacity-0 pointer-events-none">
+        <div id="modal-box" class="bg-white p-8 rounded-[2rem] shadow-2xl max-w-sm w-full mx-4 text-center border border-slate-100">
+            <div id="modal-icon" class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="alert-triangle" class="w-8 h-8"></i></div>
+            <h3 id="modal-title" class="text-lg font-bold text-slate-800 mb-2">Konfirmasi?</h3>
+            <p id="modal-desc" class="text-slate-500 text-sm mb-6">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+            <div class="flex gap-3">
+                <button onclick="closeModal()" class="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors">Batal</button>
+                <button id="modal-confirm-btn" onclick="executeAction()" class="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-colors">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, updateDoc, serverTimestamp, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- 1. CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyCxYJjxiabLIXkSSEw9TjKWK1dRYUtb3YE",
             authDomain: "dailyreport-cfc8f.firebaseapp.com",
@@ -494,35 +523,33 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- 2. GLOBAL STATE ---
         let currentUser = JSON.parse(localStorage.getItem('hub_session')) || null;
         let activeScanner = null;
         let selectedPackageStatus = null;
         let hubQueue = [];
         let isEditingUser = false;
-        let deleteTargetId = null; // State untuk target hapus
-
-        // --- 3. AUTH SYSTEM ---
+        let pendingAction = null;
+        let unsubPackages = null;
+        let unsubUsers = null;
         
-        // Auto-create Admin 'admin' / '123' if not exists
+        // NEW: Global Data Storage for Filtering
+        let allPackagesData = []; 
+
         async function initAdmin() {
             try {
                 const ref = doc(db, "users", "admin");
                 const snap = await getDoc(ref);
                 if (!snap.exists()) {
                     await setDoc(ref, { name: "Super Admin", password: "123", role: "admin", city: "Pusat" });
-                    console.log("Admin Default Dibuat");
                 }
-            } catch (e) { console.error("Init Error", e); }
+            } catch (e) { console.error(e); }
         }
         initAdmin();
 
         window.authLogin = async () => {
             const id = document.getElementById('login-id').value.trim();
             const pass = document.getElementById('login-pass').value;
-
             if(!id || !pass) return notify("ID & Password Wajib Diisi", "error");
-
             try {
                 const snap = await getDoc(doc(db, "users", id));
                 if (snap.exists()) {
@@ -541,28 +568,34 @@
             } catch (e) { notify("Koneksi Error. Cek Internet.", "error"); }
         };
 
-        window.authLogout = () => {
-            localStorage.removeItem('hub_session');
-            location.reload();
+        window.confirmLogout = () => {
+            showModal("Keluar Aplikasi?", "Anda harus login kembali untuk mengakses sistem.", () => {
+                localStorage.removeItem('hub_session');
+                currentUser = null;
+                if(unsubPackages) { unsubPackages(); unsubPackages = null; }
+                if(unsubUsers) { unsubUsers(); unsubUsers = null; }
+                if(activeScanner) { activeScanner.stop().catch(e=>{}); activeScanner = null; }
+                document.getElementById('app-container').classList.add('hidden-section');
+                document.getElementById('login-screen').classList.remove('hidden-section');
+                document.getElementById('login-id').value = "";
+                document.getElementById('login-pass').value = "";
+                notify("Berhasil Keluar", "success");
+            }, "Keluar Sekarang");
         };
-
-        // --- 4. APP NAVIGATION & INIT ---
 
         function initApp() {
             if(!currentUser) return;
-            
-            // Toggle Screen
             document.getElementById('login-screen').classList.add('hidden-section');
             document.getElementById('app-container').classList.remove('hidden-section');
             
-            // Populate User Info
-            document.getElementById('avatar-initial').innerText = currentUser.name.charAt(0);
-            document.getElementById('profile-name').innerText = currentUser.name;
-            document.getElementById('profile-role').innerText = currentUser.role;
+            // Set User Info
+            document.getElementById('avatar-initial-d').innerText = currentUser.name.charAt(0);
+            document.getElementById('profile-name-d').innerText = currentUser.name;
+            document.getElementById('profile-role-d').innerText = currentUser.role;
+            document.getElementById('avatar-initial-m').innerText = currentUser.name.charAt(0);
             document.getElementById('my-name').value = currentUser.name;
 
-            // Build Menu based on Role
-            const menuContainer = document.getElementById('nav-menu');
+            // Generate Menu Items
             const menuItems = [
                 { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard', allow: ['admin','visitor','mitra','hub'] },
                 { id: 'pengiriman', label: 'Pengiriman', icon: 'truck', allow: ['admin','mitra'] },
@@ -570,142 +603,104 @@
                 { id: 'settings', label: 'Pengaturan', icon: 'settings', allow: ['admin','visitor','mitra','hub'] }
             ];
 
-            menuContainer.innerHTML = menuItems.filter(m => m.allow.includes(currentUser.role)).map(m => `
-                <button onclick="navTo('${m.id}')" class="w-full flex items-center gap-3 px-4 py-3.5 text-slate-500 font-bold text-sm hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-all group mb-1">
-                    <i data-lucide="${m.icon}" class="w-5 h-5 group-hover:scale-110 transition-transform"></i> ${m.label}
+            const allowedItems = menuItems.filter(m => m.allow.includes(currentUser.role));
+
+            // Desktop Menu (Top)
+            document.getElementById('desktop-menu').innerHTML = allowedItems.map(m => `
+                <button id="nav-d-${m.id}" onclick="navTo('${m.id}')" class="nav-item flex flex-col items-center gap-1 px-4 py-2 rounded-xl text-slate-500 transition-all">
+                    <i data-lucide="${m.icon}" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-bold uppercase tracking-wider">${m.label}</span>
                 </button>
             `).join('');
 
-            // Show Admin Panel
+            // Mobile Menu (Bottom)
+            document.getElementById('mobile-menu').innerHTML = allowedItems.map(m => `
+                <button id="nav-m-${m.id}" onclick="navTo('${m.id}')" class="nav-item flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-slate-500 transition-all flex-1">
+                    <i data-lucide="${m.icon}" class="w-6 h-6"></i>
+                    <span class="text-[9px] font-bold uppercase tracking-wide">${m.label.split(' ')[0]}</span>
+                </button>
+            `).join('');
+
             if(currentUser.role === 'admin') {
                 document.getElementById('admin-panel').classList.remove('hidden-section');
                 listenUsers();
             }
 
-            // Start Listeners
             listenPackages();
             lucide.createIcons();
             navTo('dashboard');
         }
 
         window.navTo = (pageId) => {
-            // Close scanner if open
-            if(activeScanner) { activeScanner.stop().catch(e=>console.log(e)); activeScanner = null; document.getElementById('scanner-mitra').classList.add('hidden-section'); }
+            if(activeScanner) { activeScanner.stop().catch(e=>{}); activeScanner = null; document.getElementById('scanner-mitra').classList.add('hidden-section'); }
             
-            // Switch Section
             document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden-section'));
             document.getElementById(`page-${pageId}`).classList.remove('hidden-section');
+            
+            // Update Active State for Navigation
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const activeDesktop = document.getElementById(`nav-d-${pageId}`);
+            const activeMobile = document.getElementById(`nav-m-${pageId}`);
+            if(activeDesktop) activeDesktop.classList.add('active');
+            if(activeMobile) activeMobile.classList.add('active');
+            
+            lucide.createIcons();
         };
 
-        // --- 5. FEATURE: MITRA (INPUT) ---
-
-        // Toggle Modal Input
-        window.openInputForm = () => {
-            document.getElementById('input-form-modal').classList.remove('hidden-section');
-        };
-
+        window.openInputForm = () => { document.getElementById('input-form-modal').classList.remove('hidden-section'); };
         window.closeInputForm = () => {
             document.getElementById('input-form-modal').classList.add('hidden-section');
-            // Turn off scanner if active
-            if(activeScanner) {
-                activeScanner.stop().catch(e=>console.log(e));
-                activeScanner = null;
-                document.getElementById('scanner-mitra').classList.add('hidden-section');
-            }
+            if(activeScanner) { activeScanner.stop().catch(e=>{}); activeScanner = null; document.getElementById('scanner-mitra').classList.add('hidden-section'); }
         };
 
         window.selectStatus = (btn, status) => {
-            document.querySelectorAll('.status-btn').forEach(b => {
-                b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
-                b.classList.add('text-slate-500', 'border-slate-200');
-            });
-            btn.classList.remove('text-slate-500', 'border-slate-200');
-            btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+            document.querySelectorAll('.status-btn').forEach(b => { b.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600'); b.classList.add('text-slate-500', 'border-slate-200'); });
+            btn.classList.remove('text-slate-500', 'border-slate-200'); btn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
             selectedPackageStatus = status;
         };
 
         window.toggleScanner = (type) => {
             const elId = type === 'mitra' ? 'scanner-mitra' : 'scanner-hub';
             const displayEl = document.getElementById(elId);
-            
             if(activeScanner) {
-                activeScanner.stop().then(() => {
-                    activeScanner = null;
-                    if(type === 'mitra') displayEl.classList.add('hidden-section');
-                    notify("Kamera Dimatikan", "default");
-                });
+                activeScanner.stop().then(() => { activeScanner = null; if(type === 'mitra') displayEl.classList.add('hidden-section'); notify("Kamera Dimatikan", "default"); });
                 return;
             }
-
             if(type === 'mitra') displayEl.classList.remove('hidden-section');
-
             activeScanner = new Html5Qrcode(elId);
             activeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
                 if(type === 'mitra') {
                     document.getElementById('input-resi').value = text;
-                    activeScanner.stop(); activeScanner = null;
-                    displayEl.classList.add('hidden-section');
-                    notify("Resi Terbaca!", "success");
-                } else {
-                    addHubQueue(text);
-                }
+                    activeScanner.stop(); activeScanner = null; displayEl.classList.add('hidden-section'); notify("Resi Terbaca!", "success");
+                } else { addHubQueue(text); }
             }).catch(err => notify("Izin kamera ditolak / Error", "error"));
         };
 
         window.submitPackage = async () => {
             const resi = document.getElementById('input-resi').value.trim();
             if(!resi || !selectedPackageStatus) return notify("Resi & Status Wajib Diisi", "error");
-
             try {
                 await setDoc(doc(db, "packages", resi), {
                     resi, status: selectedPackageStatus, posisi: 'Vendor',
-                    sender_id: currentUser.id, sender_name: currentUser.name, city: currentUser.city,
-                    createdAt: serverTimestamp()
+                    sender_id: currentUser.id, sender_name: currentUser.name, city: currentUser.city, createdAt: serverTimestamp()
                 });
                 notify("Paket Berhasil Disimpan", "success");
-                document.getElementById('input-resi').value = "";
-                // Close modal after success
-                closeInputForm();
+                document.getElementById('input-resi').value = ""; closeInputForm();
             } catch (e) { notify("Gagal Menyimpan Data", "error"); }
         };
 
-        // --- 6. FEATURE: HUB (RECEIVE) ---
-
-        window.manualAddQueue = () => {
-            const val = document.getElementById('manual-hub-resi').value.trim();
-            if(val) { addHubQueue(val); document.getElementById('manual-hub-resi').value = ""; }
-        };
+        window.manualAddQueue = () => { const val = document.getElementById('manual-hub-resi').value.trim(); if(val) { addHubQueue(val); document.getElementById('manual-hub-resi').value = ""; } };
 
         async function addHubQueue(resi) {
-            // 1. CEK DUPLIKAT DI ANTREAN (Requirement: Notifikasi Error AWB Duplicate)
-            if(hubQueue.find(q => q.resi === resi)) {
-                return notify("AWB Duplicate! Resi sudah ada di antrean.", "error");
-            }
-            
-            // Cek data di DB
+            if(hubQueue.find(q => q.resi === resi)) return notify("AWB Duplicate! Resi sudah ada di antrean.", "error");
             const snap = await getDoc(doc(db, "packages", resi));
             if(snap.exists()) {
                 const d = snap.data();
-                if(d.posisi === 'HUB') {
-                    notify("Paket sudah di HUB sebelumnya", "default");
-                } else {
-                    hubQueue.push(d);
-                    renderHubQueue();
-                    notify(`Resi ${resi} masuk antrean`, "success");
-                }
+                if(d.posisi === 'HUB') { notify("Paket sudah di HUB sebelumnya", "default"); } 
+                else { hubQueue.push(d); renderHubQueue(); notify(`Resi ${resi} masuk antrean`, "success"); }
             } else {
-                // 2. RESI TIDAK TERDAFTAR (Requirement: Tetap input tapi status asal unknown)
-                // Kita buat objek dummy untuk ditampilkan di tabel sementara
-                const unknownPackage = {
-                    resi: resi,
-                    city: "Asal Tidak Terdeteksi",
-                    sender_name: "Unknown",
-                    status: "Unregistered",
-                    posisi: "Unknown"
-                };
-                hubQueue.push(unknownPackage);
-                renderHubQueue();
-                notify(`Resi Asing ${resi} ditambahkan`, "default");
+                const unknownPackage = { resi: resi, city: "Asal Tidak Terdeteksi", sender_name: "Unknown", status: "Unregistered", posisi: "Unknown" };
+                hubQueue.push(unknownPackage); renderHubQueue(); notify(`Resi Asing ${resi} ditambahkan`, "default");
             }
         }
 
@@ -713,19 +708,10 @@
             const list = document.getElementById('queue-table');
             const empty = document.getElementById('empty-queue');
             document.getElementById('queue-count').innerText = hubQueue.length;
-
             if(hubQueue.length === 0) { list.innerHTML = ""; empty.classList.remove('hidden-section'); return; }
-            
             empty.classList.add('hidden-section');
             list.innerHTML = hubQueue.map((item, i) => `
-                <tr class="group hover:bg-slate-50">
-                    <td class="py-3 px-2 font-mono font-bold text-slate-700">${item.resi}</td>
-                    <!-- Menampilkan info asal kota, atau fallback jika tidak ada -->
-                    <td class="py-3 px-2 text-slate-500 text-xs italic">${item.city || 'Asal Tidak Terdeteksi'}</td>
-                    <td class="py-3 px-2 text-right">
-                        <button onclick="removeFromQueue(${i})" class="text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </td>
-                </tr>
+                <tr class="group hover:bg-slate-50"><td class="py-3 px-2 font-mono font-bold text-slate-700">${item.resi}</td><td class="py-3 px-2 text-slate-500 text-xs italic">${item.city || 'Asal Tidak Terdeteksi'}</td><td class="py-3 px-2 text-right"><button onclick="removeFromQueue(${i})" class="text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>
             `).join('');
             lucide.createIcons();
         }
@@ -735,265 +721,270 @@
         window.processQueue = async () => {
             if(hubQueue.length === 0) return;
             try {
-                // Menggunakan setDoc dengan merge: true 
-                // Agar paket yang "Tidak Terdaftar" (dokumennya belum ada) otomatis dibuatkan baru
                 const promises = hubQueue.map(item => 
                     setDoc(doc(db, "packages", item.resi), {
-                        resi: item.resi, // Pastikan resi tersimpan untuk paket baru
-                        posisi: 'HUB', 
-                        hub_receiver: currentUser.name, 
-                        hub_date: serverTimestamp(),
-                        // Default value jika paket unregistered
-                        city: item.city || "Asal Tidak Terdeteksi",
-                        sender_name: item.sender_name || "Tanpa Data Mitra",
-                        status: item.status || "Ditemukan di HUB"
+                        resi: item.resi, posisi: 'HUB', hub_receiver: currentUser.name, hub_date: serverTimestamp(),
+                        createdAt: serverTimestamp(), city: item.city || "Asal Tidak Terdeteksi", sender_name: item.sender_name || "Tanpa Data Mitra", status: item.status || "Ditemukan di HUB"
                     }, { merge: true })
                 );
-                await Promise.all(promises);
-                hubQueue = []; renderHubQueue();
-                notify("Semua Paket Divalidasi & Disimpan!", "success");
-            } catch (e) { 
-                console.error(e);
-                notify("Gagal Validasi", "error"); 
-            }
+                await Promise.all(promises); hubQueue = []; renderHubQueue(); notify("Semua Paket Divalidasi & Disimpan!", "success");
+            } catch (e) { notify("Gagal Validasi", "error"); }
         };
 
-        // --- 7. FEATURE: DASHBOARD & ADMIN ---
-
         function listenPackages() {
+            if(unsubPackages) unsubPackages();
             const q = query(collection(db, "packages"), orderBy("createdAt", "desc"));
-            onSnapshot(q, (snap) => {
-                let html = "";
-                let mitraHtml = "";
-                let v = 0, h = 0;
-                let mitraCount = 0;
+            unsubPackages = onSnapshot(q, (snap) => {
+                allPackagesData = [];
+                snap.forEach(doc => { allPackagesData.push(doc.data()); });
                 
-                snap.forEach(docSnap => {
-                    const d = docSnap.data();
-                    if(d.posisi === 'Vendor') v++; else h++;
+                // Populate City Filter Options (Unique Cities)
+                const citySelect = document.getElementById('filter-city');
+                const uniqueCities = [...new Set(allPackagesData.map(d => d.city).filter(Boolean))].sort();
+                
+                // Keep current selection
+                const currentVal = citySelect.value;
+                citySelect.innerHTML = `<option value="">Semua Kota</option>` + uniqueCities.map(c => `<option value="${c}">${c}</option>`).join('');
+                if(uniqueCities.includes(currentVal)) citySelect.value = currentVal;
+
+                // Render Data
+                renderDashboardData();
+            });
+        }
+
+        window.renderDashboardData = () => {
+            const fStart = document.getElementById('filter-start').value;
+            const fEnd = document.getElementById('filter-end').value;
+            const fCity = document.getElementById('filter-city').value;
+            const fPos = document.getElementById('filter-posisi').value;
+
+            let html = "", pendingHtml = "", slaHtml = "";
+            let v = 0, h = 0, visibleCount = 0, stuckCount = 0;
+            let pendingData = [];
+            let slaData = {}; // { city: { count: 0, totalHours: 0 } }
+
+            const filteredData = allPackagesData.filter(d => {
+                const date = d.createdAt ? d.createdAt.toDate() : new Date();
+                
+                // 1. Mitra Restriction
+                if (currentUser && currentUser.role === 'mitra') {
+                    if ((d.city || "").toLowerCase() !== (currentUser.city || "").toLowerCase()) return false;
+                }
+
+                // 2. Filters
+                if (fStart && date < new Date(fStart)) return false;
+                if (fEnd && date > new Date(fEnd + 'T23:59:59')) return false;
+                if (fCity && d.city !== fCity) return false;
+                if (fPos && d.posisi !== fPos) return false;
+
+                return true;
+            });
+
+            // Process Filtered Data
+            filteredData.forEach(d => {
+                visibleCount++;
+                if(d.posisi === 'Vendor') v++; else h++;
+
+                // Main Table Row
+                html += `<tr class="hover:bg-slate-50 transition border-b border-slate-50 group"><td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="p-5 font-bold font-mono text-indigo-600 group-hover:text-indigo-700">${d.resi}</td><td class="p-5 font-semibold text-slate-700">${d.sender_name}</td><td class="p-5 text-slate-600">${d.city}</td><td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td><td class="p-5"><span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center gap-1 w-fit ${d.posisi === 'HUB' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}"><span class="w-1.5 h-1.5 rounded-full ${d.posisi === 'HUB' ? 'bg-emerald-500' : 'bg-orange-500'}"></span> ${d.posisi}</span></td></tr>`;
+
+                // Calculate Diff Days
+                const sentDate = d.createdAt ? d.createdAt.toDate() : new Date();
+                const now = new Date();
+                const diffMs = Math.abs(now - sentDate);
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); 
+
+                // Logic Pending Vendor (>2 Hari)
+                if(d.posisi === 'Vendor') {
+                    if(diffDays > 2) stuckCount++;
+                    pendingData.push({ ...d, diffDays });
+                }
+
+                // Logic SLA (Only for Completed HUB packages with valid dates)
+                if(d.posisi === 'HUB' && d.hub_date && d.createdAt) {
+                    const cityKey = d.city || 'Unknown';
                     
-                    // Main Dashboard Row
-                    html += `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-50 group">
-                            <td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td>
-                            <td class="p-5 font-bold font-mono text-indigo-600 group-hover:text-indigo-700">${d.resi}</td>
-                            <td class="p-5 font-semibold text-slate-700">${d.sender_name}</td>
-                            <td class="p-5 text-slate-600">${d.city}</td>
-                            <td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td>
-                            <td class="p-5">
-                                <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center gap-1 w-fit ${d.posisi === 'HUB' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}">
-                                    <span class="w-1.5 h-1.5 rounded-full ${d.posisi === 'HUB' ? 'bg-emerald-500' : 'bg-orange-500'}"></span> ${d.posisi}
-                                </span>
-                            </td>
-                        </tr>
-                    `;
-
-                    // Mitra History Row (Filter by Current User ID)
-                    if(currentUser && d.sender_id === currentUser.id) {
-                        mitraCount++;
-                        mitraHtml += `
-                             <tr class="hover:bg-slate-50 transition border-b border-slate-50">
-                                <td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td>
-                                <td class="p-5 font-bold font-mono text-indigo-600">${d.resi}</td>
-                                <td class="p-5 text-slate-600">${d.city}</td>
-                                <td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td>
-                                <td class="p-5">
-                                    <span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide ${d.posisi === 'HUB' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}">
-                                        ${d.posisi}
-                                    </span>
-                                </td>
-                            </tr>
-                        `;
+                    // FILTER: Takeout "Asal Tidak Terdeteksi" from SLA Table
+                    if (cityKey !== "Asal Tidak Terdeteksi") {
+                        const hubDate = d.hub_date.toDate();
+                        const hours = (hubDate - sentDate) / (1000 * 60 * 60); // Hours
+                        
+                        if(!slaData[cityKey]) slaData[cityKey] = { count: 0, totalHours: 0 };
+                        slaData[cityKey].count++;
+                        slaData[cityKey].totalHours += hours;
                     }
-                });
-                
-                // Update Dashboard
-                document.getElementById('table-packages').innerHTML = html;
-                document.getElementById('stat-vendor').innerText = v;
-                document.getElementById('stat-hub').innerText = h;
-                document.getElementById('stat-total').innerText = snap.size;
-                if(snap.size === 0) document.getElementById('empty-state').classList.remove('hidden-section');
-                else document.getElementById('empty-state').classList.add('hidden-section');
-
-                // Update Mitra Table
-                const mitraTable = document.getElementById('table-mitra-history');
-                const emptyMitra = document.getElementById('empty-mitra');
-                if(mitraTable) {
-                    mitraTable.innerHTML = mitraHtml;
-                    if(mitraCount === 0) emptyMitra.classList.remove('hidden-section');
-                    else emptyMitra.classList.add('hidden-section');
                 }
             });
-        }
 
-        function listenUsers() {
-            onSnapshot(query(collection(db, "users")), (snap) => {
-                let html = "";
-                snap.forEach(s => {
-                    const u = s.data();
-                    const id = s.id;
-                    const isMe = id === currentUser.id;
-                    html += `
-                        <tr class="hover:bg-slate-50 border-b border-slate-50">
-                            <td class="py-3 px-4 font-mono font-bold text-xs text-indigo-600">${id}</td>
-                            <td class="py-3 px-4 font-semibold text-slate-700">${u.name}</td>
-                            <td class="py-3 px-4"><span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-[10px] font-bold uppercase">${u.role}</span></td>
-                            <td class="py-3 px-4 text-slate-500 text-sm">${u.city}</td>
-                            <td class="py-3 px-4 text-right flex justify-end gap-2">
-                                <button onclick="editUser('${id}','${u.name}','${u.city}','${u.role}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><i data-lucide="pencil" class="w-3 h-3"></i></button>
-                                ${!isMe ? `<button onclick="deleteUser('${id}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"><i data-lucide="trash" class="w-3 h-3"></i></button>` : ''}
-                            </td>
+            // 1. Update Main Stats
+            document.getElementById('table-packages').innerHTML = html;
+            document.getElementById('stat-vendor').innerText = v;
+            document.getElementById('stat-hub').innerText = h;
+            document.getElementById('stat-total').innerText = visibleCount;
+            document.getElementById('stat-stuck').innerText = stuckCount;
+            
+            document.getElementById('empty-state').classList.toggle('hidden-section', visibleCount > 0);
+
+            // 2. Render Pending Vendor Table (Sorted Oldest First)
+            pendingData.sort((a, b) => (b.diffDays - a.diffDays)); // Highest days first
+            pendingData.forEach(d => {
+                let badge = `<span class="px-2 py-1 rounded-lg text-[10px] font-bold bg-blue-50 text-blue-600">Baru</span>`;
+                if(d.diffDays > 0) {
+                    const color = d.diffDays > 2 ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600';
+                    const icon = d.diffDays > 2 ? `<i data-lucide="alert-triangle" class="w-3 h-3 inline mr-1"></i>` : '';
+                    badge = `<span class="px-2 py-1 rounded-lg text-[10px] font-bold ${color} flex items-center w-fit">${icon} ${d.diffDays} Hari</span>`;
+                }
+                pendingHtml += `<tr class="hover:bg-orange-50/30 transition"><td class="p-4">${badge}</td><td class="p-4 font-mono font-bold text-indigo-600 text-xs">${d.resi}</td><td class="p-4 text-xs">${d.city}</td><td class="p-4"><span class="px-2 py-1 bg-white border border-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td></tr>`;
+            });
+            document.getElementById('table-pending-vendor').innerHTML = pendingHtml;
+            document.getElementById('pending-badge-count').innerText = pendingData.length + " Paket";
+            document.getElementById('empty-pending').classList.toggle('hidden-section', pendingData.length > 0);
+
+            // 3. Render SLA Table
+            const slaKeys = Object.keys(slaData).sort();
+            if(slaKeys.length > 0) {
+                slaKeys.forEach(city => {
+                    const data = slaData[city];
+                    const avgHours = (data.totalHours / data.count).toFixed(1);
+                    
+                    // SLA Badge Logic (Misal: < 24 jam = Bagus)
+                    let slaBadge = `<span class="bg-emerald-100 text-emerald-600 px-2 py-1 rounded text-[10px] font-bold">Cepat</span>`;
+                    if(avgHours > 48) slaBadge = `<span class="bg-red-100 text-red-600 px-2 py-1 rounded text-[10px] font-bold">Lambat</span>`;
+                    else if(avgHours > 24) slaBadge = `<span class="bg-orange-100 text-orange-600 px-2 py-1 rounded text-[10px] font-bold">Sedang</span>`;
+
+                    slaHtml += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-50">
+                            <td class="p-4 font-bold text-slate-700">${city}</td>
+                            <td class="p-4 text-center text-slate-500 font-mono">${data.count}</td>
+                            <td class="p-4 text-right font-bold text-indigo-600">${avgHours} jam</td>
+                            <td class="p-4 text-center">${slaBadge}</td>
                         </tr>
                     `;
                 });
-                document.getElementById('user-list-table').innerHTML = html;
-                lucide.createIcons();
+                document.getElementById('table-sla').innerHTML = slaHtml;
+                document.getElementById('empty-sla').classList.add('hidden-section');
+            } else {
+                document.getElementById('table-sla').innerHTML = "";
+                document.getElementById('empty-sla').classList.remove('hidden-section');
+            }
+
+            lucide.createIcons();
+        };
+
+        window.resetFilters = () => {
+            document.getElementById('filter-start').value = "";
+            document.getElementById('filter-end').value = "";
+            document.getElementById('filter-city').value = "";
+            document.getElementById('filter-posisi').value = "";
+            renderDashboardData();
+        };
+
+        function listenUsers() {
+            if(unsubUsers) unsubUsers();
+            unsubUsers = onSnapshot(query(collection(db, "users")), (snap) => {
+                let html = "";
+                snap.forEach(s => {
+                    const u = s.data(); const id = s.id; const isMe = id === currentUser.id;
+                    // Pass password to editUser function
+                    html += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-50">
+                        <td class="py-3 px-4 font-mono font-bold text-xs text-indigo-600">${id}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-700">${u.name}</td>
+                        <td class="py-3 px-4"><span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-[10px] font-bold uppercase">${u.role}</span></td>
+                        <td class="py-3 px-4 font-mono text-xs text-slate-500 bg-slate-50 rounded select-all">${u.password || '***'}</td>
+                        <td class="py-3 px-4 text-slate-500 text-sm">${u.city}</td>
+                        <td class="py-3 px-4 text-right flex justify-end gap-2">
+                            <button onclick="editUser('${id}','${u.name}','${u.city}','${u.role}', '${u.password || ''}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"><i data-lucide="pencil" class="w-3 h-3"></i></button>
+                            ${!isMe ? `<button onclick="deleteUser('${id}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"><i data-lucide="trash" class="w-3 h-3"></i></button>` : ''}
+                        </td>
+                    </tr>`;
+                });
+                document.getElementById('user-list-table').innerHTML = html; lucide.createIcons();
             });
         }
 
-        // --- 8. ADMIN ACTIONS ---
-
         window.saveUserByAdmin = async () => {
-            const id = document.getElementById('adm-id').value.trim();
-            const name = document.getElementById('adm-name').value;
-            const city = document.getElementById('adm-city').value;
+            const id = document.getElementById('adm-id').value.trim(); 
+            const name = document.getElementById('adm-name').value; 
+            const city = document.getElementById('adm-city').value; 
             const role = document.getElementById('adm-role').value;
+            const pass = document.getElementById('adm-pass').value; // Get Password
 
             if(!id || !name) return notify("Data Tidak Lengkap", "error");
-
             try {
-                const payload = { name, city, role };
-                if(!isEditingUser) payload.password = "123"; // Default pass
+                const payload = { name, city, role }; 
+                // Use input password, or default to '123' if new user and empty
+                if (pass) payload.password = pass;
+                else if (!isEditingUser) payload.password = "123";
 
                 await setDoc(doc(db, "users", id), payload, { merge: true });
-                notify(isEditingUser ? "User Diupdate" : "User Dibuat (Pass: 123)", "success");
-                resetAdminForm();
+                notify(isEditingUser ? "User Diupdate" : "User Dibuat", "success"); resetAdminForm();
             } catch (e) { notify("Gagal Simpan User", "error"); }
         };
 
-        window.editUser = (id, name, city, role) => {
+        window.editUser = (id, name, city, role, pass) => {
             isEditingUser = true;
-            document.getElementById('adm-id').value = id;
-            document.getElementById('adm-id').disabled = true;
-            document.getElementById('adm-name').value = name;
-            document.getElementById('adm-city').value = city;
+            document.getElementById('adm-id').value = id; document.getElementById('adm-id').disabled = true;
+            document.getElementById('adm-name').value = name; 
+            document.getElementById('adm-city').value = city; 
             document.getElementById('adm-role').value = role;
+            document.getElementById('adm-pass').value = pass; // Fill password
             
             document.getElementById('form-title').innerText = "EDIT USER: " + id;
             document.getElementById('btn-save-user').innerHTML = `<i data-lucide="save" class="w-4 h-4 inline mr-1"></i> Update User`;
             document.getElementById('btn-cancel-edit').classList.remove('hidden-section');
-            
-            // Scroll otomatis ke form edit
-            document.getElementById('form-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            lucide.createIcons();
+            document.getElementById('form-title').scrollIntoView({ behavior: 'smooth', block: 'center' }); lucide.createIcons();
         };
 
         window.resetAdminForm = () => {
             isEditingUser = false;
-            document.getElementById('adm-id').value = ""; document.getElementById('adm-id').disabled = false;
-            document.getElementById('adm-name').value = ""; document.getElementById('adm-city').value = "";
-            document.getElementById('form-title').innerText = "TAMBAH USER BARU";
-            document.getElementById('btn-save-user').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 inline mr-1"></i> Simpan User`;
-            document.getElementById('btn-cancel-edit').classList.add('hidden-section');
-            lucide.createIcons();
+            document.getElementById('adm-id').value = ""; document.getElementById('adm-id').disabled = false; 
+            document.getElementById('adm-name').value = ""; 
+            document.getElementById('adm-city').value = "";
+            document.getElementById('adm-pass').value = ""; // Reset password field
+            
+            document.getElementById('form-title').innerText = "TAMBAH USER BARU"; document.getElementById('btn-save-user').innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 inline mr-1"></i> Simpan User`;
+            document.getElementById('btn-cancel-edit').classList.add('hidden-section'); lucide.createIcons();
         };
 
-        // Logic baru untuk Hapus dengan Modal
-        window.deleteUser = (id) => {
-            deleteTargetId = id;
-            const modal = document.getElementById('modal-overlay');
-            modal.classList.remove('hidden-section');
-            // Timeout kecil agar transisi CSS opacity berjalan
-            setTimeout(() => modal.classList.add('open'), 10);
+        window.showModal = (title, desc, action, btnText = "Ya, Lanjutkan") => {
+            document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; document.getElementById('modal-confirm-btn').innerText = btnText;
+            pendingAction = action; const modal = document.getElementById('modal-overlay'); modal.classList.remove('hidden-section'); setTimeout(() => modal.classList.add('open'), 10);
         };
 
-        window.closeModal = () => {
-            const modal = document.getElementById('modal-overlay');
-            modal.classList.remove('open');
-            setTimeout(() => {
-                modal.classList.add('hidden-section');
-                deleteTargetId = null;
-            }, 300);
-        };
-
-        window.executeDelete = async () => {
-            if(!deleteTargetId) return;
-            try {
-                await deleteDoc(doc(db, "users", deleteTargetId));
-                notify("User Berhasil Dihapus", "success");
-            } catch (e) {
-                notify("Gagal Menghapus User", "error");
-            }
-            closeModal();
-        };
+        window.deleteUser = (id) => { showModal("Hapus User Ini?", "Tindakan ini tidak dapat dibatalkan. User tidak akan bisa login lagi.", async () => { try { await deleteDoc(doc(db, "users", id)); notify("User Berhasil Dihapus", "success"); } catch (e) { notify("Gagal Menghapus User", "error"); } }, "Hapus User"); };
+        window.closeModal = () => { const modal = document.getElementById('modal-overlay'); modal.classList.remove('open'); setTimeout(() => { modal.classList.add('hidden-section'); pendingAction = null; }, 300); };
+        window.executeAction = async () => { if(pendingAction) await pendingAction(); closeModal(); };
 
         window.updateProfile = async () => {
-            const name = document.getElementById('my-name').value;
-            const pass = document.getElementById('my-pass').value;
-            const payload = { name };
-            if(pass) payload.password = pass;
-
+            const name = document.getElementById('my-name').value; const pass = document.getElementById('my-pass').value;
+            const payload = { name }; if(pass) payload.password = pass;
             await updateDoc(doc(db, "users", currentUser.id), payload);
-            currentUser.name = name;
-            localStorage.setItem('hub_session', JSON.stringify(currentUser));
-            document.getElementById('profile-name').innerText = name;
-            notify("Profil Berhasil Diupdate", "success");
+            currentUser.name = name; localStorage.setItem('hub_session', JSON.stringify(currentUser));
+            document.getElementById('profile-name-d').innerText = name; notify("Profil Berhasil Diupdate", "success");
         };
 
-        // --- 9. UTILS (SEARCH, NOTIF, EXPORT) ---
-
         window.filterTable = (val) => {
-            const filter = val.toLowerCase();
-            const rows = document.getElementById('table-packages').getElementsByTagName('tr');
-            for (let i = 0; i < rows.length; i++) {
-                const txt = rows[i].textContent.toLowerCase();
-                rows[i].style.display = txt.includes(filter) ? "" : "none";
-            }
+            const filter = val.toLowerCase(); const rows = document.getElementById('table-packages').getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) { const txt = rows[i].textContent.toLowerCase(); rows[i].style.display = txt.includes(filter) ? "" : "none"; }
         };
 
         window.notify = (msg, type) => {
-            const island = document.getElementById('dynamic-island');
-            const icon = document.getElementById('island-icon');
-            const txt = document.getElementById('island-msg');
-            
-            // Icon Logic
+            const island = document.getElementById('dynamic-island'); const icon = document.getElementById('island-icon'); const txt = document.getElementById('island-msg');
             let iconHtml = "";
             if(type === 'success') iconHtml = `<div class="bg-emerald-500 rounded-full p-1"><i data-lucide="check" class="text-white w-3 h-3"></i></div>`;
             else if(type === 'error') iconHtml = `<div class="bg-red-500 rounded-full p-1"><i data-lucide="x" class="text-white w-3 h-3"></i></div>`;
             else iconHtml = `<div class="bg-slate-500 rounded-full p-1"><i data-lucide="info" class="text-white w-3 h-3"></i></div>`;
-            
-            icon.innerHTML = iconHtml;
-            txt.innerText = msg;
-            
-            island.classList.add('active');
-            lucide.createIcons();
-            
+            icon.innerHTML = iconHtml; txt.innerText = msg; island.classList.add('active'); lucide.createIcons();
             setTimeout(() => { island.classList.remove('active'); }, 3000);
         };
 
         window.exportTableToExcel = () => {
-            // Simple CSV export logic for preview
-            let csv = [];
-            const rows = document.querySelectorAll("#table-packages tr");
-            
-            // Add Header
-            csv.push("Waktu,No Resi,Pengirim,Kota,Kondisi,Posisi");
-
-            for (let i = 0; i < rows.length; i++) {
-                const row = [], cols = rows[i].querySelectorAll("td, th");
-                for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText + '"');
-                csv.push(row.join(","));
-            }
-            
-            const csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(csvFile);
-            link.download = "Data_Paket_HUB.csv";
-            link.click();
+            let csv = []; const rows = document.querySelectorAll("#table-packages tr"); csv.push("Waktu,No Resi,Pengirim,Kota,Kondisi,Posisi");
+            for (let i = 0; i < rows.length; i++) { const row = [], cols = rows[i].querySelectorAll("td, th"); for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText + '"'); csv.push(row.join(",")); }
+            const csvFile = new Blob([csv.join("\n")], {type: "text/csv"}); const link = document.createElement("a"); link.href = URL.createObjectURL(csvFile); link.download = "Data_Paket_HUB.csv"; link.click();
         };
 
-        // Start App
         if(currentUser) initApp();
     </script>
 </body>
