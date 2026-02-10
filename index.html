@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HUB Logistics Tracker</title>
+    <title>Return Tracker V2</title>
     
     <!-- LIBRARIES (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -539,7 +539,19 @@
                         Riwayat Penerimaan (Live)
                     </h3>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left"><thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider"><tr><th class="p-4">Waktu Terima</th><th class="p-4">Resi</th><th class="p-4">Asal (Kota)</th><th class="p-4">Status Awal</th><th class="p-4">Penerima</th></tr></thead><tbody id="table-hub-history" class="divide-y divide-slate-50 text-slate-600"></tbody></table>
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-4">Waktu Terima</th>
+                                    <th class="p-4">Resi</th>
+                                    <th class="p-4">Asal (Kota)</th>
+                                    <th class="p-4">Status Awal</th>
+                                    <th class="p-4">Penerima</th>
+                                    <!-- KOLOM AKSI DIHAPUS DARI HTML STATIS, AKAN DI-INJECT VIA JS KHUSUS ID 'ADMIN' -->
+                                </tr>
+                            </thead>
+                            <tbody id="table-hub-history" class="divide-y divide-slate-50 text-slate-600"></tbody>
+                        </table>
                         <div id="empty-hub-history" class="text-center py-10 text-slate-400 hidden-section"><p class="text-xs">Belum ada data penerimaan.</p></div>
                     </div>
                 </div>
@@ -596,6 +608,25 @@
                 <div class="grid grid-cols-2 gap-4"><div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Nama</label><input type="text" id="adm-name" placeholder="Nama" class="w-full"></div><div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Password</label><input type="text" id="adm-pass" placeholder="Default: 123" class="w-full"></div></div>
                 <div class="grid grid-cols-2 gap-4"><div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Kota</label><input type="text" id="adm-city" placeholder="Kota" class="w-full"></div><div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Role</label><select id="adm-role" class="w-full"><option value="visitor">Visitor</option><option value="mitra">Mitra Pengusaha</option><option value="hub">Tim HUB</option><option value="admin">Admin</option></select></div></div>
                 <button onclick="saveUserByAdmin()" class="btn-uiverse indigo mt-4"><span>Simpan Data</span><div class="icon-circle"><i data-lucide="check"></i></div></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: COPY RESI MODAL -->
+    <div id="copy-resi-modal" class="fixed inset-0 z-[100] hidden-section flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onclick="closeCopyModal()"></div>
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate-[scaleIn_0.3s_ease-out]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-emerald-50/50">
+                <div><h3 class="text-xl font-bold text-slate-800">Validasi Berhasil!</h3><p class="text-xs text-emerald-600 font-bold uppercase tracking-wider">Data Tersimpan</p></div>
+                <button onclick="closeCopyModal()" class="p-2.5 bg-white border border-slate-200 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-sm text-slate-500">Berikut daftar resi yang baru saja divalidasi. Anda dapat menyalinnya untuk laporan manual.</p>
+                <div class="relative">
+                    <textarea id="copy-resi-area" class="w-full h-40 bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-mono text-slate-600 focus:outline-none focus:border-indigo-500 resize-none" readonly></textarea>
+                    <div class="absolute top-2 right-2 text-[10px] font-bold text-slate-300 pointer-events-none">READ ONLY</div>
+                </div>
+                <button onclick="copyToClipboard()" class="btn-uiverse indigo w-full"><span>Salin Semua Resi</span><div class="icon-circle"><i data-lucide="copy"></i></div></button>
             </div>
         </div>
     </div>
@@ -928,6 +959,10 @@
 
         window.processQueue = async () => {
             if(hubQueue.length === 0) return;
+            
+            // Simpan daftar resi sebelum dihapus untuk fitur copy
+            const processedResis = hubQueue.map(item => item.resi);
+
             try {
                 const promises = hubQueue.map(item => {
                     const updateData = {
@@ -941,8 +976,29 @@
                 hubQueue = []; 
                 renderHubQueue(); 
                 document.getElementById('scan-counter-btn').innerText = "0"; 
+                
+                // Tampilkan Modal Copy
+                document.getElementById('copy-resi-area').value = processedResis.join('\n');
+                document.getElementById('copy-resi-modal').classList.remove('hidden-section');
+                lucide.createIcons();
+
                 notify("Validasi Selesai! Data Tersimpan.", "success");
             } catch (e) { console.error(e); notify("Gagal Validasi", "error"); }
+        };
+
+        window.closeCopyModal = () => {
+            document.getElementById('copy-resi-modal').classList.add('hidden-section');
+        };
+
+        window.copyToClipboard = () => {
+            const copyText = document.getElementById("copy-resi-area");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // Untuk mobile
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                notify("Resi Disalin ke Clipboard!", "success");
+            }).catch(() => {
+                notify("Gagal Menyalin", "error");
+            });
         };
 
         function listenPackages() {
@@ -1012,9 +1068,44 @@
                         slaData[cityKey].count++; slaData[cityKey].totalHours += hours;
                     }
                     hubHistoryCount++;
-                    hubHistoryHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-4 text-slate-500 text-xs font-semibold">${d.hub_date.toDate().toLocaleString('id-ID')}</td><td class="p-4 font-mono font-bold text-indigo-600">${d.resi}</td><td class="p-4 text-slate-600 text-xs italic">${d.city}</td><td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded text-[10px] font-bold text-slate-400 uppercase">${d.status}</span></td><td class="p-4 text-slate-600 text-xs font-semibold">${d.hub_receiver || '-'}</td></tr>`;
+                    
+                    // UPDATE: LOGIKA STRICT CHECK ID 'admin'
+                    let deleteBtnHub = "";
+                    if (currentUser.id === 'admin') { // HANYA ID "admin" YANG BISA LIHAT
+                         deleteBtnHub = `
+                        <td class="p-4 text-right">
+                            <button onclick="deletePackage('${d.resi}')" class="text-red-400 hover:text-red-600 bg-red-50 p-2 rounded-lg transition-colors" title="Hapus Data (Super Admin)">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>`;
+                    }
+
+                    hubHistoryHtml += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-50">
+                        <td class="p-4 text-slate-500 text-xs font-semibold">${d.hub_date.toDate().toLocaleString('id-ID')}</td>
+                        <td class="p-4 font-mono font-bold text-indigo-600">${d.resi}</td>
+                        <td class="p-4 text-slate-600 text-xs italic">${d.city}</td>
+                        <td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded text-[10px] font-bold text-slate-400 uppercase">${d.status}</span></td>
+                        <td class="p-4 text-slate-600 text-xs font-semibold">${d.hub_receiver || '-'}</td>
+                        ${deleteBtnHub}
+                    </tr>`;
                 }
             });
+
+            // LOGIKA HEADER TABLE HUB HISTORY (STRICT ID ADMIN)
+            const hubTableHead = document.querySelector('#table-hub-history').previousElementSibling.querySelector('tr');
+            const existingActionTh = hubTableHead.querySelector('.hub-super-admin-action');
+            
+            if (currentUser.id === 'admin') {
+                if (!existingActionTh) {
+                    const th = document.createElement('th');
+                    th.className = "p-4 text-right hub-super-admin-action";
+                    th.innerText = "Aksi";
+                    hubTableHead.appendChild(th);
+                }
+            } else {
+                if (existingActionTh) existingActionTh.remove();
+            }
 
             const tableHeader = document.querySelector('#table-packages').previousElementSibling.querySelector('tr');
             if (currentUser.role === 'admin' && tableHeader.children.length === 6) {
