@@ -13,19 +13,25 @@
     
     <!-- CUSTOM STYLES -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
         :root {
             --primary: #4f46e5;
+            --surface: #ffffff;
         }
 
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #f8fafc;
-            background-image: radial-gradient(#e0e7ff 0.5px, transparent 0.5px);
-            background-size: 24px 24px;
-            color: #334155;
-            -webkit-tap-highlight-color: transparent; /* Remove blue highlight on mobile tap */
+            /* Modern Abstract Background */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,96%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,100%,98%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,100%,96%,1) 0, transparent 50%);
+            background-attachment: fixed;
+            background-size: 100% 100%;
+            color: #1e293b;
+            -webkit-tap-highlight-color: transparent; 
         }
         
         /* Modern Scrollbar */
@@ -36,133 +42,166 @@
 
         /* DYNAMIC ISLAND */
         #dynamic-island {
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            width: 120px; height: 36px; top: 40px; 
-            background: #0f172a; color: white; opacity: 0; 
-            transform: translateX(-50%) scale(0.9);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            width: 120px; height: 36px; top: 24px; 
+            background: rgba(15, 23, 42, 0.95); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            color: white; opacity: 0; 
+            transform: translateX(-50%) translateY(-20px) scale(0.9);
             border-radius: 100px;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.1);
-            z-index: 200001; 
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.15);
+            z-index: 200002; 
             display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
-        #dynamic-island.active { width: auto; min-width: 260px; height: 56px; padding: 0 8px; opacity: 1; transform: translateX(-50%) scale(1); }
-        #island-content-wrapper { display: flex; align-items: center; gap: 12px; padding: 0 12px; opacity: 0; transform: scale(0.9); transition: all 0.2s ease-out 0.2s; width: 100%; }
+        #dynamic-island.active { width: auto; min-width: 280px; height: 60px; padding: 0 8px; opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        #island-content-wrapper { display: flex; align-items: center; gap: 14px; padding: 0 16px; opacity: 0; transform: scale(0.9); transition: all 0.3s ease-out 0.1s; width: 100%; }
         #dynamic-island.active #island-content-wrapper { opacity: 1; transform: scale(1); }
-        .island-icon-box { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .island-icon-box.success { background: rgba(34, 197, 94, 0.2); } 
-        .island-icon-box.error { background: rgba(239, 68, 68, 0.2); } 
-        .island-icon-box.default { background: rgba(148, 163, 184, 0.2); } 
+        .island-icon-box { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .island-icon-box.success { background: rgba(34, 197, 94, 0.2); color: #4ade80; } 
+        .island-icon-box.error { background: rgba(239, 68, 68, 0.2); color: #f87171; } 
+        .island-icon-box.default { background: rgba(148, 163, 184, 0.2); color: #94a3b8; } 
+
+        /* GLASS MORPHISM */
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.75); 
+            backdrop-filter: blur(24px); 
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.6); 
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+        }
 
         /* UIVERSE BUTTON STYLE */
         .btn-uiverse {
             position: relative; display: flex; justify-content: center; align-items: center; gap: 0.75rem;
-            padding: 0.75rem 1.5rem; background-color: #f8fafc; color: #1e293b; font-weight: 700; font-size: 0.95rem;
-            border: 2px solid #e2e8f0; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            overflow: hidden; isolation: isolate; transition: all 0.3s ease; cursor: pointer;
+            padding: 0.85rem 1.75rem; background-color: white; color: #1e293b; font-weight: 700; font-size: 0.95rem;
+            border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 9999px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            overflow: hidden; isolation: isolate; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; letter-spacing: 0.01em;
         }
         .btn-uiverse::before {
             content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
             border-radius: 9999px; z-index: -1; transition: all 0.5s cubic-bezier(0.5, 1.6, 0.4, 0.7);
             transform: scale(0.5); opacity: 0;
         }
-        .btn-uiverse:hover { color: white; border-color: transparent; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .btn-uiverse:hover { color: white !important; border-color: transparent !important; transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3); }
         .btn-uiverse:hover::before { left: 0; transform: scale(1); opacity: 1; }
-        .btn-uiverse:active { transform: scale(0.95); }
-        .btn-uiverse .icon-circle {
-            width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; border: 2px solid currentColor; transition: all 0.3s ease; background: white; padding: 4px;
-        }
-        .btn-uiverse:hover .icon-circle { background: rgba(255,255,255,0.2); border-color: white; color: white; transform: rotate(45deg); }
-        .btn-uiverse.indigo::before { background: #4f46e5; } .btn-uiverse.indigo .icon-circle { color: #4f46e5; }
-        .btn-uiverse.emerald::before { background: #10b981; } .btn-uiverse.emerald .icon-circle { color: #10b981; }
-        .btn-uiverse.red::before { background: #ef4444; } .btn-uiverse.red .icon-circle { color: #ef4444; }
-        .btn-uiverse.red:hover { background-color: #fef2f2; color: #ef4444; border-color: #ef4444; }
-        .btn-uiverse.red:hover::before { opacity: 0; }
-        .btn-uiverse.red-fill::before { background: #ef4444; opacity: 1; } .btn-uiverse.red-fill:hover { color: white; }
-
-        /* GLASS MORPHISM */
-        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .btn-uiverse:active { transform: scale(0.96); }
         
+        .btn-uiverse.indigo::before { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .btn-uiverse.emerald::before { background: linear-gradient(135deg, #10b981, #059669); }
+        .btn-uiverse.red::before { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .btn-uiverse .icon-circle { width: 1.75rem; height: 1.75rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid currentColor; transition: all 0.3s ease; background: white; padding: 3px; }
+        .btn-uiverse.indigo .icon-circle { color: #4f46e5; } .btn-uiverse.emerald .icon-circle { color: #10b981; } .btn-uiverse.red .icon-circle { color: #ef4444; }
+
         /* INPUT FIELDS */
-        input, select { border-radius: 9999px !important; padding-left: 1.5rem !important; padding-right: 1.5rem !important; transition: all 0.3s ease; }
-        input:focus, select:focus { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1); }
-
-        /* --- NAVIGATION STYLES (RESPONSIVE) --- */
-        
-        .nav-item {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            cursor: pointer;
+        input, select { 
+            border-radius: 16px !important; 
+            padding: 0.85rem 1.25rem !important; 
+            transition: all 0.3s ease; 
+            border: 1px solid transparent;
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
         }
+        input:focus, select:focus { 
+            background-color: white;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); 
+        }
+        input::placeholder { color: #94a3b8; font-weight: 400; }
 
-        /* Desktop & Tablet (Top Bar) */
+        /* --- MODERN NAVIGATION --- */
+        
+        /* 1. Desktop Nav (Floating Capsule) */
         @media (min-width: 768px) {
+            header.glass-panel {
+                background: rgba(255, 255, 255, 0.85) !important;
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+            }
+
             .nav-item {
-                border-radius: 9999px; /* Pill shape */
-                padding: 0.5rem 1.25rem;
+                position: relative;
+                padding: 0.6rem 1.4rem;
+                border-radius: 9999px;
+                color: #64748b;
+                font-weight: 600;
+                transition: all 0.3s ease;
                 display: flex;
                 align-items: center;
-                gap: 0.5rem;
+                gap: 8px;
             }
-            /* Active State Desktop */
+            .nav-item:hover {
+                color: #4f46e5;
+                background-color: rgba(99, 102, 241, 0.08);
+            }
             .nav-item.active {
-                background-color: #4f46e5 !important;
+                background: #4f46e5;
                 color: white !important;
                 box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-                transform: translateY(-1px);
             }
             .nav-item.active lord-icon { --lord-icon-primary: #ffffff !important; }
-            .nav-item:hover:not(.active) { background-color: #f1f5f9; color: #4338ca; }
         }
 
-        /* Mobile (Bottom Bar) */
+        /* 2. Mobile Nav (Bottom Dock) */
         @media (max-width: 768px) {
+            #mobile-menu {
+                background: rgba(255, 255, 255, 0.95) !important;
+                backdrop-filter: blur(20px);
+                border-top: 1px solid rgba(0,0,0,0.05);
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+                border-radius: 20px 20px 0 0;
+            }
             .nav-item {
-                border-radius: 16px;
-                padding: 0.5rem;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 2px;
-                flex: 1;
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                flex: 1; padding: 12px 0;
+                color: #94a3b8;
+                position: relative;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
-            /* Active State Mobile */
             .nav-item.active {
-                background-color: transparent !important;
-                color: #4f46e5 !important;
+                color: #4f46e5;
+                transform: translateY(-4px);
             }
-            /* Top Indicator Line for Mobile */
-            .nav-item.active::before {
+            .nav-item.active lord-icon {
+                transform: scale(1.1);
+            }
+            /* Glowing Dot Indicator */
+            .nav-item.active::after {
                 content: '';
                 position: absolute;
-                top: 0;
-                width: 40%;
-                height: 3px;
+                bottom: 8px;
+                width: 4px; height: 4px;
                 background-color: #4f46e5;
-                border-radius: 0 0 4px 4px;
-                box-shadow: 0 2px 4px rgba(79, 70, 229, 0.4);
-            }
-            .nav-item.active lord-icon { 
-                transform: translateY(-2px) scale(1.1); 
-                filter: drop-shadow(0 4px 4px rgba(79, 70, 229, 0.2));
+                border-radius: 50%;
+                box-shadow: 0 0 10px 1px #4f46e5;
             }
             .nav-item span {
                 font-size: 10px;
-                font-weight: 600;
-                letter-spacing: 0.02em;
+                font-weight: 700;
+                margin-top: 4px;
+                opacity: 0.8;
             }
+            .nav-item.active span { opacity: 1; }
         }
         
-        /* UTILS */
         .hidden-section { display: none !important; }
-        
-        /* Mobile Scanner */
-        .scanner-fullscreen { position: fixed !important; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999; background: #000; }
+        .admin-action { display: none; }
+        body.is-admin .admin-action { display: table-cell; }
+
+        /* SCANNER & MODALS */
+        .scanner-fullscreen { position: fixed !important; top: 0; left: 0; right: 0; bottom: 0; z-index: 99999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .scanner-fullscreen video { width: 100% !important; height: 100% !important; object-fit: cover !important; }
-        #scanner-overlay-guide { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: 80%; border: 2px solid rgba(255, 255, 255, 0.7); border-radius: 24px; z-index: 200000; box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.6); display: none; pointer-events: none; }
-        #scanner-stop-btn { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 200000; display: none; }
+        #scanner-overlay-guide { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85vw; height: 85vw; max-width: 300px; max-height: 300px; border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 24px; z-index: 200000; box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.7); display: none; pointer-events: none; }
+        #scanner-overlay-guide::after { content: ''; position: absolute; inset: 20px; border: 2px dashed rgba(255,255,255,0.4); border-radius: 12px; }
+        #scanner-stop-btn { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 200000; display: none; }
         
+        /* Modal Custom */
+        #modal-overlay { background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(8px); transition: opacity 0.3s ease; }
+        #modal-box { transform: scale(0.95); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); opacity: 0; border: 1px solid rgba(255,255,255,0.8); }
+        #modal-overlay.open { opacity: 1; pointer-events: auto; }
+        #modal-overlay.open #modal-box { transform: scale(1); opacity: 1; }
+
         lord-icon { width: 24px; height: 24px; display: block; margin: auto; }
     </style>
 </head>
@@ -181,36 +220,81 @@
         </div>
     </div>
 
-    <!-- 2. LOGIN SCREEN -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-slate-50 z-0"></div>
-        <div class="glass-panel p-10 md:p-14 rounded-[3rem] shadow-2xl w-full max-w-md relative z-10">
-            <div class="text-center mb-12">
-                <div class="bg-gradient-to-tr from-indigo-600 to-violet-600 w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-200 transform -rotate-6 hover:rotate-0 transition-transform duration-500">
-                    <lord-icon src="https://cdn.lordicon.com/lupuorrc.json" trigger="loop" delay="3000" colors="primary:#ffffff,secondary:#ffffff" style="width:50px;height:50px"></lord-icon>
+    <!-- 2. LOGIN SCREEN (REDESIGNED) -->
+    <div id="login-screen" class="fixed inset-0 z-[5000] flex items-center justify-center bg-[#f8fafc] overflow-hidden">
+        <!-- Animated Background Elements -->
+        <div class="absolute inset-0 z-0 pointer-events-none">
+            <div class="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-purple-400/20 blur-[120px] animate-pulse"></div>
+            <div class="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-400/20 blur-[120px] animate-pulse" style="animation-delay: 2s"></div>
+        </div>
+
+        <!-- Main Card Container -->
+        <div class="relative z-10 w-full max-w-5xl h-full md:h-auto md:aspect-[16/9] bg-white/80 backdrop-blur-xl md:rounded-[3rem] shadow-2xl border border-white/60 flex flex-col md:flex-row overflow-hidden m-0 md:m-8 transition-all duration-500">
+            
+            <!-- Left Side: Visual Brand -->
+            <div class="relative w-full md:w-5/12 bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-700 p-10 flex flex-col justify-between text-white overflow-hidden">
+                <!-- Texture -->
+                <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+                <div class="absolute -right-24 -bottom-24 w-80 h-80 bg-white/10 rounded-full blur-3xl mix-blend-overlay"></div>
+                
+                <div class="relative z-10">
+                    <div class="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-8 border border-white/20 shadow-lg shadow-indigo-900/20">
+                         <lord-icon src="https://cdn.lordicon.com/osuxyevn.json" trigger="loop" delay="2000" colors="primary:#ffffff,secondary:#ffffff" style="width:28px;height:28px"></lord-icon>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.1]">Seamless<br>Logistics<br>Management.</h1>
+                    <p class="text-indigo-200 mt-4 text-sm font-medium leading-relaxed max-w-[260px]">Platform terintegrasi untuk pemantauan, validasi, dan pelacakan paket secara real-time.</p>
                 </div>
-                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">HUB Tracker</h1>
-                <p class="text-slate-500 font-medium mt-2">Logistik & Distribusi</p>
+                
+                <div class="relative z-10 mt-10 md:mt-0 flex items-center gap-3 opacity-80">
+                    <div class="h-px bg-white/30 w-10"></div>
+                    <p class="text-[10px] font-bold tracking-widest uppercase">System v2.5.0</p>
+                </div>
             </div>
-            <div class="space-y-6">
-                <div class="relative">
-                    <div class="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="in" delay="500" state="in-reveal" colors="primary:#94a3b8,secondary:#94a3b8" style="width:20px;height:20px"></lord-icon>
+
+            <!-- Right Side: Login Form -->
+            <div class="w-full md:w-7/12 p-8 md:p-16 flex flex-col justify-center bg-white/40">
+                <div class="max-w-sm mx-auto w-full">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-extrabold text-slate-800 mb-2">Selamat Datang 👋</h2>
+                        <p class="text-slate-500 text-sm font-medium">Masukan kredensial ID anggota tim Anda untuk melanjutkan.</p>
                     </div>
-                    <input type="text" id="login-id" placeholder="ID Anggota" class="w-full bg-white border-2 border-slate-100 py-4 pl-14 pr-6 text-slate-700 font-bold focus:border-indigo-500 focus:ring-0 outline-none">
+
+                    <div class="space-y-6">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] uppercase font-bold text-slate-400 tracking-wider ml-1">ID Pengguna</label>
+                            <div class="relative group">
+                                <input type="text" id="login-id" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 pl-12 font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder:font-normal placeholder:text-slate-400" placeholder="Username / NIK">
+                                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                    <i data-lucide="user" class="w-5 h-5"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                             <div class="flex justify-between items-center ml-1">
+                                <label class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Kata Sandi</label>
+                                <a href="#" onclick="notify('Hubungi IT Support Pusat', 'info')" class="text-[10px] font-bold text-indigo-600 hover:underline">Lupa Password?</a>
+                             </div>
+                             <div class="relative group">
+                                <input type="password" id="login-pass" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 pl-12 font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder:font-normal placeholder:text-slate-400" placeholder="••••••••">
+                                <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                                    <i data-lucide="lock" class="w-5 h-5"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="authLogin()" class="w-full bg-slate-900 text-white font-bold rounded-2xl py-4 mt-2 hover:bg-black hover:scale-[1.01] active:scale-[0.98] transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3 group relative overflow-hidden">
+                            <span class="relative z-10">Masuk Dashboard</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform relative z-10"></i>
+                            <div class="absolute inset-0 bg-indigo-600 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 ease-out z-0"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+                        <span class="text-xs font-bold text-slate-400">Secure Encrypted Connection</span>
+                    </div>
                 </div>
-                <div class="relative">
-                    <div class="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <lord-icon src="https://cdn.lordicon.com/rqqkvjqf.json" trigger="in" delay="700" state="in-reveal" colors="primary:#94a3b8,secondary:#94a3b8" style="width:20px;height:20px"></lord-icon>
-                    </div>
-                    <input type="password" id="login-pass" placeholder="Password" class="w-full bg-white border-2 border-slate-100 py-4 pl-14 pr-6 text-slate-700 font-bold focus:border-indigo-500 focus:ring-0 outline-none">
-                </div>
-                <button onclick="authLogin()" class="btn-uiverse indigo mt-8">
-                    <span>Masuk Sistem</span>
-                    <div class="icon-circle">
-                        <lord-icon src="https://cdn.lordicon.com/zmkotitn.json" trigger="hover" colors="primary:#4f46e5" style="width:20px;height:20px"></lord-icon>
-                    </div>
-                </button>
             </div>
         </div>
     </div>
@@ -218,46 +302,44 @@
     <!-- 3. MAIN APP -->
     <div id="app-container" class="hidden-section min-h-screen flex flex-col transition-opacity duration-500">
         
-        <!-- A. TOP BAR (DESKTOP & TABLET) -->
-        <header class="hidden md:flex glass-panel px-8 py-4 items-center justify-between sticky top-0 z-50 rounded-b-[2rem] mx-4 mt-2 shadow-sm">
-            <div class="flex items-center gap-4">
-                 <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
-                    <lord-icon src="https://cdn.lordicon.com/osuxyevn.json" trigger="hover" colors="primary:#ffffff,secondary:#ffffff" style="width:24px;height:24px"></lord-icon>
+        <!-- A. DESKTOP NAV (Floating Center) -->
+        <header class="hidden md:flex items-center justify-between px-8 py-4 sticky top-0 z-50">
+            <!-- Brand -->
+            <div class="flex items-center gap-3 glass-panel px-5 py-2 rounded-full">
+                 <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white shadow-md">
+                    <lord-icon src="https://cdn.lordicon.com/osuxyevn.json" trigger="hover" colors="primary:#ffffff,secondary:#ffffff" style="width:18px;height:18px"></lord-icon>
                 </div>
-                <div>
-                    <h2 class="font-bold text-xl leading-none text-slate-800 tracking-tight">Logistik Pro</h2>
-                </div>
+                <h2 class="font-bold text-lg text-slate-800">Logistik Pro</h2>
             </div>
             
-            <!-- Desktop Menu (Pills) -->
-            <nav id="desktop-menu" class="flex items-center gap-2 p-1 bg-slate-100/50 rounded-full border border-slate-200/50"></nav>
+            <!-- Menu -->
+            <nav id="desktop-menu" class="glass-panel p-1.5 rounded-full flex gap-1 shadow-lg shadow-indigo-100/50"></nav>
             
-            <div class="flex items-center gap-5">
-                 <div class="flex items-center gap-3 text-right">
-                    <div>
-                        <p id="profile-name-d" class="font-bold text-sm text-slate-800">User</p>
-                        <p id="profile-role-d" class="text-[10px] uppercase font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full inline-block">Role</p>
-                    </div>
-                    <div class="w-12 h-12 bg-white border-2 border-slate-100 rounded-full flex items-center justify-center text-indigo-600 font-black text-lg shadow-sm" id="avatar-initial-d">U</div>
+            <!-- Profile -->
+            <div class="flex items-center gap-4 glass-panel px-2 py-2 pr-4 rounded-full">
+                 <div class="w-10 h-10 bg-gradient-to-br from-indigo-100 to-white rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm shadow-inner border border-white" id="avatar-initial-d">U</div>
+                 <div class="text-right leading-none hidden lg:block">
+                    <p id="profile-name-d" class="font-bold text-sm text-slate-800">User</p>
+                    <p id="profile-role-d" class="text-[10px] uppercase font-bold text-indigo-500">Role</p>
                 </div>
-                <button onclick="confirmLogout()" class="w-10 h-10 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm" title="Keluar">
-                    <lord-icon src="https://cdn.lordicon.com/moscwhoj.json" trigger="hover" colors="primary:currentColor,secondary:currentColor" style="width:20px;height:20px"></lord-icon>
+                <button onclick="confirmLogout()" class="ml-2 w-8 h-8 rounded-full bg-slate-100 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-all" title="Keluar">
+                    <lord-icon src="https://cdn.lordicon.com/moscwhoj.json" trigger="hover" colors="primary:currentColor,secondary:currentColor" style="width:16px;height:16px"></lord-icon>
                 </button>
             </div>
         </header>
 
-        <!-- B. MOBILE HEADER (Just Logo & Profile) -->
-        <div class="md:hidden glass-panel p-4 flex items-center justify-between sticky top-0 z-40 rounded-b-[2rem] shadow-sm">
+        <!-- B. MOBILE HEADER -->
+        <div class="md:hidden glass-panel p-4 flex items-center justify-between sticky top-0 z-40 rounded-b-[2rem] shadow-sm border-b border-white/50">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
                     <lord-icon src="https://cdn.lordicon.com/osuxyevn.json" trigger="loop" delay="3000" colors="primary:#ffffff,secondary:#ffffff" style="width:20px;height:20px"></lord-icon>
                 </div>
                 <span class="font-bold text-lg text-slate-800">Logistik Pro</span>
             </div>
             <div class="flex items-center gap-3">
-                 <div class="w-10 h-10 bg-white border-2 border-slate-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm shadow-sm" id="avatar-initial-m">U</div>
-                 <button onclick="confirmLogout()" class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center">
-                     <lord-icon src="https://cdn.lordicon.com/moscwhoj.json" trigger="morph" colors="primary:#ef4444,secondary:#ef4444" style="width:20px;height:20px"></lord-icon>
+                 <div class="w-10 h-10 bg-white border border-slate-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm shadow-sm" id="avatar-initial-m">U</div>
+                 <button onclick="confirmLogout()" class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center border border-red-100">
+                     <lord-icon src="https://cdn.lordicon.com/moscwhoj.json" trigger="morph" colors="primary:#ef4444,secondary:#ef4444" style="width:18px;height:18px"></lord-icon>
                  </button>
             </div>
         </div>
@@ -267,37 +349,37 @@
             
             <section id="page-dashboard" class="page-section animate-[fadeIn_0.4s_ease-out]">
                 <!-- Filters -->
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 mb-8">
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mb-8">
                     <div class="grid grid-cols-2 md:flex md:flex-row gap-4 items-end">
                         <div class="w-full md:w-auto flex-1 group">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-3">Dari Tanggal</label>
-                            <input type="date" id="filter-start" onchange="renderDashboardData()" class="w-full py-3 px-5 bg-slate-50 border-2 border-transparent text-sm font-bold text-slate-600 outline-none focus:bg-white focus:border-indigo-100 focus:shadow-lg transition-all">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-1">Dari</label>
+                            <input type="date" id="filter-start" onchange="renderDashboardData()" class="w-full text-xs font-bold text-slate-600">
                         </div>
                         <div class="w-full md:w-auto flex-1 group">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-3">Sampai Tanggal</label>
-                            <input type="date" id="filter-end" onchange="renderDashboardData()" class="w-full py-3 px-5 bg-slate-50 border-2 border-transparent text-sm font-bold text-slate-600 outline-none focus:bg-white focus:border-indigo-100 focus:shadow-lg transition-all">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-1">Sampai</label>
+                            <input type="date" id="filter-end" onchange="renderDashboardData()" class="w-full text-xs font-bold text-slate-600">
                         </div>
                         <div class="w-full md:w-auto flex-1 group">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-3">Kota Asal</label>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-1">Kota</label>
                             <div class="relative">
-                                <select id="filter-city" onchange="renderDashboardData()" class="w-full py-3 px-5 bg-slate-50 border-2 border-transparent text-sm font-bold text-slate-600 outline-none focus:bg-white focus:border-indigo-100 focus:shadow-lg transition-all appearance-none cursor-pointer">
+                                <select id="filter-city" onchange="renderDashboardData()" class="w-full text-xs font-bold text-slate-600 appearance-none cursor-pointer">
                                     <option value="">Semua Kota</option>
                                 </select>
-                                <i data-lucide="chevron-down" class="absolute right-4 top-3.5 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                             </div>
                         </div>
                         <div class="w-full md:w-auto flex-1 group">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-3">Posisi Paket</label>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block ml-1">Posisi</label>
                             <div class="relative">
-                                <select id="filter-posisi" onchange="renderDashboardData()" class="w-full py-3 px-5 bg-slate-50 border-2 border-transparent text-sm font-bold text-slate-600 outline-none focus:bg-white focus:border-indigo-100 focus:shadow-lg transition-all appearance-none cursor-pointer">
+                                <select id="filter-posisi" onchange="renderDashboardData()" class="w-full text-xs font-bold text-slate-600 appearance-none cursor-pointer">
                                     <option value="">Semua Posisi</option>
                                     <option value="Vendor">Masih di Vendor</option>
                                     <option value="HUB">Sudah di HUB</option>
                                 </select>
-                                <i data-lucide="chevron-down" class="absolute right-4 top-3.5 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                                <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                             </div>
                         </div>
-                        <button onclick="resetFilters()" class="col-span-2 md:col-span-auto w-full md:w-auto py-3 px-5 bg-slate-100 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all duration-300 flex items-center justify-center shadow-sm" title="Reset">
+                        <button onclick="resetFilters()" class="col-span-2 md:col-span-auto w-full md:w-auto py-3 bg-slate-100 text-slate-500 hover:text-white hover:bg-slate-800 rounded-full transition-all duration-300 flex items-center justify-center shadow-sm" title="Reset">
                             <lord-icon src="https://cdn.lordicon.com/rsbokaso.json" trigger="hover" colors="primary:currentColor" style="width:20px;height:20px"></lord-icon>
                         </button>
                     </div>
@@ -306,59 +388,36 @@
                 <!-- KPI CARDS -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                     <!-- Vendor -->
-                    <div class="bg-white p-5 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:border-orange-200 hover:shadow-lg transition-all duration-300">
-                        <div class="absolute -right-5 -bottom-5 opacity-5 group-hover:scale-110 transition-transform duration-500">
-                             <lord-icon src="https://cdn.lordicon.com/tftaqjwp.json" trigger="loop" delay="3000" colors="primary:#1e293b" style="width:120px;height:120px"></lord-icon>
-                        </div>
+                    <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:border-orange-200 transition-all">
                         <div class="flex justify-between items-start mb-4 relative z-10">
-                            <div class="p-3 bg-orange-50 rounded-2xl text-orange-500">
-                                <lord-icon src="https://cdn.lordicon.com/tftaqjwp.json" trigger="hover" colors="primary:#f97316" style="width:24px;height:24px"></lord-icon>
-                            </div>
-                            <span class="bg-slate-50 text-slate-400 text-[9px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Transit</span>
+                            <div class="p-2.5 bg-orange-50 rounded-2xl text-orange-500"><lord-icon src="https://cdn.lordicon.com/tftaqjwp.json" trigger="hover" colors="primary:#f97316" style="width:24px;height:24px"></lord-icon></div>
+                            <span class="bg-orange-50 text-orange-600 text-[9px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Transit</span>
                         </div>
                         <h3 id="stat-vendor" class="text-3xl font-black text-slate-800 relative z-10">0</h3>
                         <p class="text-slate-400 text-xs font-bold mt-1 relative z-10">Paket di Vendor</p>
                     </div>
-                    
-                    <!-- Alert -->
-                    <div class="bg-red-50 p-5 rounded-[2.5rem] shadow-sm border border-red-100 relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-                        <div class="absolute -right-5 -bottom-5 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                            <lord-icon src="https://cdn.lordicon.com/vacmyjrh.json" trigger="loop" delay="1000" colors="primary:#ef4444" style="width:120px;height:120px"></lord-icon>
-                        </div>
+                    <!-- Stuck -->
+                    <div class="bg-red-50/50 p-5 rounded-[2rem] border border-red-100 shadow-sm relative overflow-hidden group">
                         <div class="flex justify-between items-start mb-4 relative z-10">
-                            <div class="p-3 bg-white/80 rounded-2xl text-red-500 shadow-sm">
-                                <lord-icon src="https://cdn.lordicon.com/vacmyjrh.json" trigger="hover" colors="primary:#ef4444" style="width:24px;height:24px"></lord-icon>
-                            </div>
+                            <div class="p-2.5 bg-white rounded-2xl text-red-500 shadow-sm"><lord-icon src="https://cdn.lordicon.com/vacmyjrh.json" trigger="hover" colors="primary:#ef4444" style="width:24px;height:24px"></lord-icon></div>
                             <span class="bg-red-100 text-red-600 text-[9px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">Warning</span>
                         </div>
-                        <h3 id="stat-stuck" class="text-3xl font-black text-red-700 relative z-10">0</h3>
-                        <p class="text-red-600/70 text-xs font-bold mt-1 relative z-10">> 2 Hari (Vendor)</p>
+                        <h3 id="stat-stuck" class="text-3xl font-black text-red-600 relative z-10">0</h3>
+                        <p class="text-red-500/80 text-xs font-bold mt-1 relative z-10">> 2 Hari (Vendor)</p>
                     </div>
-
                     <!-- HUB -->
-                    <div class="bg-white p-5 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:border-emerald-200 hover:shadow-lg transition-all duration-300">
-                         <div class="absolute -right-5 -bottom-5 opacity-5 group-hover:scale-110 transition-transform duration-500">
-                             <lord-icon src="https://cdn.lordicon.com/oqdmuxru.json" trigger="morph" colors="primary:#1e293b" style="width:120px;height:120px"></lord-icon>
-                        </div>
+                    <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-all">
                         <div class="flex justify-between items-start mb-4 relative z-10">
-                            <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-500">
-                                <lord-icon src="https://cdn.lordicon.com/oqdmuxru.json" trigger="hover" colors="primary:#10b981" style="width:24px;height:24px"></lord-icon>
-                            </div>
+                            <div class="p-2.5 bg-emerald-50 rounded-2xl text-emerald-500"><lord-icon src="https://cdn.lordicon.com/oqdmuxru.json" trigger="hover" colors="primary:#10b981" style="width:24px;height:24px"></lord-icon></div>
                             <span class="bg-emerald-50 text-emerald-600 text-[9px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Selesai</span>
                         </div>
                         <h3 id="stat-hub" class="text-3xl font-black text-slate-800 relative z-10">0</h3>
                         <p class="text-slate-400 text-xs font-bold mt-1 relative z-10">Diterima HUB</p>
                     </div>
-
                     <!-- Total -->
-                    <div class="bg-white p-5 rounded-[2.5rem] shadow-sm border border-slate-100 relative overflow-hidden group hover:border-indigo-200 hover:shadow-lg transition-all duration-300">
-                         <div class="absolute -right-5 -bottom-5 opacity-5 group-hover:scale-110 transition-transform duration-500">
-                             <lord-icon src="https://cdn.lordicon.com/lupuorrc.json" trigger="morph" colors="primary:#1e293b" style="width:120px;height:120px"></lord-icon>
-                        </div>
+                    <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden group hover:border-indigo-200 transition-all">
                         <div class="flex justify-between items-start mb-4 relative z-10">
-                            <div class="p-3 bg-indigo-50 rounded-2xl text-indigo-500">
-                                <lord-icon src="https://cdn.lordicon.com/lupuorrc.json" trigger="hover" colors="primary:#4f46e5" style="width:24px;height:24px"></lord-icon>
-                            </div>
+                            <div class="p-2.5 bg-indigo-50 rounded-2xl text-indigo-500"><lord-icon src="https://cdn.lordicon.com/lupuorrc.json" trigger="hover" colors="primary:#4f46e5" style="width:24px;height:24px"></lord-icon></div>
                             <span class="bg-indigo-50 text-indigo-600 text-[9px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">All Time</span>
                         </div>
                         <h3 id="stat-total" class="text-3xl font-black text-slate-800 relative z-10">0</h3>
@@ -366,10 +425,10 @@
                     </div>
                 </div>
 
-                <!-- TABLES -->
+                <!-- Tables Grid -->
                 <div class="grid lg:grid-cols-2 gap-6 mb-8">
                     <!-- Monitoring Vendor -->
-                    <div class="bg-orange-50 rounded-[2.5rem] p-2 border border-orange-200 shadow-xl shadow-orange-100/50 flex flex-col h-full">
+                    <div class="bg-orange-50 rounded-[2rem] p-2 border border-orange-200 shadow-lg shadow-orange-100/30 flex flex-col h-full">
                         <div class="px-6 py-4 flex justify-between items-center">
                             <h3 class="font-bold text-orange-900 flex items-center gap-2">
                                 <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="hover" colors="primary:#ea580c" style="width:24px;height:24px"></lord-icon>
@@ -377,7 +436,7 @@
                             </h3>
                             <span id="pending-badge-count" class="bg-orange-600 text-white px-3 py-1 rounded-full text-[10px] font-bold shadow-lg shadow-orange-200">0</span>
                         </div>
-                        <div class="bg-white rounded-[2rem] overflow-hidden flex-1 border border-orange-100">
+                        <div class="bg-white rounded-[1.5rem] overflow-hidden flex-1 border border-orange-100">
                             <div class="overflow-auto h-full max-h-[350px] custom-scroll">
                                 <table class="w-full text-left text-sm">
                                     <thead class="bg-orange-50 text-orange-700 font-bold uppercase text-[10px] sticky top-0 z-20"><tr><th class="p-4">Durasi</th><th class="p-4">Resi</th><th class="p-4">Kota</th><th class="p-4">Kondisi</th></tr></thead>
@@ -390,19 +449,13 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- SLA TABLE -->
-                    <div class="bg-white rounded-[2.5rem] p-2 border border-slate-100 shadow-sm flex flex-col h-full">
-                        <div class="px-6 py-4 flex items-center gap-2">
-                            <lord-icon src="https://cdn.lordicon.com/kbtmbyzy.json" trigger="hover" colors="primary:#4f46e5" style="width:24px;height:24px"></lord-icon>
-                            <h3 class="font-bold text-slate-800">SLA Pengiriman</h3>
-                        </div>
-                        <div class="bg-slate-50 rounded-[2rem] overflow-hidden flex-1 border border-slate-200">
+                    <!-- SLA -->
+                    <div class="bg-white rounded-[2rem] p-2 border border-slate-100 shadow-sm flex flex-col h-full">
+                        <div class="px-6 py-4 flex items-center gap-2"><lord-icon src="https://cdn.lordicon.com/kbtmbyzy.json" trigger="hover" colors="primary:#4f46e5" style="width:24px;height:24px"></lord-icon><h3 class="font-bold text-slate-800">SLA Pengiriman</h3></div>
+                        <div class="bg-slate-50 rounded-[1.5rem] overflow-hidden flex-1 border border-slate-200">
                             <div class="overflow-auto h-full max-h-[350px] custom-scroll">
                                 <table class="w-full text-left text-sm">
-                                    <thead class="bg-slate-100 text-slate-500 font-bold uppercase text-[10px] sticky top-0 z-20">
-                                        <tr><th class="p-4">Kota</th><th class="p-4 text-center">Total</th><th class="p-4 text-right">Avg (Jam)</th><th class="p-4 text-center">Status</th></tr>
-                                    </thead>
+                                    <thead class="bg-slate-100 text-slate-500 font-bold uppercase text-[10px] sticky top-0 z-20"><tr><th class="p-4">Kota</th><th class="p-4 text-center">Total</th><th class="p-4 text-right">Avg (Jam)</th><th class="p-4 text-center">Status</th></tr></thead>
                                     <tbody id="table-sla" class="divide-y divide-slate-200 text-slate-600"></tbody>
                                 </table>
                                 <div id="empty-sla" class="hidden-section p-10 text-center text-slate-400"><p class="text-xs">Data SLA belum tersedia.</p></div>
@@ -411,26 +464,19 @@
                     </div>
                 </div>
 
-                <!-- MAIN TABLE -->
-                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden mb-20">
-                    <div class="p-6 border-b border-slate-100 bg-slate-50/30 flex flex-col md:flex-row md:items-center gap-4">
+                <!-- Main Table -->
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden mb-20">
+                    <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row gap-4">
                         <div class="relative flex-1 group">
-                            <div class="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none">
-                                <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="hover" colors="primary:#94a3b8" style="width:20px;height:20px"></lord-icon>
-                            </div>
-                            <input type="text" onkeyup="filterTable(this.value)" placeholder="Cari Resi, Pengirim, atau Kota..." class="w-full py-3.5 pl-14 pr-6 bg-white border-2 border-slate-100 font-medium text-sm focus:border-indigo-500 focus:ring-0 outline-none transition-all">
+                            <div class="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50"><lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="hover" colors="primary:#94a3b8" style="width:18px;height:18px"></lord-icon></div>
+                            <input type="text" onkeyup="filterTable(this.value)" placeholder="Cari Resi, Pengirim, atau Kota..." class="w-full pl-12 bg-white border-slate-200">
                         </div>
-                        <button onclick="exportTableToExcel()" class="btn-uiverse indigo w-auto px-6 py-2.5 text-sm">
-                            <span>Export Data</span>
-                            <div class="icon-circle" style="width: 1.5rem; height: 1.5rem;">
-                                 <lord-icon src="https://cdn.lordicon.com/vhyuhmbl.json" trigger="hover" colors="primary:#4f46e5" style="width:16px;height:16px"></lord-icon>
-                            </div>
-                        </button>
+                        <button onclick="exportTableToExcel()" class="btn-uiverse indigo w-auto px-6 py-2.5 text-sm"><span>Export Data</span><div class="icon-circle" style="width:1.5rem;height:1.5rem"><lord-icon src="https://cdn.lordicon.com/vhyuhmbl.json" trigger="hover" colors="primary:#4f46e5" style="width:14px;height:14px"></lord-icon></div></button>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead class="bg-slate-50/80 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                                <tr><th class="p-5 min-w-[140px]">Waktu</th><th class="p-5 min-w-[160px]">No. Resi</th><th class="p-5 min-w-[160px]">Pengirim</th><th class="p-5 min-w-[120px]">Kota</th><th class="p-5 min-w-[120px]">Kondisi</th><th class="p-5 min-w-[140px]">Posisi</th></tr>
+                                <tr><th class="p-5 min-w-[140px]">Waktu</th><th class="p-5 min-w-[160px]">No. Resi</th><th class="p-5 min-w-[160px]">Pengirim</th><th class="p-5 min-w-[120px]">Kota</th><th class="p-5 min-w-[120px]">Kondisi</th><th class="p-5 min-w-[140px]">Posisi</th><th class="p-5 text-right admin-action">Aksi</th></tr>
                             </thead>
                             <tbody id="table-packages" class="text-sm font-medium text-slate-600 divide-y divide-slate-50 bg-white"></tbody>
                         </table>
@@ -447,24 +493,16 @@
                 <div class="max-w-6xl mx-auto">
                     <header class="mb-8 flex justify-between items-center">
                         <div><h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Handover Paket</h2><p class="text-slate-500 text-sm mt-1">Kelola pengiriman ke vendor.</p></div>
-                        <button onclick="openInputForm()" class="btn-uiverse indigo w-auto px-6">
-                             <span>Input Baru</span>
-                             <div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/ftndcppj.json" trigger="hover" colors="primary:#4f46e5" style="width:20px;height:20px"></lord-icon></div>
-                        </button>
+                        <button onclick="openInputForm()" class="btn-uiverse indigo w-auto px-6"><span>Input Baru</span><div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/ftndcppj.json" trigger="hover" colors="primary:#4f46e5" style="width:20px;height:20px"></lord-icon></div></button>
                     </header>
-                    <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
+                    <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden min-h-[400px]">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
-                                <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                                    <tr><th class="p-5">Waktu Input</th><th class="p-5">No. Resi</th><th class="p-5">Tujuan (Kota)</th><th class="p-5">Kondisi</th><th class="p-5">Status Terkini</th></tr>
-                                </thead>
+                                <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100"><tr><th class="p-5">Waktu Input</th><th class="p-5">No. Resi</th><th class="p-5">Tujuan (Kota)</th><th class="p-5">Kondisi</th><th class="p-5">Status Terkini</th></tr></thead>
                                 <tbody id="table-mitra-history" class="text-sm font-medium text-slate-600 divide-y divide-slate-50"></tbody>
                             </table>
                         </div>
-                        <div id="empty-mitra" class="hidden-section p-20 text-center text-slate-400">
-                            <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="morph" colors="primary:#cbd5e1" style="width:48px;height:48px"></lord-icon>
-                            <p class="text-sm font-medium mt-2">Belum ada riwayat.</p>
-                        </div>
+                        <div id="empty-mitra" class="hidden-section p-20 text-center text-slate-400"><lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="morph" colors="primary:#cbd5e1" style="width:48px;height:48px"></lord-icon><p class="text-sm font-medium mt-2">Belum ada riwayat.</p></div>
                     </div>
                 </div>
             </section>
@@ -474,69 +512,44 @@
                 <header class="mb-8"><h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Validasi Masuk (HUB)</h2><p class="text-slate-500 text-sm mt-1">Scan validasi paket masuk.</p></header>
                 <div class="grid lg:grid-cols-12 gap-6 mb-8">
                     <div class="lg:col-span-5 space-y-5">
-                        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                            <h3 class="font-bold text-slate-700 mb-6 flex items-center gap-2">
-                                <lord-icon src="https://cdn.lordicon.com/ixjzkjbl.json" trigger="hover" colors="primary:#4f46e5" style="width:24px;height:24px"></lord-icon> Scanner
-                            </h3>
+                        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                            <h3 class="font-bold text-slate-700 mb-6 flex items-center gap-2"><lord-icon src="https://cdn.lordicon.com/ixjzkjbl.json" trigger="hover" colors="primary:#4f46e5" style="width:24px;height:24px"></lord-icon> Scanner</h3>
                             <div id="scanner-hub" class="rounded-[2rem] overflow-hidden bg-slate-50 min-h-[280px] flex items-center justify-center border-2 border-dashed border-slate-200 relative group transition-colors hover:border-indigo-300">
-                                <div class="text-center p-6 text-slate-400 group-hover:text-indigo-400 transition-colors">
-                                    <lord-icon src="https://cdn.lordicon.com/ixjzkjbl.json" trigger="morph" colors="primary:#94a3b8" style="width:64px;height:64px"></lord-icon>
-                                    <p class="text-xs font-bold uppercase tracking-wider mt-2">Kamera Nonaktif</p>
-                                </div>
+                                <div class="text-center p-6 text-slate-400 group-hover:text-indigo-400 transition-colors"><lord-icon src="https://cdn.lordicon.com/ixjzkjbl.json" trigger="morph" colors="primary:#94a3b8" style="width:64px;height:64px"></lord-icon><p class="text-xs font-bold uppercase tracking-wider mt-2">Kamera Nonaktif</p></div>
                             </div>
-                            <button id="btn-toggle-hub" onclick="toggleScanner('hub')" class="btn-uiverse indigo mt-6">
-                                <span>Scan QR Code</span>
-                                <div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/ixjzkjbl.json" trigger="hover" colors="primary:#4f46e5,secondary:#4f46e5" style="width:20px;height:20px"></lord-icon></div>
-                            </button>
+                            <button id="btn-toggle-hub" onclick="toggleScanner('hub')" class="btn-uiverse indigo mt-6"><span>Scan QR Code</span><div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/ixjzkjbl.json" trigger="hover" colors="primary:#4f46e5,secondary:#4f46e5" style="width:20px;height:20px"></lord-icon></div></button>
                         </div>
-                        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-3 tracking-wider ml-2">Input Manual</p>
+                        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-3 tracking-wider ml-2">Input Manual (ENTER)</p>
                             <div class="flex gap-3">
-                                <input type="text" id="manual-hub-resi" class="flex-1 py-3 px-6 bg-slate-50 border-2 border-transparent font-mono font-bold text-slate-700 outline-none focus:bg-white focus:border-indigo-100 focus:shadow-lg transition-all" placeholder="Ketik No. Resi...">
-                                <button onclick="manualAddQueue()" class="w-14 h-12 rounded-full bg-slate-800 text-white flex items-center justify-center shadow-lg hover:bg-slate-900 transition-all">
-                                    <lord-icon src="https://cdn.lordicon.com/ftndcppj.json" trigger="hover" colors="primary:#ffffff" style="width:24px;height:24px"></lord-icon>
-                                </button>
+                                <input type="text" id="manual-hub-resi" onkeydown="if(event.key === 'Enter') manualAddQueue()" class="flex-1" placeholder="Ketik No. Resi...">
+                                <button onclick="manualAddQueue()" class="w-14 h-14 rounded-full bg-slate-800 text-white flex items-center justify-center shadow-lg hover:bg-slate-900 transition-all"><lord-icon src="https://cdn.lordicon.com/ftndcppj.json" trigger="hover" colors="primary:#ffffff" style="width:24px;height:24px"></lord-icon></button>
                             </div>
                         </div>
                     </div>
                     <div class="lg:col-span-7">
-                        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 h-full flex flex-col min-h-[500px]">
+                        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 h-full flex flex-col min-h-[500px]">
                             <div class="flex justify-between items-center mb-6 border-b border-slate-50 pb-4">
                                 <div><h3 class="font-bold text-lg text-slate-800">Antrean Validasi</h3><p class="text-[11px] text-slate-400 font-bold uppercase mt-1 tracking-wider">Siap Disimpan</p></div>
                                 <span id="queue-count" class="bg-indigo-600 text-white px-4 py-2 rounded-full text-lg font-black shadow-lg shadow-indigo-200">0</span>
                             </div>
                             <div class="flex-1 overflow-y-auto pr-2 custom-scroll">
                                 <table class="w-full text-sm">
-                                    <thead class="bg-slate-50/50 text-[10px] uppercase font-bold text-slate-400 sticky top-0 backdrop-blur-sm">
-                                        <tr><th class="py-3 px-2 text-left rounded-l-lg">Resi</th><th class="py-3 px-2 text-left">Asal</th><th class="py-3 px-2 text-right rounded-r-lg">Aksi</th></tr>
-                                    </thead>
+                                    <thead class="bg-slate-50/50 text-[10px] uppercase font-bold text-slate-400 sticky top-0 backdrop-blur-sm"><tr><th class="py-3 px-2 text-left rounded-l-lg">Resi</th><th class="py-3 px-2 text-left">Asal</th><th class="py-3 px-2 text-right rounded-r-lg">Aksi</th></tr></thead>
                                     <tbody id="queue-table" class="divide-y divide-slate-50"></tbody>
                                 </table>
-                                <div id="empty-queue" class="text-center py-20 text-slate-300">
-                                    <lord-icon src="https://cdn.lordicon.com/osuxyevn.json" trigger="morph" colors="primary:#cbd5e1" style="width:48px;height:48px"></lord-icon>
-                                    <p class="text-xs font-medium mt-2">Belum ada paket di-scan</p>
-                                </div>
+                                <div id="empty-queue" class="text-center py-20 text-slate-300"><lord-icon src="https://cdn.lordicon.com/osuxyevn.json" trigger="morph" colors="primary:#cbd5e1" style="width:48px;height:48px"></lord-icon><p class="text-xs font-medium mt-2">Belum ada paket di-scan</p></div>
                             </div>
                             <div class="mt-6 pt-6 border-t border-slate-100">
-                                <button onclick="processQueue()" class="btn-uiverse emerald">
-                                    <span>Simpan Validasi</span>
-                                    <div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/egiwmiit.json" trigger="hover" colors="primary:#10b981" style="width:20px;height:20px"></lord-icon></div>
-                                </button>
+                                <button onclick="processQueue()" class="btn-uiverse emerald"><span>Simpan Validasi</span><div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/egiwmiit.json" trigger="hover" colors="primary:#10b981" style="width:20px;height:20px"></lord-icon></div></button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 mb-20">
-                    <h3 class="font-bold text-slate-700 mb-6 flex items-center gap-2">
-                        <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="hover" colors="primary:#4f46e5" style="width:24px;height:24px"></lord-icon> Riwayat Penerimaan (Live)
-                    </h3>
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-20">
+                    <h3 class="font-bold text-slate-700 mb-6 flex items-center gap-2"><lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="hover" colors="primary:#4f46e5" style="width:24px;height:24px"></lord-icon> Riwayat Penerimaan (Live)</h3>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left">
-                            <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                <tr><th class="p-4">Waktu Terima</th><th class="p-4">Resi</th><th class="p-4">Asal (Kota)</th><th class="p-4">Status Awal</th><th class="p-4">Penerima</th></tr>
-                            </thead>
-                            <tbody id="table-hub-history" class="divide-y divide-slate-50 text-slate-600"></tbody>
-                        </table>
+                        <table class="w-full text-sm text-left"><thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-wider"><tr><th class="p-4">Waktu Terima</th><th class="p-4">Resi</th><th class="p-4">Asal (Kota)</th><th class="p-4">Status Awal</th><th class="p-4">Penerima</th></tr></thead><tbody id="table-hub-history" class="divide-y divide-slate-50 text-slate-600"></tbody></table>
                         <div id="empty-hub-history" class="text-center py-10 text-slate-400 hidden-section"><p class="text-xs">Belum ada data penerimaan.</p></div>
                     </div>
                 </div>
@@ -546,21 +559,18 @@
             <section id="page-settings" class="page-section hidden-section animate-[fadeIn_0.4s_ease-out]">
                 <header class="mb-8"><h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Pengaturan</h2></header>
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                    <div class="xl:col-span-1 h-fit bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                    <div class="xl:col-span-1 h-fit dashboard-card p-8 rounded-[2.5rem]">
                         <h3 class="font-bold text-lg mb-6 flex items-center gap-3 text-slate-800"><div class="p-2 bg-indigo-50 rounded-2xl text-indigo-600"><lord-icon src="https://cdn.lordicon.com/dxjqoygy.json" trigger="hover" colors="primary:#4f46e5" style="width:20px;height:20px"></lord-icon></div> Profil Saya</h3>
                         <div class="space-y-5">
-                            <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Nama Lengkap</label><input type="text" id="my-name" class="w-full py-4 px-6 bg-slate-50 rounded-2xl font-bold text-slate-700 border border-transparent outline-none focus:bg-white focus:border-indigo-100 focus:shadow-lg transition-all"></div>
-                            <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Password Baru</label><input type="password" id="my-pass" placeholder="Biarkan kosong jika tetap" class="w-full py-4 px-6 bg-slate-50 rounded-2xl font-bold text-slate-700 border border-transparent outline-none focus:bg-white focus:border-indigo-100 focus:shadow-lg transition-all placeholder:font-normal placeholder:text-slate-400"></div>
+                            <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Nama Lengkap</label><input type="text" id="my-name" class="w-full"></div>
+                            <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Password Baru</label><input type="password" id="my-pass" placeholder="Biarkan kosong jika tetap" class="w-full"></div>
                             <button onclick="updateProfile()" class="btn-uiverse indigo mt-2"><span>Simpan Perubahan</span><div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/sbiheqdr.json" trigger="hover" colors="primary:#4f46e5" style="width:20px;height:20px"></lord-icon></div></button>
                         </div>
                     </div>
-                    <div id="admin-panel" class="hidden-section xl:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                    <div id="admin-panel" class="hidden-section xl:col-span-2 dashboard-card p-8 rounded-[2.5rem]">
                         <div class="flex justify-between items-center mb-6">
                              <h3 class="font-bold text-lg mb-6 flex items-center gap-3 text-slate-800"><div class="p-2 bg-indigo-50 rounded-2xl text-indigo-600"><lord-icon src="https://cdn.lordicon.com/eszyyflr.json" trigger="hover" colors="primary:#4f46e5" style="width:20px;height:20px"></lord-icon></div> Manajemen Tim</h3>
-                            <button onclick="openUserForm()" class="btn-uiverse indigo w-auto px-5 py-2">
-                                <span class="text-xs">Tambah</span>
-                                <div class="icon-circle" style="width:1.5rem;height:1.5rem"><lord-icon src="https://cdn.lordicon.com/ftndcppj.json" trigger="hover" colors="primary:#4f46e5" style="width:14px;height:14px"></lord-icon></div>
-                            </button>
+                            <button onclick="openUserForm()" class="btn-uiverse indigo w-auto px-5 py-2"><span class="text-xs">Tambah</span><div class="icon-circle" style="width:1.5rem;height:1.5rem"><lord-icon src="https://cdn.lordicon.com/ftndcppj.json" trigger="hover" colors="primary:#4f46e5" style="width:14px;height:14px"></lord-icon></div></button>
                         </div>
                         <div class="overflow-hidden rounded-[2rem] border border-slate-100 mb-8">
                             <div class="overflow-x-auto">
@@ -573,10 +583,7 @@
                         <div class="pt-6 border-t border-slate-100">
                             <h4 class="text-sm font-bold text-red-600 mb-2 flex items-center gap-2"><lord-icon src="https://cdn.lordicon.com/vacmyjrh.json" trigger="hover" colors="primary:#ef4444" style="width:20px;height:20px"></lord-icon> Zona Bahaya</h4>
                             <p class="text-xs text-slate-500 mb-4">Menghapus semua data paket dan user (kecuali Admin ini). Tidak bisa dibatalkan.</p>
-                            <button onclick="confirmResetSystem()" class="btn-uiverse red w-full">
-                                <span>Reset Factory (Hapus Semua Data)</span>
-                                <div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/jmkrnisz.json" trigger="hover" colors="primary:#ef4444" style="width:20px;height:20px"></lord-icon></div>
-                            </button>
+                            <button onclick="confirmResetSystem()" class="btn-uiverse red w-full"><span>Reset Factory</span><div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/jmkrnisz.json" trigger="hover" colors="primary:#ef4444" style="width:20px;height:20px"></lord-icon></div></button>
                         </div>
                     </div>
                 </div>
@@ -584,7 +591,7 @@
         </main>
 
         <!-- D. MOBILE BOTTOM NAV -->
-        <nav id="mobile-menu" class="md:hidden fixed bottom-0 left-0 right-0 glass-strong p-3 flex justify-around z-50 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] pb-safe"></nav>
+        <nav id="mobile-menu" class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200/50 p-3 flex justify-around z-50 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] pb-safe"></nav>
     </div>
 
     <!-- MODALS -->
@@ -593,46 +600,14 @@
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onclick="closeUserForm()"></div>
         <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate-[scaleIn_0.3s_ease-out]">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                <div>
-                    <h3 class="text-xl font-bold text-slate-800" id="user-modal-title">Tambah User</h3>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Data Akun Tim</p>
-                </div>
+                <div><h3 class="text-xl font-bold text-slate-800" id="user-modal-title">Tambah User</h3><p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Data Akun Tim</p></div>
                 <button onclick="closeUserForm()" class="p-2.5 bg-white border border-slate-200 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="p-8 space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">ID Anggota (Username)</label>
-                    <input type="text" id="adm-id" placeholder="Contoh: tim01" class="w-full py-3.5 px-5 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm transition-all">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Nama Lengkap</label>
-                        <input type="text" id="adm-name" placeholder="Nama" class="w-full py-3.5 px-5 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm transition-all">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Password</label>
-                        <input type="text" id="adm-pass" placeholder="Default: 123" class="w-full py-3.5 px-5 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm transition-all">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Kota Tugas</label>
-                        <input type="text" id="adm-city" placeholder="Kota" class="w-full py-3.5 px-5 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm transition-all">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Role / Peran</label>
-                        <select id="adm-role" class="w-full py-3.5 px-5 bg-slate-50 rounded-2xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold cursor-pointer shadow-sm transition-all appearance-none">
-                            <option value="visitor">Visitor</option>
-                            <option value="mitra">Mitra Pengusaha</option>
-                            <option value="hub">Tim HUB</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                </div>
-                <button onclick="saveUserByAdmin()" class="btn-uiverse indigo mt-4">
-                    <span>Simpan Data</span>
-                    <div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/sbiheqdr.json" trigger="hover" colors="primary:#4f46e5" style="width:20px;height:20px"></lord-icon></div>
-                </button>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">ID Anggota</label><input type="text" id="adm-id" placeholder="Contoh: tim01" class="w-full"></div>
+                <div class="grid grid-cols-2 gap-4"><div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Nama</label><input type="text" id="adm-name" placeholder="Nama" class="w-full"></div><div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Password</label><input type="text" id="adm-pass" placeholder="Default: 123" class="w-full"></div></div>
+                <div class="grid grid-cols-2 gap-4"><div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Kota</label><input type="text" id="adm-city" placeholder="Kota" class="w-full"></div><div><label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Role</label><select id="adm-role" class="w-full"><option value="visitor">Visitor</option><option value="mitra">Mitra Pengusaha</option><option value="hub">Tim HUB</option><option value="admin">Admin</option></select></div></div>
+                <button onclick="saveUserByAdmin()" class="btn-uiverse indigo mt-4"><span>Simpan Data</span><div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/sbiheqdr.json" trigger="hover" colors="primary:#4f46e5" style="width:20px;height:20px"></lord-icon></div></button>
             </div>
         </div>
     </div>
@@ -649,7 +624,7 @@
                 <div class="space-y-3">
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">1. Scan Barcode</label>
                     <div class="relative">
-                        <input type="text" id="input-resi" class="w-full py-4 pl-5 pr-16 bg-slate-50 rounded-2xl border border-transparent outline-none focus:bg-white focus:border-indigo-100 focus:shadow-lg font-mono font-bold text-lg text-slate-800 placeholder:text-slate-300 transition-all" placeholder="Scan / Ketik Resi">
+                        <input type="text" id="input-resi" class="w-full pl-5 pr-16" placeholder="Scan / Ketik Resi">
                         <button onclick="toggleScanner('mitra')" class="absolute right-2 top-2 bottom-2 bg-indigo-600 text-white w-12 rounded-xl flex items-center justify-center hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-200"><i data-lucide="scan-line" class="w-6 h-6"></i></button>
                     </div>
                     <div id="scanner-mitra" class="hidden-section rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-inner mt-2"></div>
@@ -664,15 +639,7 @@
                         <button onclick="selectStatus(this, 'Parcel Damage')" class="status-btn col-span-2 p-4 rounded-2xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95">Parcel Damage (Rusak)</button>
                     </div>
                 </div>
-                
-                <!-- BUTTON SUBMIT HANDOVER MODIFIED -->
-                <button onclick="submitPackage()" class="btn-uiverse indigo mt-6">
-                    <span>Submit Handover</span>
-                    <div class="icon-circle">
-                        <lord-icon src="https://cdn.lordicon.com/wzwygmng.json" trigger="hover" colors="primary:#4f46e5" style="width:20px;height:20px"></lord-icon>
-                    </div>
-                </button>
-
+                <button onclick="submitPackage()" class="btn-uiverse indigo mt-6"><span>Submit Handover</span><div class="icon-circle"><lord-icon src="https://cdn.lordicon.com/wzwygmng.json" trigger="hover" colors="primary:#4f46e5" style="width:20px;height:20px"></lord-icon></div></button>
             </div>
         </div>
     </div>
@@ -687,7 +654,7 @@
             <div class="absolute inset-0 bg-gradient-to-b from-white to-slate-50 rounded-[2.5rem] -z-10"></div>
             <div id="modal-icon" class="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm"><i data-lucide="alert-triangle" class="w-10 h-10"></i></div>
             <h3 id="modal-title" class="text-xl font-extrabold text-slate-800 mb-2 tracking-tight">Konfirmasi?</h3>
-            <p id="modal-desc" class="text-slate-500 text-sm mb-8 leading-relaxed">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+            <p id="modal-desc" class="text-slate-500 text-sm mb-8 leading-relaxed">...</p>
             <div class="flex gap-4">
                 <button onclick="closeModal()" class="flex-1 py-3.5 bg-white border border-slate-200 text-slate-600 rounded-full font-bold text-sm hover:bg-slate-50 transition-colors">Batal</button>
                 <button id="modal-confirm-btn" onclick="executeAction()" class="flex-1 py-3.5 bg-red-500 text-white rounded-full font-bold text-sm hover:bg-red-600 shadow-lg shadow-red-200 transition-all">Ya, Lanjutkan</button>
@@ -716,7 +683,7 @@
         let activeScanner = null, activeScannerId = null;
         let selectedPackageStatus = null;
         let hubQueue = [];
-        let processingScans = new Set(); // Prevent duplicates
+        let processingScans = new Set();
         let isEditingUser = false;
         let pendingAction = null;
         let unsubPackages = null, unsubUsers = null;
@@ -753,24 +720,15 @@
             showModal("Keluar Aplikasi?", "Anda harus login kembali untuk mengakses sistem.", () => {
                 localStorage.removeItem('hub_session');
                 currentUser = null;
-                
-                // Matikan Listener Database
                 if(unsubPackages) { unsubPackages(); unsubPackages = null; }
                 if(unsubUsers) { unsubUsers(); unsubUsers = null; }
-                
-                // Matikan Scanner
                 forceStopScanner();
-                
-                // UI Reset
                 document.getElementById('app-container').classList.add('hidden-section');
                 document.getElementById('login-screen').classList.remove('hidden-section');
-                document.getElementById('login-id').value = ""; 
-                document.getElementById('login-pass').value = "";
-                
-                // PENTING: Bersihkan Tabel User saat logout agar data tidak tertinggal
+                document.getElementById('login-id').value = ""; document.getElementById('login-pass').value = "";
                 document.getElementById('user-list-table').innerHTML = "";
-                document.getElementById('admin-panel').classList.add('hidden-section'); // Pastikan panel tertutup
-                
+                document.getElementById('admin-panel').classList.add('hidden-section');
+                document.body.classList.remove('is-admin');
                 notify("Berhasil Keluar", "success");
             }, "Keluar Sekarang");
         };
@@ -809,14 +767,13 @@
                 </button>
             `).join('');
 
-            // SECURITY FIX: Reset Admin Panel Visibility
-            // Pastikan panel disembunyikan dulu sebelum dicek role-nya
             const adminPanel = document.getElementById('admin-panel');
             adminPanel.classList.add('hidden-section');
+            document.body.classList.remove('is-admin');
 
-            // Cek Role, jika Admin baru tampilkan
             if(currentUser.role === 'admin') {
                 adminPanel.classList.remove('hidden-section');
+                document.body.classList.add('is-admin');
                 listenUsers();
             }
 
@@ -837,7 +794,6 @@
             if(activeDesktop) activeDesktop.classList.add('active');
             if(activeMobile) activeMobile.classList.add('active');
             
-            // Adjust icons active color
              document.querySelectorAll('.nav-item lord-icon').forEach(icon => icon.setAttribute('colors', 'primary:#64748b'));
              if(activeDesktop) activeDesktop.querySelector('lord-icon').setAttribute('colors', 'primary:#ffffff');
              if(activeMobile) activeMobile.querySelector('lord-icon').setAttribute('colors', 'primary:#4f46e5');
@@ -857,7 +813,6 @@
             selectedPackageStatus = status;
         };
 
-        // --- SCANNER LOGIC ---
         window.toggleScanner = (type) => {
             const elId = type === 'mitra' ? 'scanner-mitra' : 'scanner-hub';
             const displayEl = document.getElementById(elId);
@@ -871,20 +826,18 @@
             if(isMobile) {
                 displayEl.classList.add('scanner-fullscreen');
                 document.getElementById('scanner-stop-btn').style.display = 'block';
-                document.getElementById('scan-counter-btn').innerText = hubQueue.length; // Update counter initially
+                document.getElementById('scan-counter-btn').innerText = hubQueue.length;
                 document.getElementById('scanner-overlay-guide').style.display = 'block';
                 const mobNav = document.getElementById('mobile-menu');
                 if(mobNav) mobNav.style.display = 'none';
             }
 
             activeScanner = new Html5Qrcode(elId);
-            const config = { fps: 15, qrbox: isMobile ? { width: window.innerWidth * 0.9, height: window.innerHeight * 0.85 } : 300, aspectRatio: isMobile ? window.innerWidth / window.innerHeight : 1.0 };
+            const config = { fps: 15, qrbox: 250 };
 
             activeScanner.start({ facingMode: "environment" }, config, (text) => {
                 if (navigator.vibrate) navigator.vibrate(200);
-                
-                // Play beep sound
-                const beep = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbqWEyM2Cg0NupYTIzYKDQ26lhMjNgoNDbqWEyM2Cg0NupYTIzYKDQ26lhMjNgoNDbqWEyM2Cg0NupYTIzYKDQ26lhMjNgoNDbqWEyMw==');
+                const beep = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbqWEyM2Cg0NupYTIzYKDQ26lhMjNgoNDbqWEyM2Cg0NupYTIzYKDQ26lhMjNgoNDbqWEyM2Cg0NupYTIzYKDQ26lhMjMw==');
                 beep.play().catch(e => console.log('Audio error:', e));
 
                 if(type === 'mitra') {
@@ -930,13 +883,18 @@
             } catch (e) { notify("Gagal Simpan", "error"); }
         };
 
-        window.manualAddQueue = () => { const val = document.getElementById('manual-hub-resi').value.trim(); if(val) { addHubQueue(val); document.getElementById('manual-hub-resi').value = ""; } };
+        window.manualAddQueue = () => { 
+            const input = document.getElementById('manual-hub-resi');
+            const val = input.value.trim(); 
+            if(val) { 
+                addHubQueue(val); 
+                input.value = ""; 
+                input.focus(); 
+            } 
+        };
 
         async function addHubQueue(resi) {
-            // Check Local Queue First
             if(hubQueue.find(q => q.resi === resi)) return notify("Resi Duplikat (Antrean)!", "error");
-            
-            // Check Processing Lock (Race Condition Fix)
             if(processingScans.has(resi)) return; 
             processingScans.add(resi);
 
@@ -951,22 +909,20 @@
                         notify("Masuk Antrean", "success"); 
                     }
                 } else {
-                    // Tandai sebagai paket baru/asing dengan properti isNew
                     hubQueue.push({ 
                         resi: resi, 
                         city: "Asal Tidak Terdeteksi", 
                         sender_name: "Unknown", 
                         status: "Unregistered", 
                         posisi: "Unknown",
-                        isNew: true // Flag khusus untuk paket tidak terdaftar
+                        isNew: true 
                     });
                     renderHubQueue(); 
                     notify("Resi Asing Ditambahkan", "default");
                 }
             } finally {
-                // Release Lock
                 processingScans.delete(resi);
-                document.getElementById('scan-counter-btn').innerText = hubQueue.length; // Update button counter
+                document.getElementById('scan-counter-btn').innerText = hubQueue.length;
             }
         }
 
@@ -988,54 +944,32 @@
             if(hubQueue.length === 0) return;
             try {
                 const promises = hubQueue.map(item => {
-                    // Siapkan data update
                     const updateData = {
-                        resi: item.resi, 
-                        posisi: 'HUB', 
-                        hub_receiver: currentUser.name, 
-                        hub_date: serverTimestamp(),
-                        // Data default jika paket asing
-                        city: item.city || "Asal Tidak Terdeteksi", 
-                        sender_name: item.sender_name || "Tanpa Data Mitra", 
-                        status: item.status || "Ditemukan di HUB"
+                        resi: item.resi, posisi: 'HUB', hub_receiver: currentUser.name, hub_date: serverTimestamp(),
+                        city: item.city || "Asal Tidak Terdeteksi", sender_name: item.sender_name || "Tanpa Data Mitra", status: item.status || "Ditemukan di HUB"
                     };
-
-                    // Hanya buat 'createdAt' baru jika ini adalah paket asing (isNew)
-                    // Agar tanggal input asli dari Mitra TIDAK TIMPA/HILANG
-                    if(item.isNew) {
-                        updateData.createdAt = serverTimestamp();
-                    }
-
+                    if(item.isNew) updateData.createdAt = serverTimestamp();
                     return setDoc(doc(db, "packages", item.resi), updateData, { merge: true });
                 });
-
                 await Promise.all(promises); 
                 hubQueue = []; 
                 renderHubQueue(); 
-                document.getElementById('scan-counter-btn').innerText = "0"; // Reset counter button
+                document.getElementById('scan-counter-btn').innerText = "0"; 
                 notify("Validasi Selesai! Data Tersimpan.", "success");
-            } catch (e) { 
-                console.error(e);
-                notify("Gagal Validasi", "error"); 
-            }
+            } catch (e) { console.error(e); notify("Gagal Validasi", "error"); }
         };
 
         function listenPackages() {
             if(unsubPackages) unsubPackages();
-            // Query mengambil semua data paket, diurutkan dari yang terbaru dibuat
             const q = query(collection(db, "packages"), orderBy("createdAt", "desc"));
-            
             unsubPackages = onSnapshot(q, (snap) => {
                 allPackagesData = [];
                 snap.forEach(doc => { allPackagesData.push(doc.data()); });
-                
-                // Populate Filters
                 const citySelect = document.getElementById('filter-city');
                 const uniqueCities = [...new Set(allPackagesData.map(d => d.city).filter(Boolean))].sort();
                 const currentVal = citySelect.value;
                 citySelect.innerHTML = `<option value="">Semua Kota</option>` + uniqueCities.map(c => `<option value="${c}">${c}</option>`).join('');
                 if(uniqueCities.includes(currentVal)) citySelect.value = currentVal;
-
                 renderDashboardData();
             });
         }
@@ -1052,11 +986,9 @@
 
             const filteredData = allPackagesData.filter(d => {
                 const date = d.createdAt ? d.createdAt.toDate() : new Date();
-                // Filter Mitra (Hanya lihat kotanya sendiri)
                 if (currentUser && currentUser.role === 'mitra') {
                     if ((d.city || "").toLowerCase() !== (currentUser.city || "").toLowerCase()) return false;
                 }
-                // Filter Dashboard
                 if (fStart && date < new Date(fStart)) return false;
                 if (fEnd && date > new Date(fEnd + 'T23:59:59')) return false;
                 if (fCity && d.city !== fCity) return false;
@@ -1068,48 +1000,41 @@
                 visibleCount++;
                 if(d.posisi === 'Vendor') v++; else h++;
 
-                // 1. DATA TABEL UTAMA (DASHBOARD)
-                html += `<tr class="hover:bg-slate-50 transition border-b border-slate-50 group"><td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="p-5 font-bold font-mono text-indigo-600 group-hover:text-indigo-700">${d.resi}</td><td class="p-5 font-semibold text-slate-700">${d.sender_name}</td><td class="p-5 text-slate-600">${d.city}</td><td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td><td class="p-5"><span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center gap-1 w-fit ${d.posisi === 'HUB' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}"><span class="w-1.5 h-1.5 rounded-full ${d.posisi === 'HUB' ? 'bg-emerald-500' : 'bg-orange-500'}"></span> ${d.posisi}</span></td></tr>`;
+                let deleteAction = "";
+                if (currentUser.role === 'admin') {
+                    deleteAction = `<td class="p-5 text-right admin-action"><button onclick="deletePackage('${d.resi}')" class="text-red-400 hover:text-red-600 bg-red-50 p-2 rounded-lg transition-colors" title="Hapus Paket"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>`;
+                }
 
-                // Hitung Durasi
+                html += `<tr class="hover:bg-slate-50 transition border-b border-slate-50 group"><td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="p-5 font-bold font-mono text-indigo-600 group-hover:text-indigo-700">${d.resi}</td><td class="p-5 font-semibold text-slate-700">${d.sender_name}</td><td class="p-5 text-slate-600">${d.city}</td><td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td><td class="p-5"><span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide flex items-center gap-1 w-fit ${d.posisi === 'HUB' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}"><span class="w-1.5 h-1.5 rounded-full ${d.posisi === 'HUB' ? 'bg-emerald-500' : 'bg-orange-500'}"></span> ${d.posisi}</span></td>${deleteAction}</tr>`;
+
                 const sentDate = d.createdAt ? d.createdAt.toDate() : new Date();
                 const now = new Date();
                 const diffMs = Math.abs(now - sentDate);
                 const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); 
 
-                // 2. DATA MONITORING VENDOR (PENDING)
                 if(d.posisi === 'Vendor') {
                     if(diffDays > 2) stuckCount++;
                     pendingData.push({ ...d, diffDays });
                 }
 
-                // 3. DATA SLA & HUB HISTORY
                 if(d.posisi === 'HUB' && d.hub_date) {
                     const hubDate = d.hub_date.toDate();
-                    
-                    // SLA Calculation (Hanya jika bukan paket asing)
                     const cityKey = d.city || 'Unknown';
                     if (cityKey !== "Asal Tidak Terdeteksi" && d.createdAt) {
                         const hours = (hubDate - sentDate) / (1000 * 60 * 60);
                         if(!slaData[cityKey]) slaData[cityKey] = { count: 0, totalHours: 0 };
                         slaData[cityKey].count++; slaData[cityKey].totalHours += hours;
                     }
-
-                    // HUB History Row Construction
                     hubHistoryCount++;
-                    hubHistoryHtml += `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-50">
-                            <td class="p-4 text-slate-500 text-xs font-semibold">${d.hub_date.toDate().toLocaleString('id-ID')}</td>
-                            <td class="p-4 font-mono font-bold text-indigo-600">${d.resi}</td>
-                            <td class="p-4 text-slate-600 text-xs italic">${d.city}</td>
-                            <td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded text-[10px] font-bold text-slate-400 uppercase">${d.status}</span></td>
-                            <td class="p-4 text-slate-600 text-xs font-semibold">${d.hub_receiver || '-'}</td>
-                        </tr>
-                    `;
+                    hubHistoryHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-4 text-slate-500 text-xs font-semibold">${d.hub_date.toDate().toLocaleString('id-ID')}</td><td class="p-4 font-mono font-bold text-indigo-600">${d.resi}</td><td class="p-4 text-slate-600 text-xs italic">${d.city}</td><td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded text-[10px] font-bold text-slate-400 uppercase">${d.status}</span></td><td class="p-4 text-slate-600 text-xs font-semibold">${d.hub_receiver || '-'}</td></tr>`;
                 }
             });
 
-            // Update UI: Dashboard Main Stats & Table
+            const tableHeader = document.querySelector('#table-packages').previousElementSibling.querySelector('tr');
+            if (currentUser.role === 'admin' && tableHeader.children.length === 6) {
+                 const th = document.createElement('th'); th.className = "p-5 text-right min-w-[80px]"; th.innerText = "Aksi"; tableHeader.appendChild(th);
+            } else if (currentUser.role !== 'admin' && tableHeader.children.length === 7) { tableHeader.lastElementChild.remove(); }
+
             document.getElementById('table-packages').innerHTML = html;
             document.getElementById('stat-vendor').innerText = v;
             document.getElementById('stat-hub').innerText = h;
@@ -1117,7 +1042,6 @@
             document.getElementById('stat-stuck').innerText = stuckCount;
             document.getElementById('empty-state').classList.toggle('hidden-section', visibleCount > 0);
 
-            // Update UI: Pending Vendor Table
             pendingData.sort((a, b) => (b.diffDays - a.diffDays));
             pendingData.forEach(d => {
                 let badge = `<span class="px-2 py-1 rounded-lg text-[10px] font-bold bg-blue-50 text-blue-600">Baru</span>`;
@@ -1132,7 +1056,6 @@
             document.getElementById('pending-badge-count').innerText = pendingData.length + " Paket";
             document.getElementById('empty-pending').classList.toggle('hidden-section', pendingData.length > 0);
 
-            // Update UI: SLA Table
             const slaKeys = Object.keys(slaData).sort();
             if(slaKeys.length > 0) {
                 slaKeys.forEach(city => {
@@ -1151,26 +1074,19 @@
                 document.getElementById('empty-sla').classList.remove('hidden-section');
             }
 
-            // Update UI: HUB History Table (NEW)
             const hubTable = document.getElementById('table-hub-history');
             const emptyHub = document.getElementById('empty-hub-history');
             if(hubTable) {
                 hubTable.innerHTML = hubHistoryHtml;
-                if(hubHistoryCount === 0) emptyHub.classList.remove('hidden-section');
-                else emptyHub.classList.add('hidden-section');
+                if(hubHistoryCount === 0) emptyHub.classList.remove('hidden-section'); else emptyHub.classList.add('hidden-section');
             }
 
-            // Update UI: Mitra History Table (Jika elemen ada di DOM)
             const mitraTable = document.getElementById('table-mitra-history');
             const emptyMitra = document.getElementById('empty-mitra');
-            if(mitraTable && currentUser && currentUser.role === 'mitra') {
-                // Perlu loop ulang atau filter khusus untuk mitra jika ingin menampilkan tabel history mitra
-                // Karena logika di atas sudah mencakup semuanya, kita bisa generate ulang mitraHtml secara terpisah jika diperlukan
-                // Namun, karena `filteredData` sudah memfilter sesuai role, kita bisa gunakan itu.
+            if(mitraTable && (currentUser.role === 'mitra' || currentUser.role === 'admin')) {
                 let mitraHtml = "";
                 let mitraCount = 0;
-                filteredData.forEach(d => {
-                    // Pastikan hanya menampilkan data milik user ini (double check)
+                allPackagesData.forEach(d => {
                     if(d.sender_id === currentUser.id) {
                         mitraCount++;
                         mitraHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-5 text-slate-400 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="p-5 font-bold font-mono text-indigo-600">${d.resi}</td><td class="p-5 text-slate-600">${d.city}</td><td class="p-5"><span class="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold uppercase text-slate-500">${d.status}</span></td><td class="p-5"><span class="px-3 py-1 rounded-full text-[10px] font-black tracking-wide ${d.posisi === 'HUB' ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}">${d.posisi}</span></td></tr>`;
@@ -1214,25 +1130,13 @@
             } catch (e) { notify("Gagal Simpan User", "error"); }
         };
 
-        // NEW: User Form Modal Logic
-        window.openUserForm = () => {
-            resetAdminForm();
-            document.getElementById('user-form-modal').classList.remove('hidden-section');
-        };
-
-        window.closeUserForm = () => {
-            document.getElementById('user-form-modal').classList.add('hidden-section');
-        };
+        window.openUserForm = () => { resetAdminForm(); document.getElementById('user-form-modal').classList.remove('hidden-section'); };
+        window.closeUserForm = () => { document.getElementById('user-form-modal').classList.add('hidden-section'); };
 
         window.editUser = (id, name, city, role, pass) => {
             isEditingUser = true;
-            document.getElementById('adm-id').value = id; 
-            document.getElementById('adm-id').disabled = true; // Lock ID when editing
-            document.getElementById('adm-name').value = name; 
-            document.getElementById('adm-city').value = city; 
-            document.getElementById('adm-role').value = role; 
-            document.getElementById('adm-pass').value = pass;
-            
+            document.getElementById('adm-id').value = id; document.getElementById('adm-id').disabled = true;
+            document.getElementById('adm-name').value = name; document.getElementById('adm-city').value = city; document.getElementById('adm-role').value = role; document.getElementById('adm-pass').value = pass;
             document.getElementById('user-modal-title').innerText = "Edit User: " + id;
             document.getElementById('user-form-modal').classList.remove('hidden-section');
             lucide.createIcons();
@@ -1240,17 +1144,22 @@
 
         window.resetAdminForm = () => {
             isEditingUser = false;
-            document.getElementById('adm-id').value = ""; 
-            document.getElementById('adm-id').disabled = false; // Enable ID for new user
-            document.getElementById('adm-name').value = ""; 
-            document.getElementById('adm-city').value = ""; 
-            document.getElementById('adm-pass').value = "";
+            document.getElementById('adm-id').value = ""; document.getElementById('adm-id').disabled = false; document.getElementById('adm-name').value = ""; document.getElementById('adm-city').value = ""; document.getElementById('adm-pass').value = "";
             document.getElementById('user-modal-title').innerText = "Tambah User Baru";
         };
 
         window.showModal = (title, desc, action, btnText = "Ya, Lanjutkan") => {
             document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerText = desc; document.getElementById('modal-confirm-btn').innerText = btnText;
             pendingAction = action; const modal = document.getElementById('modal-overlay'); modal.classList.remove('hidden-section'); setTimeout(() => modal.classList.add('open'), 10);
+        };
+
+        window.deletePackage = (resi) => {
+            showModal("Hapus Paket Ini?", "Data paket akan dihapus permanen dari sistem. Lanjutkan?", async () => {
+                try {
+                    await deleteDoc(doc(db, "packages", resi));
+                    notify("Paket Berhasil Dihapus", "success");
+                } catch (e) { notify("Gagal Menghapus Paket", "error"); }
+            }, "Ya, Hapus");
         };
 
         window.deleteUser = (id) => { showModal("Hapus User Ini?", "Tindakan ini tidak dapat dibatalkan.", async () => { try { await deleteDoc(doc(db, "users", id)); notify("User Dihapus", "success"); } catch (e) { notify("Gagal Hapus", "error"); } }, "Hapus"); };
@@ -1270,43 +1179,17 @@
             for (let i = 0; i < rows.length; i++) { const txt = rows[i].textContent.toLowerCase(); rows[i].style.display = txt.includes(filter) ? "" : "none"; }
         };
 
-        // UPDATED NOTIFY FUNCTION
         window.notify = (msg, type) => {
             const island = document.getElementById('dynamic-island');
             const iconBox = document.getElementById('island-icon');
             const title = document.getElementById('island-title');
             const txt = document.getElementById('island-msg');
-            
-            // Reset Classes
-            iconBox.className = 'island-icon-box';
-            
-            let iconHtml = '';
-            
-            if(type === 'success') {
-                iconBox.classList.add('success');
-                title.innerText = 'BERHASIL';
-                title.classList.remove('text-red-400'); title.classList.add('text-green-400');
-                iconHtml = `<i data-lucide="check" class="w-5 h-5"></i>`;
-            } else if(type === 'error') {
-                iconBox.classList.add('error');
-                title.innerText = 'GAGAL';
-                title.classList.remove('text-green-400'); title.classList.add('text-red-400');
-                iconHtml = `<i data-lucide="x" class="w-5 h-5"></i>`;
-            } else {
-                iconBox.classList.add('default');
-                title.innerText = 'INFO';
-                title.classList.remove('text-green-400', 'text-red-400'); title.classList.add('text-gray-400');
-                iconHtml = `<i data-lucide="info" class="w-5 h-5"></i>`;
-            }
-            
-            iconBox.innerHTML = iconHtml;
+            iconBox.className = 'island-icon-box ' + (type === 'success' ? 'success' : (type === 'error' ? 'error' : 'default'));
+            title.innerText = type === 'success' ? 'BERHASIL' : (type === 'error' ? 'GAGAL' : 'INFO');
+            title.className = `text-[10px] font-bold uppercase tracking-widest leading-tight ${type === 'success' ? 'text-green-400' : (type === 'error' ? 'text-red-400' : 'text-gray-400')}`;
+            iconBox.innerHTML = type === 'success' ? `<i data-lucide="check" class="w-5 h-5 text-green-400"></i>` : (type === 'error' ? `<i data-lucide="x" class="w-5 h-5 text-red-400"></i>` : `<i data-lucide="info" class="w-5 h-5 text-gray-400"></i>`);
             txt.innerText = msg;
-            
-            // Trigger Animation
-            island.classList.add('active');
-            lucide.createIcons();
-            
-            // Auto hide
+            island.classList.add('active'); lucide.createIcons();
             setTimeout(() => { island.classList.remove('active'); }, 3000);
         };
 
