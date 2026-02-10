@@ -199,6 +199,84 @@
             position: absolute; bottom: -40px; left: 0; right: 0;
             text-align: center; color: white; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
+
+        /* CUSTOM BUTTON STYLE (UIVERSE ADAPTATION) */
+        .btn-uiverse {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #1e293b; /* slate-800 */
+            background-color: #f8fafc; /* slate-50 */
+            border: 2px solid #f1f5f9; /* slate-100 */
+            border-radius: 9999px; /* rounded-full */
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            isolation: isolate;
+            transition: color 0.3s linear;
+            cursor: pointer;
+        }
+
+        .btn-uiverse::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #4f46e5; /* Default Indigo */
+            border-radius: 9999px;
+            z-index: -1;
+            transition: all 0.6s cubic-bezier(0.5, 1.6, 0.4, 0.7);
+            transform: scale(0.5);
+            opacity: 0;
+        }
+
+        .btn-uiverse:hover {
+            color: white;
+            border-color: transparent;
+        }
+
+        .btn-uiverse:hover::before {
+            left: 0;
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .btn-uiverse:active {
+            transform: scale(0.95);
+        }
+
+        .btn-uiverse .icon-circle {
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px;
+            border: 1px solid currentColor;
+            transition: all 0.3s ease;
+        }
+
+        .btn-uiverse:hover .icon-circle {
+            background: white;
+            color: #4f46e5; /* Match bg */
+            border-color: white;
+            transform: rotate(90deg);
+        }
+
+        /* Variant Colors */
+        .btn-uiverse.emerald::before { background: #10b981; }
+        .btn-uiverse.emerald:hover .icon-circle { color: #10b981; }
+        
+        .btn-uiverse.indigo::before { background: #4f46e5; }
+        .btn-uiverse.indigo:hover .icon-circle { color: #4f46e5; }
+
     </style>
 </head>
 <body class="antialiased selection:bg-indigo-100 selection:text-indigo-700">
@@ -243,9 +321,15 @@
                         <input type="password" id="login-pass" placeholder="Password" class="w-full pl-14 pr-5 py-4 bg-slate-50 rounded-2xl font-semibold text-slate-700 outline-none border border-transparent focus:border-indigo-100 focus:bg-white focus:ring-4 focus:ring-indigo-50 transition-all placeholder:font-normal placeholder:text-slate-400">
                     </div>
                 </div>
-                <button onclick="authLogin()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-slate-200 hover:bg-indigo-600 hover:shadow-indigo-200 active:scale-95 transition-all duration-300 mt-4">
+                
+                <!-- BUTTON LOGIN MODIFIED -->
+                <button onclick="authLogin()" class="btn-uiverse indigo mt-6">
                     Masuk Sistem
+                    <div class="icon-circle">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </div>
                 </button>
+
             </div>
         </div>
     </div>
@@ -533,7 +617,15 @@
                                 <div id="empty-queue" class="text-center py-20 text-slate-300"><i data-lucide="layers" class="w-12 h-12 mx-auto mb-3 opacity-30"></i><p class="text-xs font-medium">Belum ada paket di-scan</p></div>
                             </div>
                             <div class="mt-6 pt-6 border-t border-slate-100">
-                                <button onclick="processQueue()" class="w-full py-4 bg-emerald-500 text-white rounded-2xl font-bold text-lg shadow-xl shadow-emerald-200 hover:bg-emerald-600 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-3"><i data-lucide="check-check" class="w-6 h-6"></i> Simpan Validasi HUB</button>
+                                
+                                <!-- BUTTON SIMPAN VALIDASI HUB MODIFIED -->
+                                <button onclick="processQueue()" class="btn-uiverse emerald">
+                                    Simpan Validasi
+                                    <div class="icon-circle">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                                    </div>
+                                </button>
+
                             </div>
                         </div>
                     </div>
@@ -565,21 +657,17 @@
                         </div>
                     </div>
                     <div id="admin-panel" class="hidden-section xl:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
-                        <h3 class="font-bold text-lg mb-6 flex items-center gap-3 text-slate-800"><div class="p-2 bg-indigo-50 rounded-xl text-indigo-600"><i data-lucide="users" class="w-5 h-5"></i></div> Manajemen Tim</h3>
-                        <div class="bg-slate-50 p-6 rounded-3xl mb-8 border border-slate-200 relative group focus-within:border-indigo-200 focus-within:shadow-md transition-all">
-                            <div class="flex justify-between items-center mb-4">
-                                <h4 class="text-xs font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4"></i> <span id="form-title">Tambah User Baru</span></h4>
-                                <button onclick="resetAdminForm()" id="btn-cancel-edit" class="hidden-section text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors">Batal Edit</button>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
-                                <input type="text" id="adm-id" placeholder="ID (cth: tim01)" class="p-3.5 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm">
-                                <input type="text" id="adm-name" placeholder="Nama Lengkap" class="p-3.5 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm">
-                                <input type="text" id="adm-pass" placeholder="Password" class="p-3.5 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm">
-                                <input type="text" id="adm-city" placeholder="Kota" class="p-3.5 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm">
-                                <select id="adm-role" class="p-3.5 bg-white rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold cursor-pointer shadow-sm appearance-none"><option value="visitor">Visitor</option><option value="mitra">Mitra Pengusaha</option><option value="hub">Tim HUB</option><option value="admin">Admin</option></select>
-                            </div>
-                            <button onclick="saveUserByAdmin()" id="btn-save-user" class="w-full py-3.5 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2">Simpan User</button>
+                        <!-- Header Admin Panel dengan Tombol Tambah -->
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-lg flex items-center gap-3 text-slate-800">
+                                <div class="p-2 bg-indigo-50 rounded-xl text-indigo-600"><i data-lucide="users" class="w-5 h-5"></i></div> Manajemen Tim
+                            </h3>
+                            <button onclick="openUserForm()" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Tambah User
+                            </button>
                         </div>
+
+                        <!-- Tabel User List (Form Inline Dihapus) -->
                         <div class="overflow-hidden rounded-2xl border border-slate-100 mb-8">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-sm">
@@ -603,6 +691,55 @@
     </div>
 
     <!-- MODALS -->
+    <!-- NEW: USER FORM MODAL -->
+    <div id="user-form-modal" class="fixed inset-0 z-[100] hidden-section flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onclick="closeUserForm()"></div>
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate-[scaleIn_0.3s_ease-out]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-800" id="user-modal-title">Tambah User</h3>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Data Akun Tim</p>
+                </div>
+                <button onclick="closeUserForm()" class="p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">ID Anggota (Username)</label>
+                    <input type="text" id="adm-id" placeholder="Contoh: tim01" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Nama Lengkap</label>
+                        <input type="text" id="adm-name" placeholder="Nama" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm transition-all">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Password</label>
+                        <input type="text" id="adm-pass" placeholder="Default: 123" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm transition-all">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Kota Tugas</label>
+                        <input type="text" id="adm-city" placeholder="Kota" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold shadow-sm transition-all">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Role / Peran</label>
+                        <select id="adm-role" class="w-full p-3.5 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:border-indigo-500 text-sm font-bold cursor-pointer shadow-sm transition-all appearance-none">
+                            <option value="visitor">Visitor</option>
+                            <option value="mitra">Mitra Pengusaha</option>
+                            <option value="hub">Tim HUB</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="saveUserByAdmin()" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 mt-4">
+                    <i data-lucide="save" class="w-4 h-4"></i> Simpan Data User
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXISTING INPUT HANDOVER MODAL -->
     <div id="input-form-modal" class="fixed inset-0 z-[100] hidden-section flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md" onclick="closeInputForm()"></div>
         <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate-[scaleIn_0.3s_ease-out]">
@@ -629,7 +766,15 @@
                         <button onclick="selectStatus(this, 'Parcel Damage')" class="status-btn col-span-2 p-4 rounded-2xl border border-slate-200 font-bold text-xs text-slate-500 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95">Parcel Damage (Rusak)</button>
                     </div>
                 </div>
-                <button onclick="submitPackage()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg shadow-xl hover:bg-indigo-600 hover:shadow-indigo-200 active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="send" class="w-5 h-5"></i> Submit Handover</button>
+                
+                <!-- BUTTON SUBMIT HANDOVER MODIFIED -->
+                <button onclick="submitPackage()" class="btn-uiverse indigo mt-6">
+                    Submit Handover
+                    <div class="icon-circle">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </div>
+                </button>
+
             </div>
         </div>
     </div>
@@ -1140,27 +1285,47 @@
             const id = document.getElementById('adm-id').value.trim(); const name = document.getElementById('adm-name').value; const city = document.getElementById('adm-city').value; const role = document.getElementById('adm-role').value; const pass = document.getElementById('adm-pass').value;
             if(!id || !name) return notify("Data Tidak Lengkap", "error");
             try {
-                const payload = { name, city, role }; if(pass) payload.password = pass; else if(!isEditingUser) payload.password = "123";
+                const payload = { name, city, role }; 
+                if(pass) payload.password = pass; else if(!isEditingUser) payload.password = "123";
+                
                 await setDoc(doc(db, "users", id), payload, { merge: true });
-                notify(isEditingUser ? "User Diupdate" : "User Dibuat", "success"); resetAdminForm();
+                notify(isEditingUser ? "User Diupdate" : "User Dibuat", "success"); 
+                closeUserForm(); // Close modal on success
             } catch (e) { notify("Gagal Simpan User", "error"); }
+        };
+
+        // NEW: User Form Modal Logic
+        window.openUserForm = () => {
+            resetAdminForm();
+            document.getElementById('user-form-modal').classList.remove('hidden-section');
+        };
+
+        window.closeUserForm = () => {
+            document.getElementById('user-form-modal').classList.add('hidden-section');
         };
 
         window.editUser = (id, name, city, role, pass) => {
             isEditingUser = true;
-            document.getElementById('adm-id').value = id; document.getElementById('adm-id').disabled = true;
-            document.getElementById('adm-name').value = name; document.getElementById('adm-city').value = city; document.getElementById('adm-role').value = role; document.getElementById('adm-pass').value = pass;
-            document.getElementById('form-title').innerText = "EDIT USER: " + id;
-            document.getElementById('btn-save-user').innerText = "Update User";
-            document.getElementById('btn-cancel-edit').classList.remove('hidden-section');
-            document.getElementById('form-title').scrollIntoView({ behavior: 'smooth', block: 'center' }); lucide.createIcons();
+            document.getElementById('adm-id').value = id; 
+            document.getElementById('adm-id').disabled = true; // Lock ID when editing
+            document.getElementById('adm-name').value = name; 
+            document.getElementById('adm-city').value = city; 
+            document.getElementById('adm-role').value = role; 
+            document.getElementById('adm-pass').value = pass;
+            
+            document.getElementById('user-modal-title').innerText = "Edit User: " + id;
+            document.getElementById('user-form-modal').classList.remove('hidden-section');
+            lucide.createIcons();
         };
 
         window.resetAdminForm = () => {
             isEditingUser = false;
-            document.getElementById('adm-id').value = ""; document.getElementById('adm-id').disabled = false; document.getElementById('adm-name').value = ""; document.getElementById('adm-city').value = ""; document.getElementById('adm-pass').value = "";
-            document.getElementById('form-title').innerText = "TAMBAH USER BARU"; document.getElementById('btn-save-user').innerText = "Simpan User";
-            document.getElementById('btn-cancel-edit').classList.add('hidden-section'); lucide.createIcons();
+            document.getElementById('adm-id').value = ""; 
+            document.getElementById('adm-id').disabled = false; // Enable ID for new user
+            document.getElementById('adm-name').value = ""; 
+            document.getElementById('adm-city').value = ""; 
+            document.getElementById('adm-pass').value = "";
+            document.getElementById('user-modal-title').innerText = "Tambah User Baru";
         };
 
         window.showModal = (title, desc, action, btnText = "Ya, Lanjutkan") => {
