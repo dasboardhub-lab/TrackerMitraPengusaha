@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HUB Logistics Tracker</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='16.5' y1='9.4' x2='7.5' y2='4.21'></line><path d='M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z'></path><polyline points='3.27 6.96 12 12.01 20.73 6.96'></polyline><line x1='12' y1='22.08' x2='12' y2='12'></line></svg>">
     
     <!-- LIBRARIES (CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -97,19 +98,19 @@
 
         /* INPUT FIELDS */
         input, select { 
-            border-radius: 12px !important; 
-            padding: 0.75rem 1rem !important; 
+            border-radius: 8px !important; 
+            padding: 0.5rem 0.75rem !important; 
             transition: all 0.3s ease; 
             border: 1px solid transparent;
             background-color: #f1f5f9;
             color: #334155;
             font-weight: 600;
         }
-        input.pl-12 { padding-left: 3rem !important; }
-        input.pl-9 { padding-left: 2.25rem !important; }
-        input.pl-5 { padding-left: 1.25rem !important; }
-        input.pr-16 { padding-right: 4rem !important; }
-        select.pr-8 { padding-right: 2rem !important; }
+        input.pl-12 { padding-left: 2.5rem !important; }
+        input.pl-9 { padding-left: 2rem !important; }
+        input.pl-5 { padding-left: 1rem !important; }
+        input.pr-16 { padding-right: 3rem !important; }
+        select.pr-8 { padding-right: 1.5rem !important; }
         input:focus, select:focus { 
             background-color: white; border-color: #818cf8;
             box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.15); transform: translateY(-1px); outline: none;
@@ -158,12 +159,22 @@
         /* Card Hover */
         .dashboard-card { 
             background: white; border: 1px solid rgba(241, 245, 249, 1); transition: all 0.3s ease; 
-            border-radius: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
         }
         .dashboard-card:hover { 
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); 
             border-color: rgba(99, 102, 241, 0.2);
         }
+
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
     </style>
 </head>
 <body class="antialiased text-slate-600 selection:bg-indigo-100 selection:text-indigo-700">
@@ -182,35 +193,62 @@
     </div>
 
     <!-- 2. LOGIN SCREEN -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-indigo-100/50 via-white to-slate-100 z-0"></div>
-        <div class="glass-panel p-10 rounded-[2rem] shadow-2xl w-full max-w-sm relative z-10 border border-white/60">
-            <div class="text-center mb-10">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-200 mb-6 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
+    <div id="login-screen" class="min-h-screen flex bg-white relative overflow-hidden">
+        <!-- Left Side: Branding -->
+        <div class="hidden lg:flex w-1/2 bg-indigo-900 relative items-center justify-center overflow-hidden">
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20 mix-blend-overlay"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-indigo-900 via-indigo-900/80 to-transparent"></div>
+            <div class="relative z-10 p-16 flex flex-col items-center text-center max-w-2xl">
+                <div class="w-24 h-24 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/20 mb-8 shadow-2xl">
+                    <i data-lucide="package" class="w-12 h-12 text-white"></i>
+                </div>
+                <h2 class="text-4xl font-extrabold text-white mb-4 tracking-tight">Sistem Manajemen HUB Terpadu</h2>
+                <p class="text-indigo-200 text-lg leading-relaxed">Kelola logistik, pantau SLA pengiriman, dan validasi data paket secara real-time dalam satu platform profesional.</p>
+            </div>
+        </div>
+
+        <!-- Right Side: Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-slate-50 lg:bg-white relative">
+            <div class="w-full max-w-md bg-white p-8 sm:p-10 rounded-3xl shadow-xl lg:shadow-none lg:p-0 lg:bg-transparent border border-slate-100 lg:border-none relative z-10">
+                <div class="lg:hidden w-16 h-16 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-200 mb-8">
                     <i data-lucide="package" class="w-8 h-8"></i>
                 </div>
-                <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">Logistik Pro</h1>
-                <p class="text-slate-500 font-medium text-sm mt-2">Masuk untuk mengelola paket</p>
+                
+                <div class="mb-10">
+                    <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight mb-2">Selamat Datang</h1>
+                    <p class="text-slate-500 font-medium">Masukkan kredensial Anda untuk mengakses Logistik Pro.</p>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Username / ID</label>
+                        <div class="relative">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                <i data-lucide="user" class="w-5 h-5"></i>
+                            </div>
+                            <input type="text" id="login-id" placeholder="Ketik ID pengguna" class="w-full pl-12 py-4 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-xl text-sm font-bold text-slate-700 transition-all outline-none">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Kata Sandi</label>
+                        <div class="relative">
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                <i data-lucide="lock" class="w-5 h-5"></i>
+                            </div>
+                            <input type="password" id="login-pass" placeholder="••••••••" class="w-full pl-12 py-4 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-xl text-sm font-bold text-slate-700 transition-all outline-none" onkeydown="if(event.key === 'Enter') authLogin()">
+                        </div>
+                    </div>
+
+                    <button onclick="authLogin()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-xl shadow-indigo-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 mt-2">
+                        Masuk ke Dasbor <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
             </div>
             
-            <div class="space-y-4">
-                <div class="group relative">
-                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                        <i data-lucide="user" class="w-5 h-5"></i>
-                    </div>
-                    <input type="text" id="login-id" placeholder="Username / ID" class="w-full pl-12 bg-slate-50 border border-slate-200">
-                </div>
-                <div class="group relative">
-                    <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                        <i data-lucide="lock" class="w-5 h-5"></i>
-                    </div>
-                    <input type="password" id="login-pass" placeholder="Kata Sandi" class="w-full pl-12 bg-slate-50 border border-slate-200">
-                </div>
-                <button onclick="authLogin()" class="btn-uiverse indigo mt-6 w-full">
-                    <span>Masuk Aplikasi</span>
-                    <div class="icon-circle"><i data-lucide="log-in" class="w-5 h-5"></i></div>
-                </button>
-            </div>
+            <!-- Decorative element for mobile -->
+            <div class="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-indigo-50 rounded-full blur-3xl opacity-50 pointer-events-none lg:hidden"></div>
+            <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-64 h-64 bg-blue-50 rounded-full blur-3xl opacity-50 pointer-events-none lg:hidden"></div>
         </div>
     </div>
 
@@ -257,142 +295,142 @@
         </div>
 
         <!-- C. MAIN CONTENT -->
-        <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-32 md:pb-12 w-full">
+        <main class="flex-1 overflow-y-auto p-3 md:p-4 pb-24 md:pb-8 w-full">
             
             <!-- Dashboard Page -->
             <section id="page-dashboard" class="page-section animate-[fadeIn_0.4s_ease-out]">
                 
-                <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <header class="mb-3 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                     <div>
-                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">Dashboard Overview</h2>
-                        <p class="text-slate-500 text-sm mt-1">Pantau performa dan status paket secara real-time.</p>
+                        <h2 class="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight">Dashboard Overview</h2>
+                        <p class="text-slate-500 text-xs mt-0.5">Pantau performa dan status paket secara real-time.</p>
                     </div>
                 </header>
 
                 <!-- Filters Bar (Lebih rapi dengan CSS Grid rata) -->
-                <div class="dashboard-card p-4 mb-6">
-                    <div class="grid grid-cols-2 lg:grid-cols-7 gap-3 items-end">
+                <div class="dashboard-card p-3 mb-4">
+                    <div class="grid grid-cols-2 lg:grid-cols-7 gap-2 items-end">
                         <div class="col-span-2 lg:col-span-2 relative">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block ml-1">Pencarian Cepat</label>
-                            <i data-lucide="search" class="absolute left-3 bottom-2.5 w-4 h-4 text-slate-400"></i>
-                            <input type="text" onkeyup="filterTable(this.value)" placeholder="Cari Resi, Pengirim..." class="w-full pl-9 text-xs font-semibold text-slate-700">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 block ml-1">Pencarian Cepat</label>
+                            <i data-lucide="search" class="absolute left-2.5 bottom-2 w-3.5 h-3.5 text-slate-400"></i>
+                            <input type="text" onkeyup="filterTable(this.value)" placeholder="Cari Resi, Pengirim..." class="w-full pl-8 text-[11px] font-semibold text-slate-700">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block ml-1">Dari Tanggal</label>
-                            <input type="date" id="filter-start" onchange="renderDashboardData()" class="w-full text-xs font-semibold text-slate-700">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 block ml-1">Dari Tanggal</label>
+                            <input type="date" id="filter-start" onchange="renderDashboardData()" class="w-full text-[11px] font-semibold text-slate-700">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block ml-1">Sampai</label>
-                            <input type="date" id="filter-end" onchange="renderDashboardData()" class="w-full text-xs font-semibold text-slate-700">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 block ml-1">Sampai</label>
+                            <input type="date" id="filter-end" onchange="renderDashboardData()" class="w-full text-[11px] font-semibold text-slate-700">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block ml-1">Filter Kota</label>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 block ml-1">Filter Kota</label>
                             <div class="relative">
-                                <select id="filter-city" onchange="renderDashboardData()" class="w-full text-xs font-semibold text-slate-700 appearance-none pr-8">
+                                <select id="filter-city" onchange="renderDashboardData()" class="w-full text-[11px] font-semibold text-slate-700 appearance-none pr-6">
                                     <option value="">Semua Kota</option>
                                 </select>
-                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                                <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"></i>
                             </div>
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block ml-1">Posisi</label>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1 block ml-1">Posisi</label>
                             <div class="relative">
-                                <select id="filter-posisi" onchange="renderDashboardData()" class="w-full text-xs font-semibold text-slate-700 appearance-none pr-8">
+                                <select id="filter-posisi" onchange="renderDashboardData()" class="w-full text-[11px] font-semibold text-slate-700 appearance-none pr-6">
                                     <option value="">Semua Posisi</option>
                                     <option value="Vendor">Vendor</option>
                                     <option value="HUB">HUB</option>
                                 </select>
-                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                                <i data-lucide="chevron-down" class="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none"></i>
                             </div>
                         </div>
                         <div class="flex gap-2 col-span-2 lg:col-span-1">
-                            <button onclick="resetFilters()" class="flex-1 p-2.5 bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded-xl transition-colors flex items-center justify-center border border-slate-200" title="Reset Filter">
-                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            <button onclick="resetFilters()" class="flex-1 p-2 bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded-lg transition-colors flex items-center justify-center border border-slate-200" title="Reset Filter">
+                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                             </button>
-                            <button onclick="exportTableToExcel()" class="flex-1 p-2.5 bg-indigo-50 text-indigo-600 hover:text-white hover:bg-indigo-600 rounded-xl transition-colors flex items-center justify-center border border-indigo-100" title="Export Excel">
-                                <i data-lucide="download" class="w-4 h-4"></i>
+                            <button onclick="exportTableToExcel()" class="flex-1 p-2 bg-indigo-50 text-indigo-600 hover:text-white hover:bg-indigo-600 rounded-lg transition-colors flex items-center justify-center border border-indigo-100" title="Export Excel">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- KPI CARDS (Desain Minimalis Estetik) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
                     <!-- Transit -->
-                    <div class="dashboard-card p-5 border-l-4 border-orange-500 hover:-translate-y-1">
-                        <div class="flex justify-between items-start mb-2">
+                    <div class="dashboard-card p-3 sm:p-4 border-l-4 border-orange-500 hover:-translate-y-0.5">
+                        <div class="flex justify-between items-start mb-1">
                             <div>
-                                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Sedang Transit</p>
-                                <h3 id="stat-vendor" class="text-3xl font-black text-slate-800">0</h3>
+                                <p class="text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Sedang Transit</p>
+                                <h3 id="stat-vendor" class="text-xl sm:text-2xl font-black text-slate-800">0</h3>
                             </div>
-                            <div class="p-2.5 bg-orange-50 rounded-xl text-orange-500"><i data-lucide="truck" class="w-5 h-5"></i></div>
+                            <div class="p-2 bg-orange-50 rounded-lg text-orange-500"><i data-lucide="truck" class="w-4 h-4"></i></div>
                         </div>
-                        <p class="text-slate-500 text-xs font-medium mt-2">Masih berada di Vendor</p>
+                        <p class="text-slate-500 text-[10px] sm:text-xs font-medium mt-1">Masih berada di Vendor</p>
                     </div>
                     
                     <!-- Alert -->
-                    <div class="dashboard-card p-5 border-l-4 border-red-500 bg-red-50/30 hover:-translate-y-1">
-                        <div class="flex justify-between items-start mb-2">
+                    <div class="dashboard-card p-3 sm:p-4 border-l-4 border-red-500 bg-red-50/30 hover:-translate-y-0.5">
+                        <div class="flex justify-between items-start mb-1">
                             <div>
-                                <p class="text-red-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Perhatian Cepat</p>
-                                <h3 id="stat-stuck" class="text-3xl font-black text-red-600">0</h3>
+                                <p class="text-red-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Perhatian Cepat</p>
+                                <h3 id="stat-stuck" class="text-xl sm:text-2xl font-black text-red-600">0</h3>
                             </div>
-                            <div class="p-2.5 bg-red-100 rounded-xl text-red-600"><i data-lucide="alert-triangle" class="w-5 h-5"></i></div>
+                            <div class="p-2 bg-red-100 rounded-lg text-red-600"><i data-lucide="alert-triangle" class="w-4 h-4"></i></div>
                         </div>
-                        <p class="text-red-500 text-xs font-medium mt-2">Lebih dari 2 hari di Vendor</p>
+                        <p class="text-red-500 text-[10px] sm:text-xs font-medium mt-1">Lebih dari 2 hari di Vendor</p>
                     </div>
 
                     <!-- HUB -->
-                    <div class="dashboard-card p-5 border-l-4 border-emerald-500 hover:-translate-y-1">
-                        <div class="flex justify-between items-start mb-2">
+                    <div class="dashboard-card p-3 sm:p-4 border-l-4 border-emerald-500 hover:-translate-y-0.5">
+                        <div class="flex justify-between items-start mb-1">
                             <div>
-                                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Validasi Sukses</p>
-                                <h3 id="stat-hub" class="text-3xl font-black text-slate-800">0</h3>
+                                <p class="text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Validasi Sukses</p>
+                                <h3 id="stat-hub" class="text-xl sm:text-2xl font-black text-slate-800">0</h3>
                             </div>
-                            <div class="p-2.5 bg-emerald-50 rounded-xl text-emerald-500"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
+                            <div class="p-2 bg-emerald-50 rounded-lg text-emerald-500"><i data-lucide="check-circle-2" class="w-4 h-4"></i></div>
                         </div>
-                        <p class="text-slate-500 text-xs font-medium mt-2">Sudah diterima oleh HUB</p>
+                        <p class="text-slate-500 text-[10px] sm:text-xs font-medium mt-1">Sudah diterima oleh HUB</p>
                     </div>
 
                     <!-- Total -->
-                    <div class="dashboard-card p-5 border-l-4 border-indigo-500 hover:-translate-y-1">
-                        <div class="flex justify-between items-start mb-2">
+                    <div class="dashboard-card p-3 sm:p-4 border-l-4 border-indigo-500 hover:-translate-y-0.5">
+                        <div class="flex justify-between items-start mb-1">
                             <div>
-                                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Total Keseluruhan</p>
-                                <h3 id="stat-total" class="text-3xl font-black text-slate-800">0</h3>
+                                <p class="text-slate-400 text-[9px] font-bold uppercase tracking-wider mb-0.5">Total Keseluruhan</p>
+                                <h3 id="stat-total" class="text-xl sm:text-2xl font-black text-slate-800">0</h3>
                             </div>
-                            <div class="p-2.5 bg-indigo-50 rounded-xl text-indigo-600"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></div>
+                            <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600"><i data-lucide="bar-chart-2" class="w-4 h-4"></i></div>
                         </div>
-                        <p class="text-slate-500 text-xs font-medium mt-2">Semua transaksi tercatat</p>
+                        <p class="text-slate-500 text-[10px] sm:text-xs font-medium mt-1">Semua transaksi tercatat</p>
                     </div>
                 </div>
 
                 <!-- TABLES GRID: 2 COLUMNS TOP -->
-                <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                <div class="grid lg:grid-cols-2 gap-4 mb-4">
                     <!-- Monitoring Vendor -->
                     <div class="dashboard-card p-0 flex flex-col h-full border border-orange-200/60 overflow-hidden">
-                        <div class="px-5 py-4 flex justify-between items-center bg-orange-50/50 border-b border-orange-100">
-                            <h3 class="font-bold text-orange-900 flex items-center gap-2">
-                                <i data-lucide="activity" class="w-5 h-5 text-orange-600"></i> Monitoring Vendor
+                        <div class="px-4 py-3 flex justify-between items-center bg-orange-50/50 border-b border-orange-100">
+                            <h3 class="font-bold text-sm text-orange-900 flex items-center gap-1.5">
+                                <i data-lucide="activity" class="w-4 h-4 text-orange-600"></i> Monitoring Vendor
                             </h3>
                             <div class="flex items-center gap-2">
-                                <button onclick="copyAllAWB()" class="text-[10px] font-bold bg-white border border-orange-200 text-orange-600 px-3 py-1 rounded-full hover:bg-orange-100 transition-colors shadow-sm flex items-center gap-1" title="Salin Semua Resi">
+                                <button onclick="copyAllAWB()" class="text-[9px] font-bold bg-white border border-orange-200 text-orange-600 px-2 py-1 rounded hover:bg-orange-100 transition-colors shadow-sm flex items-center gap-1" title="Salin Semua Resi">
                                     <i data-lucide="copy" class="w-3 h-3"></i> Salin Semua
                                 </button>
-                                <span id="pending-badge-count" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-[10px] font-bold">0</span>
+                                <span id="pending-badge-count" class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[9px] font-bold">0</span>
                             </div>
                         </div>
                         <div class="flex-1 bg-white">
-                            <div class="overflow-auto h-full max-h-[400px] custom-scroll">
-                                <table class="w-full text-left text-sm">
-                                    <thead class="bg-slate-50/80 text-slate-500 font-bold uppercase text-[10px] sticky top-0 z-20 backdrop-blur-sm shadow-sm border-b border-slate-100">
-                                        <tr><th class="p-4">Durasi</th><th class="p-4">Resi</th><th class="p-4">Waktu Input</th><th class="p-4">Kota</th><th class="p-4">Kondisi</th><th class="p-4 text-right admin-action">Aksi</th></tr>
+                            <div class="overflow-auto h-full max-h-[350px] custom-scroll">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50/80 text-slate-500 font-bold uppercase text-[9px] sticky top-0 z-20 backdrop-blur-sm shadow-sm border-b border-slate-100">
+                                        <tr><th class="px-3 py-2">Durasi</th><th class="px-3 py-2">Resi</th><th class="px-3 py-2">Waktu Input</th><th class="px-3 py-2">Kota</th><th class="px-3 py-2">Kondisi</th><th class="px-3 py-2 text-right admin-action">Aksi</th></tr>
                                     </thead>
                                     <tbody id="table-pending-vendor" class="divide-y divide-slate-50 text-slate-600"></tbody>
                                 </table>
-                                <div id="empty-pending" class="hidden-section p-10 text-center text-slate-400">
-                                    <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-3"><i data-lucide="check" class="w-6 h-6 text-emerald-500"></i></div>
-                                    <p class="text-xs font-bold text-slate-500">Semua paket aman!</p>
+                                <div id="empty-pending" class="hidden-section p-8 text-center text-slate-400">
+                                    <div class="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-2"><i data-lucide="check" class="w-5 h-5 text-emerald-500"></i></div>
+                                    <p class="text-[10px] font-bold text-slate-500">Semua paket aman!</p>
                                 </div>
                             </div>
                         </div>
@@ -400,56 +438,56 @@
 
                     <!-- SLA TABLE -->
                     <div class="dashboard-card p-0 flex flex-col h-full overflow-hidden">
-                        <div class="px-5 py-4 flex items-center gap-2 bg-slate-50/50 border-b border-slate-100">
-                            <i data-lucide="clock" class="w-5 h-5 text-indigo-600"></i>
-                            <h3 class="font-bold text-slate-800">SLA Pengiriman Rata-rata</h3>
+                        <div class="px-4 py-3 flex items-center gap-1.5 bg-slate-50/50 border-b border-slate-100">
+                            <i data-lucide="clock" class="w-4 h-4 text-indigo-600"></i>
+                            <h3 class="font-bold text-sm text-slate-800">SLA Pengiriman Rata-rata</h3>
                         </div>
                         <div class="flex-1 bg-white">
-                            <div class="overflow-auto h-full max-h-[400px] custom-scroll">
-                                <table class="w-full text-left text-sm">
-                                    <thead class="bg-slate-50/80 text-slate-500 font-bold uppercase text-[10px] sticky top-0 z-20 backdrop-blur-sm shadow-sm border-b border-slate-100">
-                                        <tr><th class="p-4">Kota Tujuan</th><th class="p-4 text-center">Total Paket</th><th class="p-4 text-right">Durasi (Jam)</th><th class="p-4 text-right">Hari</th><th class="p-4 text-center">Status SLA</th></tr>
+                            <div class="overflow-auto h-full max-h-[350px] custom-scroll">
+                                <table class="w-full text-left text-xs">
+                                    <thead class="bg-slate-50/80 text-slate-500 font-bold uppercase text-[9px] sticky top-0 z-20 backdrop-blur-sm shadow-sm border-b border-slate-100">
+                                        <tr><th class="px-3 py-2">Kota Tujuan</th><th class="px-3 py-2 text-center">Total Paket</th><th class="px-3 py-2 text-right">Durasi (Jam)</th><th class="px-3 py-2 text-right">Hari</th><th class="px-3 py-2 text-center">Status SLA</th></tr>
                                     </thead>
                                     <tbody id="table-sla" class="divide-y divide-slate-50 text-slate-600"></tbody>
                                 </table>
-                                <div id="empty-sla" class="hidden-section p-10 text-center text-slate-400"><p class="text-xs">Data SLA belum tersedia.</p></div>
+                                <div id="empty-sla" class="hidden-section p-8 text-center text-slate-400"><p class="text-[10px]">Data SLA belum tersedia.</p></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- MAIN TABLE FULL WIDTH BOTTOM -->
-                <div class="dashboard-card p-0 flex flex-col mb-20 overflow-hidden">
-                    <div class="px-5 py-4 flex justify-between items-center bg-slate-50/50 border-b border-slate-100">
-                        <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                            <i data-lucide="database" class="w-5 h-5 text-indigo-600"></i> Master Data Paket
+                <div class="dashboard-card p-0 flex flex-col mb-4 overflow-hidden">
+                    <div class="px-4 py-3 flex justify-between items-center bg-slate-50/50 border-b border-slate-100">
+                        <h3 class="font-bold text-sm text-slate-800 flex items-center gap-1.5">
+                            <i data-lucide="database" class="w-4 h-4 text-indigo-600"></i> Master Data Paket
                         </h3>
-                        <button onclick="exportTableToExcel()" class="text-[10px] font-bold bg-white border border-indigo-200 text-indigo-600 px-3 py-1 rounded-full hover:bg-indigo-50 transition-colors shadow-sm flex items-center gap-1" title="Download CSV">
+                        <button onclick="exportTableToExcel()" class="text-[9px] font-bold bg-white border border-indigo-200 text-indigo-600 px-2 py-1 rounded hover:bg-indigo-50 transition-colors shadow-sm flex items-center gap-1" title="Download CSV">
                             <i data-lucide="download" class="w-3 h-3"></i> Download CSV
                         </button>
                     </div>
                     <div class="bg-white flex-1">
-                        <div class="overflow-auto max-h-[500px] custom-scroll">
-                            <table class="w-full text-left border-collapse">
-                                <thead class="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-wider sticky top-0 z-20 shadow-sm border-b border-slate-200">
+                        <div class="overflow-auto max-h-[400px] custom-scroll">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead class="bg-slate-50 text-[9px] font-bold text-slate-500 uppercase tracking-wider sticky top-0 z-20 shadow-sm border-b border-slate-200">
                                     <tr>
-                                        <th class="p-4 min-w-[120px]">Waktu Update</th>
-                                        <th class="p-4 min-w-[140px]">No. Resi</th>
-                                        <th class="p-4 min-w-[120px]">Nama Pengirim</th>
-                                        <th class="p-4 min-w-[100px]">Kota Tujuan</th>
-                                        <th class="p-4 min-w-[100px]">Kondisi Paket</th>
-                                        <th class="p-4 min-w-[120px]">Posisi Terkini</th>
-                                        <th class="p-4 min-w-[140px]">Waktu Terima HUB</th>
-                                        <th class="p-4 min-w-[120px]">Penerima</th>
-                                        <th class="p-4 min-w-[100px]">Total Hari</th>
-                                        <th class="p-4 text-right admin-action">Aksi</th>
+                                        <th class="px-3 py-2 min-w-[100px]">Waktu Update</th>
+                                        <th class="px-3 py-2 min-w-[120px]">No. Resi</th>
+                                        <th class="px-3 py-2 min-w-[100px]">Nama Pengirim</th>
+                                        <th class="px-3 py-2 min-w-[90px]">Kota Tujuan</th>
+                                        <th class="px-3 py-2 min-w-[90px]">Kondisi Paket</th>
+                                        <th class="px-3 py-2 min-w-[100px]">Posisi Terkini</th>
+                                        <th class="px-3 py-2 min-w-[120px]">Waktu Terima HUB</th>
+                                        <th class="px-3 py-2 min-w-[100px]">Penerima</th>
+                                        <th class="px-3 py-2 min-w-[90px]">Total Hari</th>
+                                        <th class="px-3 py-2 text-right admin-action">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody id="table-packages" class="text-xs font-medium text-slate-600 divide-y divide-slate-100"></tbody>
+                                <tbody id="table-packages" class="font-medium text-slate-600 divide-y divide-slate-100"></tbody>
                             </table>
-                            <div id="empty-state" class="hidden-section p-16 text-center text-slate-400">
-                                <i data-lucide="folder-open" class="w-12 h-12 mx-auto mb-3 text-slate-300"></i>
-                                <p class="text-xs font-bold text-slate-500">Belum ada data paket.</p>
+                            <div id="empty-state" class="hidden-section p-12 text-center text-slate-400">
+                                <i data-lucide="folder-open" class="w-10 h-10 mx-auto mb-2 text-slate-300"></i>
+                                <p class="text-[10px] font-bold text-slate-500">Belum ada data paket.</p>
                             </div>
                         </div>
                     </div>
@@ -939,6 +977,8 @@
                 document.getElementById('login-screen').classList.remove('hidden-section');
                 document.getElementById('login-id').value = ""; document.getElementById('login-pass').value = "";
                 document.getElementById('user-list-table').innerHTML = "";
+                document.getElementById('desktop-menu').innerHTML = "";
+                document.getElementById('mobile-menu').innerHTML = "";
                 document.getElementById('admin-panel').classList.add('hidden-section');
                 document.body.classList.remove('is-admin');
                 notify("Anda telah keluar", "success");
@@ -1080,7 +1120,7 @@
             document.getElementById('scanner-stop-btn').style.display = 'none';
             document.getElementById('scanner-overlay-guide').style.display = 'none';
             const mobNav = document.getElementById('mobile-menu');
-            if(mobNav) mobNav.style.display = 'flex';
+            if(mobNav) mobNav.style.display = '';
         }
 
         window.submitPackage = async () => {
@@ -1216,13 +1256,10 @@
 
                 let deleteAction = "";
                 if (currentUser.role === 'admin') {
-                    const isHubData = d.posisi === 'HUB';
-                    const isSuperAdmin = currentUser.id === 'admin';
-                    
-                    if (isHubData && !isSuperAdmin) {
-                        deleteAction = `<td class="p-4 text-right admin-action"><div class="flex justify-end"><i data-lucide="lock" class="w-4 h-4 text-slate-300" title="Kunci Admin"></i></div></td>`;
+                    if (currentUser.id === 'admin') {
+                        deleteAction = `<td class="px-3 py-2 text-right admin-action"><div class="flex justify-end gap-1.5"><button onclick="openEditPackage('${escJS(d.resi)}')" class="text-slate-400 hover:text-blue-500 transition-colors" title="Edit"><i data-lucide="edit-2" class="w-3.5 h-3.5 inline-block"></i></button><button onclick="deletePackage('${escJS(d.resi)}')" class="text-slate-400 hover:text-red-500 transition-colors" title="Hapus"><i data-lucide="trash-2" class="w-3.5 h-3.5 inline-block"></i></button></div></td>`;
                     } else {
-                        deleteAction = `<td class="p-4 text-right admin-action flex justify-end gap-2"><button onclick="openEditPackage('${escJS(d.resi)}')" class="text-slate-400 hover:text-blue-500 transition-colors" title="Edit"><i data-lucide="edit-2" class="w-4 h-4 inline-block"></i></button><button onclick="deletePackage('${escJS(d.resi)}')" class="text-slate-400 hover:text-red-500 transition-colors" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4 inline-block"></i></button></td>`;
+                        deleteAction = `<td class="px-3 py-2 text-right admin-action"><div class="flex justify-end"><i data-lucide="lock" class="w-3.5 h-3.5 text-slate-300" title="Kunci Super Admin"></i></div></td>`;
                     }
                 }
 
@@ -1244,7 +1281,7 @@
                 const hubDateStr = (d.posisi === 'HUB' && d.hub_date) ? d.hub_date.toDate().toLocaleString('id-ID') : '-';
                 const hubReceiver = (d.posisi === 'HUB' && d.hub_receiver) ? d.hub_receiver : '-';
 
-                html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100 group"><td class="p-4 text-slate-500 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="p-4 font-bold font-mono text-indigo-700 text-xs break-all">${d.resi}</td><td class="p-4 font-semibold text-slate-700 text-xs truncate max-w-[100px]">${d.sender_name}</td><td class="p-4 text-slate-600 text-xs">${d.city}</td><td class="p-4"><span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-md text-[10px] font-bold uppercase text-slate-600 truncate block w-fit max-w-[80px]" title="${d.status}">${d.status}</span></td><td class="p-4"><span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5 w-fit ${d.posisi === 'HUB' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-orange-50 text-orange-600 border border-orange-200'}"><span class="w-1.5 h-1.5 rounded-full ${d.posisi === 'HUB' ? 'bg-emerald-500' : 'bg-orange-500'}"></span> ${d.posisi}</span></td><td class="p-4 text-xs font-semibold text-slate-500">${hubDateStr}</td><td class="p-4 text-xs text-slate-600">${hubReceiver}</td><td class="p-4 text-xs">${totalDaysHtml}</td>${deleteAction}</tr>`;
+                html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100 group"><td class="px-3 py-2 text-slate-500 font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="px-3 py-2 font-bold font-mono text-indigo-700 break-all">${d.resi}</td><td class="px-3 py-2 font-semibold text-slate-700 truncate max-w-[100px]">${d.sender_name}</td><td class="px-3 py-2 text-slate-600">${d.city}</td><td class="px-3 py-2"><span class="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[9px] font-bold uppercase text-slate-600 truncate block w-fit max-w-[80px]" title="${d.status}">${d.status}</span></td><td class="px-3 py-2"><span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide flex items-center gap-1 w-fit ${d.posisi === 'HUB' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-orange-50 text-orange-600 border border-orange-200'}"><span class="w-1 h-1 rounded-full ${d.posisi === 'HUB' ? 'bg-emerald-500' : 'bg-orange-500'}"></span> ${d.posisi}</span></td><td class="px-3 py-2 font-semibold text-slate-500">${hubDateStr}</td><td class="px-3 py-2 text-slate-600">${hubReceiver}</td><td class="px-3 py-2">${totalDaysHtml}</td>${deleteAction}</tr>`;
 
                 const diffMs = Math.abs(now - sentDate);
                 const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); 
@@ -1267,13 +1304,13 @@
                         slaData[cityKey].maxDays = Math.max(slaData[cityKey].maxDays, days);
                     }
                     hubHistoryCount++;
-                    hubHistoryHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="p-4 text-slate-500 text-xs font-semibold">${d.hub_date.toDate().toLocaleString('id-ID')}</td><td class="p-4 font-mono font-bold text-indigo-700 text-xs">${d.resi}</td><td class="p-4 text-slate-600 text-xs">${d.city}</td><td class="p-4"><span class="bg-slate-100 border border-slate-200 px-2 py-1 rounded-md text-[10px] font-bold text-slate-500 uppercase">${d.status}</span></td><td class="p-4 text-slate-600 text-xs font-semibold">${d.hub_receiver || '-'}</td></tr>`;
+                    hubHistoryHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="px-3 py-2 text-slate-500 font-semibold">${d.hub_date.toDate().toLocaleString('id-ID')}</td><td class="px-3 py-2 font-mono font-bold text-indigo-700">${d.resi}</td><td class="px-3 py-2 text-slate-600">${d.city}</td><td class="px-3 py-2"><span class="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded text-[9px] font-bold text-slate-500 uppercase">${d.status}</span></td><td class="px-3 py-2 text-slate-600 font-semibold">${d.hub_receiver || '-'}</td></tr>`;
                 }
             });
 
             const tableHeader = document.querySelector('#table-packages').previousElementSibling.querySelector('tr');
             if (currentUser.role === 'admin' && tableHeader.children.length === 9) {
-                 const th = document.createElement('th'); th.className = "p-4 text-right admin-action"; th.innerText = "Aksi"; tableHeader.appendChild(th);
+                 const th = document.createElement('th'); th.className = "px-3 py-2 text-right admin-action"; th.innerText = "Aksi"; tableHeader.appendChild(th);
             } else if (currentUser.role !== 'admin' && tableHeader.children.length === 10) { tableHeader.lastElementChild.remove(); }
 
             document.getElementById('table-packages').innerHTML = html;
@@ -1285,17 +1322,26 @@
 
             pendingData.sort((a, b) => (b.diffDays - a.diffDays));
             pendingData.forEach(d => {
-                let badge = `<span class="px-2 py-1 rounded-md text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-200">Baru</span>`;
+                let badge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50 text-blue-600 border border-blue-200">Baru</span>`;
                 if(d.diffDays > 0) {
                     const color = d.diffDays > 2 ? 'bg-red-50 text-red-600 border-red-200' : 'bg-orange-50 text-orange-600 border-orange-200';
-                    const icon = d.diffDays > 2 ? `<i data-lucide="alert-circle" class="w-3 h-3 inline mr-1"></i>` : '';
-                    badge = `<span class="px-2 py-1 rounded-md text-[10px] font-bold border ${color} flex items-center w-fit">${icon} ${d.diffDays} Hari</span>`;
+                    const icon = d.diffDays > 2 ? `<i data-lucide="alert-circle" class="w-2.5 h-2.5 inline mr-0.5"></i>` : '';
+                    badge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold border ${color} flex items-center w-fit">${icon} ${d.diffDays} Hari</span>`;
                 }
                 
                 let formattedDate = d.createdAt ? d.createdAt.toDate().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : '-';
-                let editAction = `<td class="p-4 text-right admin-action"><button onclick="openManualHub('${escJS(d.resi)}')" class="p-1.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md hover:bg-emerald-100 transition-colors" title="Validasi Manual ke HUB"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i></button></td>`;
                 
-                pendingHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-4">${badge}</td><td class="p-4 font-mono font-bold text-indigo-700 text-xs resi-item">${d.resi}</td><td class="p-4 text-xs font-semibold text-slate-500">${formattedDate}</td><td class="p-4 text-xs text-slate-700">${d.city}</td><td class="p-4"><span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-md text-[10px] font-bold uppercase text-slate-500 w-fit block">${d.status}</span></td>${editAction}</tr>`;
+                let editAction = `<td class="px-3 py-2 text-right admin-action">`;
+                if (currentUser.role === 'admin') {
+                    if (currentUser.id === 'admin') {
+                        editAction += `<button onclick="openManualHub('${escJS(d.resi)}')" class="p-1 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded hover:bg-emerald-100 transition-colors" title="Validasi Manual ke HUB"><i data-lucide="check-circle" class="w-3 h-3"></i></button>`;
+                    } else {
+                        editAction += `<div class="flex justify-end"><i data-lucide="lock" class="w-3.5 h-3.5 text-slate-300" title="Kunci Super Admin"></i></div>`;
+                    }
+                }
+                editAction += `</td>`;
+                
+                pendingHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="px-3 py-2">${badge}</td><td class="px-3 py-2 font-mono font-bold text-indigo-700 resi-item">${d.resi}</td><td class="px-3 py-2 font-semibold text-slate-500">${formattedDate}</td><td class="px-3 py-2 text-slate-700">${d.city}</td><td class="px-3 py-2"><span class="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded text-[9px] font-bold uppercase text-slate-500 w-fit block">${d.status}</span></td>${editAction}</tr>`;
             });
             document.getElementById('table-pending-vendor').innerHTML = pendingHtml;
             document.getElementById('pending-badge-count').innerText = pendingData.length + " Paket";
@@ -1310,13 +1356,13 @@
                     const minDays = data.minDays.toFixed(1);
                     const maxDays = data.maxDays.toFixed(1);
                     
-                    let slaBadge = `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Lancar</span>`;
-                    if(avgHours > 48) slaBadge = `<span class="bg-red-50 border border-red-200 text-red-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Lambat</span>`;
-                    else if(avgHours > 24) slaBadge = `<span class="bg-orange-50 border border-orange-200 text-orange-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Standar</span>`;
+                    let slaBadge = `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-1.5 py-0.5 rounded text-[9px] font-bold">Lancar</span>`;
+                    if(avgHours > 48) slaBadge = `<span class="bg-red-50 border border-red-200 text-red-600 px-1.5 py-0.5 rounded text-[9px] font-bold">Lambat</span>`;
+                    else if(avgHours > 24) slaBadge = `<span class="bg-orange-50 border border-orange-200 text-orange-600 px-1.5 py-0.5 rounded text-[9px] font-bold">Standar</span>`;
 
-                    const hariHtml = `<div class="flex items-center justify-end gap-3"><span class="text-xl font-black text-slate-800">${avgDays}</span><div class="w-px h-8 bg-slate-200"></div><div class="flex flex-col gap-0.5 text-[11px] font-bold"><div class="text-emerald-500"><span>${minDays}</span></div><div class="text-red-500"><span>${maxDays}</span></div></div></div>`;
+                    const hariHtml = `<div class="flex items-center justify-end gap-2"><span class="text-lg font-black text-slate-800">${avgDays}</span><div class="w-px h-6 bg-slate-200"></div><div class="flex flex-col text-[10px] font-bold leading-tight"><div class="text-emerald-500"><span>${minDays}</span></div><div class="text-red-500"><span>${maxDays}</span></div></div></div>`;
 
-                    slaHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-4 font-bold text-slate-700 text-xs">${city}</td><td class="p-4 text-center text-slate-500 font-mono text-xs">${data.count}</td><td class="p-4 text-right font-bold text-indigo-600 text-xs">${avgHours} jam</td><td class="p-4">${hariHtml}</td><td class="p-4 text-center">${slaBadge}</td></tr>`;
+                    slaHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="px-3 py-2 font-bold text-slate-700">${city}</td><td class="px-3 py-2 text-center text-slate-500 font-mono">${data.count}</td><td class="px-3 py-2 text-right font-bold text-indigo-600">${avgHours} jam</td><td class="px-3 py-2">${hariHtml}</td><td class="px-3 py-2 text-center">${slaBadge}</td></tr>`;
                 });
                 document.getElementById('table-sla').innerHTML = slaHtml;
                 document.getElementById('empty-sla').classList.add('hidden-section');
