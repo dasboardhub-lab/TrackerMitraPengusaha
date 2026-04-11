@@ -864,7 +864,7 @@
         // Mengamankan string dari tanda kutip yang dapat merusak fungsi HTML/JS
         const escJS = (str) => (str || '').toString().replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
-        let currentUser = JSON.parse(localStorage.getItem('hub_session')) || null;
+        let currentUser = null;
         let activeScanner = null, activeScannerId = null;
         let selectedPackageStatus = null;
         let hubQueue = [];
@@ -957,7 +957,6 @@
                     const data = snap.data();
                     if (data.password === pass) {
                         currentUser = { id, ...data };
-                        localStorage.setItem('hub_session', JSON.stringify(currentUser));
                         initApp();
                         notify(`Selamat Datang, ${data.name}`, "success");
                     } else notify("Password yang dimasukkan salah", "error");
@@ -967,7 +966,6 @@
 
         window.confirmLogout = () => {
             showModal("Keluar dari Sistem?", "Sesi Anda akan berakhir dan harus login kembali.", () => {
-                localStorage.removeItem('hub_session');
                 currentUser = null;
                 if(unsubPackages) { unsubPackages(); unsubPackages = null; }
                 if(unsubUsers) { unsubUsers(); unsubUsers = null; }
@@ -1602,7 +1600,7 @@
             const name = document.getElementById('my-name').value; const pass = document.getElementById('my-pass').value;
             const payload = { name }; if(pass) payload.password = pass;
             await updateDoc(doc(db, "users", currentUser.id), payload);
-            currentUser.name = name; localStorage.setItem('hub_session', JSON.stringify(currentUser));
+            currentUser.name = name;
             document.getElementById('profile-name-d').innerText = name; notify("Profil diperbarui", "success");
         };
 
