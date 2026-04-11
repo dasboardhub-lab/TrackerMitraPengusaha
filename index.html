@@ -408,7 +408,7 @@
                             <div class="overflow-auto h-full max-h-[400px] custom-scroll">
                                 <table class="w-full text-left text-sm">
                                     <thead class="bg-slate-50/80 text-slate-500 font-bold uppercase text-[10px] sticky top-0 z-20 backdrop-blur-sm shadow-sm border-b border-slate-100">
-                                        <tr><th class="p-4">Kota Tujuan</th><th class="p-4 text-center">Total Paket</th><th class="p-4 text-right">Durasi (Jam)</th><th class="p-4 text-center">Status SLA</th></tr>
+                                        <tr><th class="p-4">Kota Tujuan</th><th class="p-4 text-center">Total Paket</th><th class="p-4 text-right">Durasi (Jam)</th><th class="p-4 text-right">Hari</th><th class="p-4 text-center">Status SLA</th></tr>
                                     </thead>
                                     <tbody id="table-sla" class="divide-y divide-slate-50 text-slate-600"></tbody>
                                 </table>
@@ -436,6 +436,9 @@
                                         <th class="p-4 min-w-[100px]">Kota Tujuan</th>
                                         <th class="p-4 min-w-[100px]">Kondisi Paket</th>
                                         <th class="p-4 min-w-[120px]">Posisi Terkini</th>
+                                        <th class="p-4 min-w-[140px]">Waktu Terima HUB</th>
+                                        <th class="p-4 min-w-[120px]">Penerima</th>
+                                        <th class="p-4 min-w-[100px]">Total Hari</th>
                                         <th class="p-4 text-right admin-action">Aksi</th>
                                     </tr>
                                 </thead>
@@ -731,6 +734,57 @@
     <!-- Global Mobile Scanner Overlay -->
     <div id="scanner-overlay-guide"></div>
     <button id="scanner-stop-btn" onclick="forceStopScanner()"><i data-lucide="x" class="w-5 h-5 inline mr-2 align-middle"></i> Tutup Kamera (<span id="scan-counter-btn">0</span>)</button>
+
+    <!-- MODAL EDIT MASTER PAKET -->
+    <div id="edit-package-modal" class="fixed inset-0 z-[100] hidden-section flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeEditPackage()"></div>
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden relative z-10 animate-[scaleIn_0.3s_ease-out]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div><h3 class="text-lg font-bold text-slate-800">Edit Data Paket Lengkap</h3></div>
+                <button onclick="closeEditPackage()" class="p-2 bg-white border border-slate-200 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto custom-scroll">
+                <input type="hidden" id="edit-pkg-resi">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">Nama Pengirim</label>
+                        <input type="text" id="edit-pkg-sender" class="w-full bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">Kota Tujuan</label>
+                        <input type="text" id="edit-pkg-city" class="w-full bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">Kondisi Paket</label>
+                        <select id="edit-pkg-status" class="w-full bg-slate-50 appearance-none pr-8"></select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">Posisi Terkini</label>
+                        <select id="edit-pkg-posisi" class="w-full bg-slate-50 appearance-none pr-8">
+                            <option value="Vendor">Vendor</option>
+                            <option value="HUB">HUB</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">Waktu Input</label>
+                        <input type="datetime-local" id="edit-pkg-created" class="w-full bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">Waktu Terima HUB</label>
+                        <input type="datetime-local" id="edit-pkg-hub-date" class="w-full bg-slate-50">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">Penerima di HUB</label>
+                        <input type="text" id="edit-pkg-hub-receiver" class="w-full bg-slate-50">
+                    </div>
+                </div>
+                <button onclick="saveEditPackage()" class="btn-uiverse indigo w-full mt-4">
+                    <span>Simpan Perubahan</span>
+                    <div class="icon-circle"><i data-lucide="save" class="w-4 h-4"></i></div>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Confirm Modal -->
     <div id="modal-overlay" class="fixed inset-0 z-[10000] hidden-section flex items-center justify-center opacity-0 pointer-events-none">
@@ -1161,14 +1215,30 @@
                     if (isHubData && !isSuperAdmin) {
                         deleteAction = `<td class="p-4 text-right admin-action"><div class="flex justify-end"><i data-lucide="lock" class="w-4 h-4 text-slate-300" title="Kunci Admin"></i></div></td>`;
                     } else {
-                        deleteAction = `<td class="p-4 text-right admin-action"><button onclick="deletePackage('${escJS(d.resi)}')" class="text-slate-400 hover:text-red-500 transition-colors" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4 inline-block"></i></button></td>`;
+                        deleteAction = `<td class="p-4 text-right admin-action flex justify-end gap-2"><button onclick="openEditPackage('${escJS(d.resi)}')" class="text-slate-400 hover:text-blue-500 transition-colors" title="Edit"><i data-lucide="edit-2" class="w-4 h-4 inline-block"></i></button><button onclick="deletePackage('${escJS(d.resi)}')" class="text-slate-400 hover:text-red-500 transition-colors" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4 inline-block"></i></button></td>`;
                     }
                 }
 
-                html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100 group"><td class="p-4 text-slate-500 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="p-4 font-bold font-mono text-indigo-700 text-xs break-all">${d.resi}</td><td class="p-4 font-semibold text-slate-700 text-xs truncate max-w-[100px]">${d.sender_name}</td><td class="p-4 text-slate-600 text-xs">${d.city}</td><td class="p-4"><span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-md text-[10px] font-bold uppercase text-slate-600 truncate block w-fit max-w-[80px]" title="${d.status}">${d.status}</span></td><td class="p-4"><span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5 w-fit ${d.posisi === 'HUB' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-orange-50 text-orange-600 border border-orange-200'}"><span class="w-1.5 h-1.5 rounded-full ${d.posisi === 'HUB' ? 'bg-emerald-500' : 'bg-orange-500'}"></span> ${d.posisi}</span></td>${deleteAction}</tr>`;
-
+                let totalDaysHtml = '<span class="text-slate-400 font-bold">-</span>';
                 const sentDate = d.createdAt ? d.createdAt.toDate() : new Date();
                 const now = new Date();
+                
+                if (d.posisi === 'HUB' && d.hub_date) {
+                    const diffMs = d.hub_date.toDate() - sentDate;
+                    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays < 0) {
+                        totalDaysHtml = `<span class="font-bold text-red-500">${diffDays} Hari</span>`;
+                    } else {
+                        totalDaysHtml = `<span class="font-bold text-slate-700">${diffDays} Hari</span>`;
+                    }
+                }
+
+                const hubDateStr = (d.posisi === 'HUB' && d.hub_date) ? d.hub_date.toDate().toLocaleString('id-ID') : '-';
+                const hubReceiver = (d.posisi === 'HUB' && d.hub_receiver) ? d.hub_receiver : '-';
+
+                html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100 group"><td class="p-4 text-slate-500 text-xs font-semibold">${d.createdAt?.toDate().toLocaleString('id-ID') || '-'}</td><td class="p-4 font-bold font-mono text-indigo-700 text-xs break-all">${d.resi}</td><td class="p-4 font-semibold text-slate-700 text-xs truncate max-w-[100px]">${d.sender_name}</td><td class="p-4 text-slate-600 text-xs">${d.city}</td><td class="p-4"><span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-md text-[10px] font-bold uppercase text-slate-600 truncate block w-fit max-w-[80px]" title="${d.status}">${d.status}</span></td><td class="p-4"><span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5 w-fit ${d.posisi === 'HUB' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-orange-50 text-orange-600 border border-orange-200'}"><span class="w-1.5 h-1.5 rounded-full ${d.posisi === 'HUB' ? 'bg-emerald-500' : 'bg-orange-500'}"></span> ${d.posisi}</span></td><td class="p-4 text-xs font-semibold text-slate-500">${hubDateStr}</td><td class="p-4 text-xs text-slate-600">${hubReceiver}</td><td class="p-4 text-xs">${totalDaysHtml}</td>${deleteAction}</tr>`;
+
                 const diffMs = Math.abs(now - sentDate);
                 const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)); 
 
@@ -1182,8 +1252,12 @@
                     const cityKey = d.city || 'Unknown';
                     if (cityKey !== "Asal Tidak Terdeteksi" && d.createdAt) {
                         const hours = (hubDate - sentDate) / (1000 * 60 * 60);
-                        if(!slaData[cityKey]) slaData[cityKey] = { count: 0, totalHours: 0 };
-                        slaData[cityKey].count++; slaData[cityKey].totalHours += hours;
+                        const days = hours / 24;
+                        if(!slaData[cityKey]) slaData[cityKey] = { count: 0, totalHours: 0, minDays: Infinity, maxDays: -Infinity };
+                        slaData[cityKey].count++; 
+                        slaData[cityKey].totalHours += hours;
+                        slaData[cityKey].minDays = Math.min(slaData[cityKey].minDays, days);
+                        slaData[cityKey].maxDays = Math.max(slaData[cityKey].maxDays, days);
                     }
                     hubHistoryCount++;
                     hubHistoryHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="p-4 text-slate-500 text-xs font-semibold">${d.hub_date.toDate().toLocaleString('id-ID')}</td><td class="p-4 font-mono font-bold text-indigo-700 text-xs">${d.resi}</td><td class="p-4 text-slate-600 text-xs">${d.city}</td><td class="p-4"><span class="bg-slate-100 border border-slate-200 px-2 py-1 rounded-md text-[10px] font-bold text-slate-500 uppercase">${d.status}</span></td><td class="p-4 text-slate-600 text-xs font-semibold">${d.hub_receiver || '-'}</td></tr>`;
@@ -1191,9 +1265,9 @@
             });
 
             const tableHeader = document.querySelector('#table-packages').previousElementSibling.querySelector('tr');
-            if (currentUser.role === 'admin' && tableHeader.children.length === 6) {
+            if (currentUser.role === 'admin' && tableHeader.children.length === 9) {
                  const th = document.createElement('th'); th.className = "p-4 text-right admin-action"; th.innerText = "Aksi"; tableHeader.appendChild(th);
-            } else if (currentUser.role !== 'admin' && tableHeader.children.length === 7) { tableHeader.lastElementChild.remove(); }
+            } else if (currentUser.role !== 'admin' && tableHeader.children.length === 10) { tableHeader.lastElementChild.remove(); }
 
             document.getElementById('table-packages').innerHTML = html;
             document.getElementById('stat-vendor').innerText = v;
@@ -1225,11 +1299,17 @@
                 slaKeys.forEach(city => {
                     const data = slaData[city];
                     const avgHours = (data.totalHours / data.count).toFixed(1);
+                    const avgDays = (data.totalHours / data.count / 24).toFixed(1);
+                    const minDays = data.minDays.toFixed(1);
+                    const maxDays = data.maxDays.toFixed(1);
+                    
                     let slaBadge = `<span class="bg-emerald-50 border border-emerald-200 text-emerald-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Lancar</span>`;
                     if(avgHours > 48) slaBadge = `<span class="bg-red-50 border border-red-200 text-red-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Lambat</span>`;
                     else if(avgHours > 24) slaBadge = `<span class="bg-orange-50 border border-orange-200 text-orange-600 px-2.5 py-1 rounded-md text-[10px] font-bold">Standar</span>`;
 
-                    slaHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-4 font-bold text-slate-700 text-xs">${city}</td><td class="p-4 text-center text-slate-500 font-mono text-xs">${data.count}</td><td class="p-4 text-right font-bold text-indigo-600 text-xs">${avgHours} jam</td><td class="p-4 text-center">${slaBadge}</td></tr>`;
+                    const hariHtml = `<div class="flex items-center justify-end gap-3"><span class="text-xl font-black text-slate-800">${avgDays}</span><div class="w-px h-8 bg-slate-200"></div><div class="flex flex-col gap-0.5 text-[11px] font-bold"><div class="text-emerald-500"><span>${minDays}</span></div><div class="text-red-500"><span>${maxDays}</span></div></div></div>`;
+
+                    slaHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-4 font-bold text-slate-700 text-xs">${city}</td><td class="p-4 text-center text-slate-500 font-mono text-xs">${data.count}</td><td class="p-4 text-right font-bold text-indigo-600 text-xs">${avgHours} jam</td><td class="p-4">${hariHtml}</td><td class="p-4 text-center">${slaBadge}</td></tr>`;
                 });
                 document.getElementById('table-sla').innerHTML = slaHtml;
                 document.getElementById('empty-sla').classList.add('hidden-section');
@@ -1362,6 +1442,65 @@
             }
         };
 
+        window.openEditPackage = (resi) => {
+            const pkg = allPackagesData.find(p => p.resi === resi);
+            if(!pkg) return;
+            document.getElementById('edit-pkg-resi').value = resi;
+            document.getElementById('edit-pkg-sender').value = pkg.sender_name || "";
+            document.getElementById('edit-pkg-city').value = pkg.city || "";
+            document.getElementById('edit-pkg-posisi').value = pkg.posisi || "Vendor";
+            document.getElementById('edit-pkg-hub-receiver').value = pkg.hub_receiver || "";
+            
+            const statusSelect = document.getElementById('edit-pkg-status');
+            statusSelect.innerHTML = availableConditions.map(c => `<option value="${escJS(c)}">${c}</option>`).join('');
+            if(availableConditions.includes(pkg.status)) statusSelect.value = pkg.status;
+            
+            const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+            if(pkg.createdAt) {
+                const d = pkg.createdAt.toDate();
+                document.getElementById('edit-pkg-created').value = (new Date(d - tzoffset)).toISOString().slice(0, 16);
+            } else {
+                document.getElementById('edit-pkg-created').value = "";
+            }
+
+            if(pkg.hub_date) {
+                const hd = pkg.hub_date.toDate();
+                document.getElementById('edit-pkg-hub-date').value = (new Date(hd - tzoffset)).toISOString().slice(0, 16);
+            } else {
+                document.getElementById('edit-pkg-hub-date').value = "";
+            }
+            
+            document.getElementById('edit-package-modal').classList.remove('hidden-section');
+        };
+
+        window.closeEditPackage = () => {
+            document.getElementById('edit-package-modal').classList.add('hidden-section');
+        };
+
+        window.saveEditPackage = async () => {
+            const resi = document.getElementById('edit-pkg-resi').value;
+            const sender_name = document.getElementById('edit-pkg-sender').value;
+            const city = document.getElementById('edit-pkg-city').value;
+            const status = document.getElementById('edit-pkg-status').value;
+            const posisi = document.getElementById('edit-pkg-posisi').value;
+            const hub_receiver = document.getElementById('edit-pkg-hub-receiver').value;
+            const createdVal = document.getElementById('edit-pkg-created').value;
+            const hubDateVal = document.getElementById('edit-pkg-hub-date').value;
+            
+            if(!resi || !city || !status) return notify("Lengkapi data penting", "error");
+            try {
+                let updateData = { sender_name, city, status, posisi, hub_receiver };
+                if(createdVal) updateData.createdAt = new Date(createdVal);
+                if(hubDateVal) updateData.hub_date = new Date(hubDateVal);
+                
+                await updateDoc(doc(db, "packages", resi), updateData);
+                notify("Data paket berhasil diperbarui", "success");
+                closeEditPackage();
+            } catch (e) {
+                notify("Gagal menyimpan perubahan", "error");
+            }
+        };
+
         window.showModal = (title, desc, action, btnText = "Ya, Lanjutkan") => {
             document.getElementById('modal-title').innerText = title; 
             document.getElementById('modal-desc').innerText = desc; 
@@ -1458,7 +1597,7 @@
         };
 
         window.exportTableToExcel = () => {
-            let csv = []; const rows = document.querySelectorAll("#table-packages tr"); csv.push("Waktu,No Resi,Pengirim,Kota,Kondisi,Posisi");
+            let csv = []; const rows = document.querySelectorAll("#table-packages tr"); csv.push("Waktu,No Resi,Pengirim,Kota,Kondisi,Posisi,Waktu Terima HUB,Penerima,Total Hari");
             for (let i = 0; i < rows.length; i++) { const row = [], cols = rows[i].querySelectorAll("td, th"); for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText + '"'); csv.push(row.join(",")); }
             const csvFile = new Blob([csv.join("\n")], {type: "text/csv"}); const link = document.createElement("a"); link.href = URL.createObjectURL(csvFile); link.download = "Data_Paket_HUB.csv"; link.click();
             notify("File Excel diunduh", "success");
