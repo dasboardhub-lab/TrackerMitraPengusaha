@@ -175,6 +175,37 @@
         .animate-blob { animation: blob 7s infinite; }
         .animation-delay-2000 { animation-delay: 2s; }
         .animation-delay-4000 { animation-delay: 4s; }
+
+        /* WOW LOGIN ANIMATION */
+        .input-glow-wrapper { position: relative; border-radius: 0.75rem; z-index: 1; }
+        .input-glow-wrapper::after {
+            content: ''; position: absolute; inset: -3px; border-radius: 0.9rem;
+            background: linear-gradient(90deg, #4f46e5, #ec4899, #8b5cf6, #4f46e5);
+            background-size: 300% 100%; z-index: -1; opacity: 0; transition: opacity 0.4s ease;
+            animation: border-dance 3s linear infinite;
+        }
+        .input-glow-wrapper:focus-within::after { opacity: 1; }
+        @keyframes border-dance { 0% { background-position: 0% 0; } 100% { background-position: 300% 0; } }
+
+        .wow-input { 
+            background: white; border: 2px solid #f1f5f9; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 64px;
+            padding-top: 24px !important;
+            padding-bottom: 8px !important;
+            padding-left: 3.2rem !important;
+        }
+        .wow-input:focus { border-color: transparent; transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2); }
+        .wow-label { 
+            position: absolute; left: 3.2rem; top: 22px; color: #94a3b8; pointer-events: none; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-weight: 800; font-size: 0.8rem;
+            transform-origin: left top;
+        }
+        .wow-input:focus ~ .wow-label, .wow-input:not(:placeholder-shown) ~ .wow-label {
+            transform: translateY(-12px) scale(0.85); color: #4f46e5;
+        }
+        .wow-icon { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); top: 50%; transform: translateY(-50%); }
+        .wow-input:focus ~ .wow-icon { color: #ec4899; transform: translateY(-50%) scale(1.15) rotate(-10deg); }
     </style>
 </head>
 <body class="antialiased text-slate-600 selection:bg-indigo-100 selection:text-indigo-700">
@@ -220,28 +251,30 @@
                 </div>
                 
                 <div class="space-y-6">
-                    <div>
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Username / ID</label>
-                        <div class="relative">
-                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <div class="input-glow-wrapper">
+                        <div class="relative bg-white rounded-xl">
+                            <input type="text" id="login-id" placeholder=" " class="wow-input w-full pr-4 rounded-xl text-sm font-black text-slate-800 outline-none relative z-10">
+                            <label class="wow-label z-20 uppercase tracking-widest text-[10px]">Username / ID</label>
+                            <div class="wow-icon absolute left-4 text-slate-400 z-20 flex items-center justify-center">
                                 <i data-lucide="user" class="w-5 h-5"></i>
                             </div>
-                            <input type="text" id="login-id" placeholder="Ketik ID pengguna" class="w-full pl-12 py-4 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-xl text-sm font-bold text-slate-700 transition-all outline-none">
                         </div>
                     </div>
                     
-                    <div>
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Kata Sandi</label>
-                        <div class="relative">
-                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <div class="input-glow-wrapper">
+                        <div class="relative bg-white rounded-xl">
+                            <input type="password" id="login-pass" placeholder=" " class="wow-input w-full pr-4 rounded-xl text-sm font-black text-slate-800 outline-none relative z-10" onkeydown="if(event.key === 'Enter') authLogin()">
+                            <label class="wow-label z-20 uppercase tracking-widest text-[10px]">Kata Sandi</label>
+                            <div class="wow-icon absolute left-4 text-slate-400 z-20 flex items-center justify-center">
                                 <i data-lucide="lock" class="w-5 h-5"></i>
                             </div>
-                            <input type="password" id="login-pass" placeholder="••••••••" class="w-full pl-12 py-4 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-xl text-sm font-bold text-slate-700 transition-all outline-none" onkeydown="if(event.key === 'Enter') authLogin()">
                         </div>
                     </div>
 
-                    <button onclick="authLogin()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-xl shadow-indigo-600/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 mt-2">
-                        Masuk ke Dasbor <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <button onclick="authLogin()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-extrabold text-sm shadow-2xl shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 mt-4 relative overflow-hidden group">
+                        <span class="relative z-10">Masuk ke Dasbor</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform"></i>
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
                     </button>
                 </div>
             </div>
