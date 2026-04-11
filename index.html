@@ -424,6 +424,9 @@
                         <h3 class="font-bold text-slate-800 flex items-center gap-2">
                             <i data-lucide="database" class="w-5 h-5 text-indigo-600"></i> Master Data Paket
                         </h3>
+                        <button onclick="exportTableToExcel()" class="text-[10px] font-bold bg-white border border-indigo-200 text-indigo-600 px-3 py-1 rounded-full hover:bg-indigo-50 transition-colors shadow-sm flex items-center gap-1" title="Download CSV">
+                            <i data-lucide="download" class="w-3 h-3"></i> Download CSV
+                        </button>
                     </div>
                     <div class="bg-white flex-1">
                         <div class="overflow-auto max-h-[500px] custom-scroll">
@@ -744,8 +747,12 @@
                 <button onclick="closeEditPackage()" class="p-2 bg-white border border-slate-200 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto custom-scroll">
-                <input type="hidden" id="edit-pkg-resi">
+                <input type="hidden" id="edit-pkg-original-resi">
                 <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">No. Resi</label>
+                        <input type="text" id="edit-pkg-resi" class="w-full bg-slate-50 font-mono font-bold text-indigo-700">
+                    </div>
                     <div>
                         <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">Nama Pengirim</label>
                         <input type="text" id="edit-pkg-sender" class="w-full bg-slate-50">
@@ -1445,6 +1452,7 @@
         window.openEditPackage = (resi) => {
             const pkg = allPackagesData.find(p => p.resi === resi);
             if(!pkg) return;
+            document.getElementById('edit-pkg-original-resi').value = resi;
             document.getElementById('edit-pkg-resi').value = resi;
             document.getElementById('edit-pkg-sender').value = pkg.sender_name || "";
             document.getElementById('edit-pkg-city').value = pkg.city || "";
@@ -1478,7 +1486,8 @@
         };
 
         window.saveEditPackage = async () => {
-            const resi = document.getElementById('edit-pkg-resi').value;
+            const originalResi = document.getElementById('edit-pkg-original-resi').value;
+            const resi = document.getElementById('edit-pkg-resi').value.trim();
             const sender_name = document.getElementById('edit-pkg-sender').value;
             const city = document.getElementById('edit-pkg-city').value;
             const status = document.getElementById('edit-pkg-status').value;
@@ -1489,11 +1498,19 @@
             
             if(!resi || !city || !status) return notify("Lengkapi data penting", "error");
             try {
-                let updateData = { sender_name, city, status, posisi, hub_receiver };
+                let updateData = { resi, sender_name, city, status, posisi, hub_receiver };
                 if(createdVal) updateData.createdAt = new Date(createdVal);
                 if(hubDateVal) updateData.hub_date = new Date(hubDateVal);
                 
-                await updateDoc(doc(db, "packages", resi), updateData);
+                if (originalResi !== resi) {
+                    const oldPkg = allPackagesData.find(p => p.resi === originalResi) || {};
+                    const newData = { ...oldPkg, ...updateData };
+                    await setDoc(doc(db, "packages", resi), newData);
+                    await deleteDoc(doc(db, "packages", originalResi));
+                } else {
+                    await updateDoc(doc(db, "packages", resi), updateData);
+                }
+                
                 notify("Data paket berhasil diperbarui", "success");
                 closeEditPackage();
             } catch (e) {
