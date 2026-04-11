@@ -105,6 +105,11 @@
             color: #334155;
             font-weight: 600;
         }
+        input.pl-12 { padding-left: 3rem !important; }
+        input.pl-9 { padding-left: 2.25rem !important; }
+        input.pl-5 { padding-left: 1.25rem !important; }
+        input.pr-16 { padding-right: 4rem !important; }
+        select.pr-8 { padding-right: 2rem !important; }
         input:focus, select:focus { 
             background-color: white; border-color: #818cf8;
             box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.15); transform: translateY(-1px); outline: none;
@@ -370,7 +375,12 @@
                             <h3 class="font-bold text-orange-900 flex items-center gap-2">
                                 <i data-lucide="activity" class="w-5 h-5 text-orange-600"></i> Monitoring Vendor
                             </h3>
-                            <span id="pending-badge-count" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-[10px] font-bold">0</span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="copyAllAWB()" class="text-[10px] font-bold bg-white border border-orange-200 text-orange-600 px-3 py-1 rounded-full hover:bg-orange-100 transition-colors shadow-sm flex items-center gap-1" title="Salin Semua Resi">
+                                    <i data-lucide="copy" class="w-3 h-3"></i> Salin Semua
+                                </button>
+                                <span id="pending-badge-count" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-[10px] font-bold">0</span>
+                            </div>
                         </div>
                         <div class="flex-1 bg-white">
                             <div class="overflow-auto h-full max-h-[400px] custom-scroll">
@@ -696,23 +706,23 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT TANGGAL VENDOR -->
-    <div id="edit-date-modal" class="fixed inset-0 z-[100] hidden-section flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeEditDate()"></div>
+    <!-- MODAL VALIDASI MANUAL HUB -->
+    <div id="manual-hub-modal" class="fixed inset-0 z-[100] hidden-section flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeManualHub()"></div>
         <div class="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden relative z-10 animate-[scaleIn_0.3s_ease-out]">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <div><h3 class="text-lg font-bold text-slate-800">Edit Waktu Input</h3></div>
-                <button onclick="closeEditDate()" class="p-2 bg-white border border-slate-200 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <div><h3 class="text-lg font-bold text-slate-800">Validasi Manual HUB</h3></div>
+                <button onclick="closeManualHub()" class="p-2 bg-white border border-slate-200 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="p-6 space-y-4">
-                <input type="hidden" id="edit-date-resi">
+                <input type="hidden" id="manual-hub-resi">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">Pilih Tanggal & Jam Valid</label>
-                    <input type="datetime-local" id="edit-date-input" class="w-full bg-slate-50">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-2 block">Pilih Waktu Diterima</label>
+                    <input type="datetime-local" id="manual-hub-input" class="w-full bg-slate-50">
                 </div>
-                <button onclick="saveEditedDate()" class="btn-uiverse indigo w-full mt-2">
-                    <span>Perbarui Waktu</span>
-                    <div class="icon-circle"><i data-lucide="check" class="w-4 h-4"></i></div>
+                <button onclick="saveManualHub()" class="btn-uiverse emerald w-full mt-2">
+                    <span>Validasi ke HUB</span>
+                    <div class="icon-circle"><i data-lucide="check-circle" class="w-4 h-4"></i></div>
                 </button>
             </div>
         </div>
@@ -1199,9 +1209,9 @@
                 }
                 
                 let formattedDate = d.createdAt ? d.createdAt.toDate().toLocaleString('id-ID', {day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'}) : '-';
-                let editAction = `<td class="p-4 text-right admin-action"><button onclick="openEditDate('${d.resi}')" class="p-1.5 bg-orange-50 text-orange-500 border border-orange-200 rounded-md hover:bg-orange-100 transition-colors" title="Edit Waktu"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button></td>`;
+                let editAction = `<td class="p-4 text-right admin-action"><button onclick="openManualHub('${d.resi}')" class="p-1.5 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md hover:bg-emerald-100 transition-colors" title="Validasi Manual ke HUB"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i></button></td>`;
                 
-                pendingHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-4">${badge}</td><td class="p-4 font-mono font-bold text-indigo-700 text-xs">${d.resi}</td><td class="p-4 text-xs font-semibold text-slate-500">${formattedDate}</td><td class="p-4 text-xs text-slate-700">${d.city}</td><td class="p-4"><span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-md text-[10px] font-bold uppercase text-slate-500 w-fit block">${d.status}</span></td>${editAction}</tr>`;
+                pendingHtml += `<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-4">${badge}</td><td class="p-4 font-mono font-bold text-indigo-700 text-xs resi-item">${d.resi}</td><td class="p-4 text-xs font-semibold text-slate-500">${formattedDate}</td><td class="p-4 text-xs text-slate-700">${d.city}</td><td class="p-4"><span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-md text-[10px] font-bold uppercase text-slate-500 w-fit block">${d.status}</span></td>${editAction}</tr>`;
             });
             document.getElementById('table-pending-vendor').innerHTML = pendingHtml;
             document.getElementById('pending-badge-count').innerText = pendingData.length + " Paket";
@@ -1316,31 +1326,36 @@
             document.getElementById('user-modal-title').innerText = "Tambah User Baru";
         };
 
-        window.openEditDate = (resi) => {
+        window.openManualHub = (resi) => {
             const pkg = allPackagesData.find(p => p.resi === resi);
             if(!pkg) return;
-            document.getElementById('edit-date-resi').value = resi;
-            const d = pkg.createdAt ? pkg.createdAt.toDate() : new Date();
+            document.getElementById('manual-hub-resi').value = resi;
             const tzoffset = (new Date()).getTimezoneOffset() * 60000;
-            const localISOTime = (new Date(d - tzoffset)).toISOString().slice(0, 16);
-            document.getElementById('edit-date-input').value = localISOTime;
-            document.getElementById('edit-date-modal').classList.remove('hidden-section');
+            const localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, 16);
+            document.getElementById('manual-hub-input').value = localISOTime;
+            document.getElementById('manual-hub-modal').classList.remove('hidden-section');
         };
 
-        window.closeEditDate = () => {
-            document.getElementById('edit-date-modal').classList.add('hidden-section');
+        window.closeManualHub = () => {
+            document.getElementById('manual-hub-modal').classList.add('hidden-section');
         };
 
-        window.saveEditedDate = async () => {
-            const resi = document.getElementById('edit-date-resi').value;
-            const dateVal = document.getElementById('edit-date-input').value;
+        window.saveManualHub = async () => {
+            const resi = document.getElementById('manual-hub-resi').value;
+            const dateVal = document.getElementById('manual-hub-input').value;
             if(!resi || !dateVal) return notify("Pilih tanggal yang valid", "error");
             try {
-                await updateDoc(doc(db, "packages", resi), { createdAt: new Date(dateVal) });
-                notify("Waktu berhasil diperbarui", "success");
-                closeEditDate();
+                const pkg = allPackagesData.find(p => p.resi === resi);
+                await updateDoc(doc(db, "packages", resi), { 
+                    posisi: 'HUB',
+                    hub_receiver: currentUser.name + " (Manual)",
+                    hub_date: new Date(dateVal),
+                    status: pkg.status || "Ditemukan di HUB"
+                });
+                notify("Paket berhasil divalidasi ke HUB", "success");
+                closeManualHub();
             } catch (e) {
-                notify("Gagal update waktu", "error");
+                notify("Gagal validasi manual", "error");
             }
         };
 
@@ -1389,6 +1404,20 @@
         window.filterTable = (val) => {
             const filter = val.toLowerCase(); const rows = document.getElementById('table-packages').getElementsByTagName('tr');
             for (let i = 0; i < rows.length; i++) { const txt = rows[i].textContent.toLowerCase(); rows[i].style.display = txt.includes(filter) ? "" : "none"; }
+        };
+
+        window.copyAllAWB = () => {
+            const resiElements = document.querySelectorAll('#table-pending-vendor .resi-item');
+            const resiList = Array.from(resiElements).map(el => el.innerText).join('\n');
+            if(!resiList) return notify("Tidak ada resi untuk disalin", "error");
+            
+            const input = document.createElement('textarea');
+            input.value = resiList;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            notify(resiElements.length + " Resi berhasil disalin", "success");
         };
 
         window.notify = (msg, type) => {
